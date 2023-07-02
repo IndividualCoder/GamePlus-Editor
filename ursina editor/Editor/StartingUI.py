@@ -1,49 +1,49 @@
 from ursina import *
+from OtherStuff import CustomWindow
 
 class StartingUI(Entity):
     def __init__(self):
         super().__init__(parent = camera.ui)
         
-        self.StartingUIParentEntity = Entity(parent = self)
-        self.RecentProjectsParentEntity = Entity(parent = self)
+        self.UniversalParentEntity = Entity(parent = self)
+        self.StartingUIParentEntity = Entity(parent = self.UniversalParentEntity)
+        self.RecentProjectsParentEntity = Entity(parent = self.UniversalParentEntity)
 
-        self.CreateNewProjectButton = Draggable(parent = self.StartingUIParentEntity,text="Create new project",radius=.2,Key="c", on_key_press = self.CreateNewProject,on_click = self.CreateNewProject,scale = (0.4,0.2),position = Vec3(-0.56713, 0.384259, 0))
-        self.ChangeVarsButton = Draggable(parent = self.StartingUIParentEntity,text="Change vars",radius=.2,Key="v", on_key_press = self.ChangeVars,on_click = self.ChangeVars,scale = (0.4,0.2),position = Vec3(0.56713, 0.384259, 0))
-        self.LoadProjectButton = Draggable(parent = self.StartingUIParentEntity,text="Load project",radius=.2,Key="l", on_key_press = self.LoadProject,on_click = self.LoadProject,scale = (0.4,0.2),position = Vec3(-0.56713, 0.163194, 0))
-        self.FourthButton = Draggable(parent = self.StartingUIParentEntity,text="Fourth one",radius=.2,Key="l", on_key_press = self.LoadProject,on_click = self.LoadProject,scale = (0.4,0.2),position = Vec3(0.56713, 0.163194, 0))
 
-        self.ShowPos = Button(text="Show",radius=.2,Key="p", on_key_press = self.ShowPosTemp,on_click = self.ShowPosTemp,z = (10),scale = (0,0,0))
+        self.CreateNewProjectButton = Button(parent = self.StartingUIParentEntity,text="Create new project",radius=.2,Key="1", on_key_press = self.CreateNewProject,on_click = self.CreateNewProject,scale = (0.4,0.2),position = Vec3(-0.56713, 0.384259, 0))
+        self.ChangeVarsButton = Button(parent = self.StartingUIParentEntity,text="Change vars",radius=.2,Key="2", on_key_press = self.ChangeVars,on_click = self.ChangeVars,scale = (0.4,0.2),position = Vec3(0.56713, 0.384259, 0))
+        self.LoadProjectButton = Button(parent = self.StartingUIParentEntity,text="Load project",radius=.2,Key="3", on_key_press = self.LoadProject,on_click = self.LoadProject,scale = (0.4,0.2),position = Vec3(-0.56713, 0.163194, 0))
+        self.QuitApplicationButton = Button(parent = self.StartingUIParentEntity,text="Close editor",radius=.2,Key="escape", on_key_press = self.CheckUserQuit,on_click = self.CheckUserQuit,scale = (0.4,0.2),position = Vec3(0.56713, 0.163194, 0))
 
-        self.BackgroundOfRecentProjects = Draggable(parent = self.RecentProjectsParentEntity,text = "H",color = color.gray,scale = Vec3(1.77292, 0.535418, 1),radius = 0,position = Vec3(-0.00231489, -0.232639, 0),)
+        self.BackgroundOfRecentProjects = Entity(parent = self.RecentProjectsParentEntity,model = "cube",color = color.gray,scale = Vec3(1.77792, 0.535418, 0),position = Vec3(0, -0.232639, 0))
 
-    def ShowPosTemp(self):
-        for i in range(len(self.StartingUIParentEntity.children)):
-            print(self.StartingUIParentEntity.children[i].text,self.StartingUIParentEntity.children[i].position)
-# ?        for i in range(len(self.RecentProjectsParentEntity.children)):
-        print("pos",self.RecentProjectsParentEntity.children[0].position,"Scale",self.RecentProjectsParentEntity.children[0].scale)
 
     def CreateNewProject(self):
-        pass
+        print_on_screen("Create new project",origin=(0,0),color=color.black66)
 
     def ChangeVars(self):
-        pass
+        print_on_screen("Change vars",origin=(0,0),color=color.black66)
 
     def LoadProject(self):
-        pass
+        print_on_screen("Load project",origin=(0,0),color=color.black66)
+
+    def CheckUserQuit(self):
+        CustomWindow(ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,B1Key=["1" ,"space","n"],B2Key=["2","enter","y"])
+
+    def DisableEverything(self):
+        for i in range(len(self.UniversalParentEntity.children)):
+            self.UniversalParentEntity.children[i].disable()
+
+    def EnableEverything(self):
+        self.UniversalParentEntity.enable()
+        for i in range(len(self.UniversalParentEntity.children)):
+            self.UniversalParentEntity.children[i].enable()
 
 if __name__ == "__main__":
     app = Ursina()
-
+    # window.fullscreen  = True
 
     Ui = StartingUI()
-    Scale_x = Slider(min  = .1,max = 10,default=Ui.BackgroundOfRecentProjects.scale_x,dynamic=True)
-    Scale_y = Slider(min  = .1,max = 10,default=Ui.BackgroundOfRecentProjects.scale_y,dynamic=True,y = .04)
-
-    def ChangeValue():
-        Ui.BackgroundOfRecentProjects.scale_x = Scale_x.value
-        Ui.BackgroundOfRecentProjects.scale_y = Scale_y.value
-    Scale_x.on_value_changed = ChangeValue
-    Scale_y.on_value_changed = ChangeValue
 
     Sky()
 
