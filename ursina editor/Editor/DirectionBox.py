@@ -1,3 +1,4 @@
+# inspired from pokepetter's editor's PointOfViewSelect
 from ursina import Entity,Text,color,mouse,Vec3,held_keys
 
 # inspired from ursina.editor.editor import PointOfViewSelector
