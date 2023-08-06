@@ -2,7 +2,7 @@
 It is the single-developer version. 
 
 # Important
-This editor will currently write files in python. But I'll add the feture to turn your py files to cpp and then to exe.
+This editor will currently write your games in python. But I'll add the feture to turn your py files to cpp and then to exe.
 
 # Multi-developer version is private
 If you are a single person developing the game. This version is good for you.
