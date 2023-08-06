@@ -12,20 +12,37 @@ def StringToValue(string: str):
         return True
     else:
         return False
-    
-    
 
+def ReplaceValue(Entity1, Entity2, type="color"):
+    TempColor1 = getattr(Entity1, type)
+    TempColor2 = getattr(Entity2, type)
+    setattr(Entity1, type, TempColor2)
+    setattr(Entity2, type, TempColor1)
+    del TempColor1,TempColor2
+    return
 
+def Replacer(Entity1,Entity2):
+    Temp1 = Entity2
+    Entity2 = Entity1
+    Entity1 = Temp1
+    del Temp1
+    return
+def TextToVar(Str: str,ReplaceChar: str = "_"):
+    NewStr = Str.lower()
+    NewStr = NewStr.replace(" ",ReplaceChar)
+    NewStr = NewStr.replace(":","")
 
-def ReplaceText(Entity1,Entity2):
-    Entity2Text = Entity2.text
-    Entity1Text = Entity1.text
-    Entity1.text = Entity2Text
-    Entity2.text = Entity1Text
-    del Entity1Text
-    del Entity2Text
-    return 
+    if NewStr.endswith(ReplaceChar):
+        NewStr = NewStr[0:-1]
+    # print(len(NewStr))
+    # TempLen = len(NewStr)
+    # for i in range(TempLen):
+    #     NewStr += NewStr[i].lower()
 
+    # del TempLen
+    return NewStr
+
+print(TextToVar("hew:lwOr X"))
 
 class CustomWindow():
     def __init__(self,ToEnable,OnEnable,ToEnableOnYes = Func(application.quit),title = "Quit?",text =  "Are you sure you want to quit?",B1text = "No",B2text = "Yes",B1Key = None,B2Key = None):
@@ -47,13 +64,14 @@ class CustomWindow():
     def ToEnableOnQuit(self):
         self.ToEnableOnYes()
         self.DestroyWindow()
+
     def DestroyWindow(self):
         for i in range(len(self.QuitMenuParentEntity.children) - 1):
             destroy(self.QuitMenuParentEntity.children[i])
         destroy(self.QuitMenuParentEntity)
 
 
-def ScaleTransformer(Obj,MinValue,MaxValue):
+def ScaleTransformer(Obj,MinValue:int = 0.01,MaxValue:int =  1):
     a = Slider(min=MinValue,max = MaxValue,default=Obj.scale_x,dynamic=True)
     b = Slider(min=MinValue,max = MaxValue,default=Obj.scale_y,dynamic=True,y = .1)
 
@@ -62,3 +80,4 @@ def ScaleTransformer(Obj,MinValue,MaxValue):
         Obj.scale_y = b.value
     a.on_value_changed = ChangeValue
     b.on_value_changed = ChangeValue
+
