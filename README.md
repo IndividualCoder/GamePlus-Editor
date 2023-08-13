@@ -2,7 +2,8 @@
 It is the single-developer version. 
 
 # Important
-For this editor to properly function, replace your ursina's folder with my 'ursina' repo
+For this editor to properly function, replace your ursina's folder with my 'ursina' repo.
+
 This editor will currently write your games in python. But I'll add the feture to turn your py files to cpp and then to exe.
 
 
