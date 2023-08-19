@@ -58,19 +58,25 @@ class SceneEditor(Entity):
 
 
     def AddEntityInScene(self):
-        self.WorldItems.append(Entity(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",collider = "mesh",collision = True,hovered = True))
+        self.WorldItems.append(Entity(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",collider = "mesh",collision = True,hovered = True,color = color.white))
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
 
     def AddButtonInScene(self):
-        self.WorldItems.append(Button(name = f"item_{len(self.WorldItems)}",parent = camera.ui,text="Button",model = "cube",texture = "white_cube",scale = .1))
+        self.WorldItems.append(Button(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
+
         # print_on_screen(self.AddObjectButtonButton.name)
 
-    def AddInputFieldInScene(self): print_on_screen(self.AddObjectInputFieldButton.name)
+    def AddInputFieldInScene(self):
+        self.WorldItems.append(InputField(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
+        self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
+        self.ScrollUpdater.update_target("max",34)
+        self.ToEditEntity = self.WorldItems[-1]
+
     def AddTextFieldInScene(self): print_on_screen(self.AddObjectTextFieldButton.name)
     def AddDraggableInScene(self): print_on_screen(self.AddObjectDraggableButton.name)
     def AddDropdownSimpleInScene(self): print_on_screen(self.AddObjectDropdownSimpleButton.name)
@@ -180,13 +186,15 @@ class SceneEditor(Entity):
     def update(self):
         self.WorldGrid[0].scale=distance(camera.position,(0,0,0)) - .4
         
-
     def MakeEditorEnvironment(self,cam,color,size):
 
         self.WorldDr = cam.getDisplayRegion(0)
         self.WorldDr.setDimensions(size)
         base.set_background_color(color[0]/255,color[1]/255,color[2]/255,color[3]/255)
         # print(size)
+
+    # def OpenProject(self,List):
+    #     self.WorldItems = List
 if __name__ == "__main__":
     from OtherStuff import *
     # from ursina.camera import Camera
@@ -209,12 +217,16 @@ if __name__ == "__main__":
 
     # camera.ui_display_region.setDimensions(0./2399, .999, 0.1009, 0.938)
     # ui_dr.setDimensions(0.2399, .999, 0.1009, 0.938)
-    print(window.screen_resolution)
-    scene_editor.MakeEditorEnvironment(application.base.camNode,(255,255,255,0),((0.2399, .999, 0.1009, 0.938)))
+    # print(window.screen_resolution)
+    print(application.base.camNode.getDisplayRegion(0))
+    '''0.2399, .999, 0.1009, 0.938'''
+    scene_editor.MakeEditorEnvironment(application.base.camNode,(255,255,255,0),(0.2399, 1, 0.1009, 0.938))
+
     def input(key):
         if key == "l":
             for i in range(len(camera.ui.children)):
                 camera.ui.children[i].enabled = not camera.ui.children[i].enabled
+        if key == "q":
+            application.quit()
     app.run()
-
 
