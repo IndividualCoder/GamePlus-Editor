@@ -1,5 +1,6 @@
 import json
 import os
+from ProjectSavingEncoder import ProjectSavingEncoder
 
 def ProjectSaver(ProjectName,UdFunc,UdVar,Udsrc,WindowConfig,GameSettings,Items,Path):
     Items = list(Items)
@@ -9,6 +10,7 @@ def ProjectSaver(ProjectName,UdFunc,UdVar,Udsrc,WindowConfig,GameSettings,Items,
     # print(ItemChanges)
     if not os.path.exists(f"{Path}/{ProjectName}"):
         os.makedirs(f"{Path}/{ProjectName}")
+
     # print(Path)
     # print("saved")
     # Path = "c:/Users/Me/GG/Esd/Current Games/Test game 1"
@@ -19,26 +21,27 @@ def ProjectSaver(ProjectName,UdFunc,UdVar,Udsrc,WindowConfig,GameSettings,Items,
     #     print(Items[i])
     # NewItems = (str(Items))
 
-    Items = str(Items)
+    # Items = str(Items)
     # NewItems = []
     # for i in range(len(ItemChanges)):
         # NewItems.append(str(ItemChanges[i]))
-    ItemChanges = str(ItemChanges)
-    print(f"{Path}/{ProjectName}")
+    # ItemChanges = str(ItemChanges)
+
+    # print(f"{Path}/{ProjectName}")
     with open(f"{Path}/{ProjectName}/World items.txt","w") as WorldItemsFile:
-        json.dump(Items,WorldItemsFile)
-    with open(f"{Path}/{ProjectName}/World items changes.txt","w") as WorldItemsChangesFile:
-        json.dump(ItemChanges,WorldItemsChangesFile)
+        json.dump(Items,WorldItemsFile,cls=ProjectSavingEncoder)
+    # with open(f"{Path}/{ProjectName}/World items changes.txt","w") as WorldItemsChangesFile:
+    #     json.dump(ItemChanges,WorldItemsChangesFile,cls=ProjectSavingEncoder)
     with open(f"{Path}/{ProjectName}/User defined functions.txt","w") as PdFuncFile:
-        json.dump(UdFunc,PdFuncFile)
+        json.dump(UdFunc,PdFuncFile,cls=ProjectSavingEncoder)
     with open(f"{Path}/{ProjectName}/User defined vars.txt","w") as UdVarFile:
-        json.dump(UdVar,UdVarFile)
+        json.dump(UdVar,UdVarFile,cls=ProjectSavingEncoder)
     with open(f"{Path}/{ProjectName}/User defined src.txt","w") as UdVarFile:
-        json.dump(Udsrc,UdVarFile)
+        json.dump(Udsrc,UdVarFile,cls=ProjectSavingEncoder)
     with open(f"{Path}/{ProjectName}/Window config.txt","w") as WindowConfigFile:
-        json.dump(WindowConfig,WindowConfigFile)
+        json.dump(WindowConfig,WindowConfigFile,cls=ProjectSavingEncoder)
     with open(f"{Path}/{ProjectName}/Game settings.txt","w") as GameSettingsFile:
-        json.dump(GameSettings,GameSettingsFile)
+        json.dump(GameSettings,GameSettingsFile,cls=ProjectSavingEncoder)
 
 
 # from ursina import *

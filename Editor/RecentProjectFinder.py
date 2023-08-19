@@ -6,10 +6,14 @@ from ursina import *
 def GetRecentProjects(Path = f"TestToFindProjects/TestFolder",Exclude = "__pycache__",order = None):
     TotalFolders = GetTotalFolders(Path,Exclude=Exclude)
     ResultFile = {}
-
+    # temp = []
     for i in range(len(TotalFolders)):
         ResultFile[f"{TotalFolders[i]}"] = (GetFileData(f"{Path}/{TotalFolders[i]}"))
+        # temp.append(GetFileData(f"{Path}/{TotalFolders[i]}",File="World items.txt"))
+
         # print(f"{Path}/{TotalFolders[i]}")
+    # print("you looking for me!",temp)
+    # print(type(temp[0][0]).__name__)
 
     # print(ResultFile)
 
@@ -55,12 +59,12 @@ def GetTotalFolders(Path  = f"{application.asset_folder}/ModifiedUrsinaWithExper
         return FolderNames
     return FolderCount
 
-def GetFileData(Path):
+def GetFileData(Path,File:str = "Game settings.txt"):
     try:
         ToReturn = None 
-        with open(f"{Path}/Game settings.txt","r") as ToOpenFile:
+        with open(f"{Path}/{File}","r") as ToOpenFile:
             ToReturn = json.load(ToOpenFile)
-            print("loaded",ToReturn)
+            # print("loaded",ToReturn)
         return ToReturn
     except Exception as e:
         # print(Exception)

@@ -1,5 +1,6 @@
 from ursina import Text,color,Entity,camera,Button,Func,destroy,application,Slider
 from ursina.prefabs.window_panel import WindowPanel
+import os
 
 def ValueToString(value: bool):
     if value:
@@ -60,6 +61,10 @@ def FormatForSaving(string: str):
     string = string.replace("Editor","")
     return string
 
+
+def CurrentFolderNameReturner():
+    return os.path.dirname(os.path.abspath(__file__))
+# print(CurrentFolderNameReturner())
 # print(TextToVar("hew:lwOr X"))
 
 class CustomWindow():

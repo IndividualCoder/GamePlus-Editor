@@ -1,3 +1,7 @@
+'''
+Inspired from ursina's editor
+'''
+
 from ursina import *
 from ursina.shaders import *
 

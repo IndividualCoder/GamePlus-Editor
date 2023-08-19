@@ -1,13 +1,13 @@
 from ursina import *
-from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects
+from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner
 from ursina.prefabs.dropdown_menu import DropdownMenuButton
 from CoreFiles.dropdown_menu import DropdownMenu as SimpleDropdownMenu
-from CurrentFolderNameReturner import CurrentFolderNameReturner
 from RecentProjectFinder import GetRecentProjects
+from ProjectLoader import LoadProjectToScene
 # Dropdown menu fixing
 
 class StartingUI(Entity):
-    def __init__(self,NameOfChangeVarsList,TypeOfChangeVarsList,DefaultValueOfChangeVarsList,OnProjectStart,ExistingProjectsName,ProjectName,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"}):
+    def __init__(self,NameOfChangeVarsList,TypeOfChangeVarsList,DefaultValueOfChangeVarsList,OnProjectStart,ExistingProjectsName,ProjectName,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"}):
         super().__init__(parent = camera.ui)
 
         self.ProjectName = ProjectName
@@ -18,11 +18,12 @@ class StartingUI(Entity):
         self.ValueVarsList = DefaultValueOfChangeVarsList
         self.OnProjectStart = OnProjectStart
         self.ProjectDataName = ["ProjectGraphicsQuality","ProjectLanguage","ProjectNetworkingOnline","CurrentTargatedPlatform","CurrentProjectBase"]
+        self.RecentProjectButtonTexts = ["Open project","Config project","Finish project","Delete project"]
 
         self.UniversalParentEntity = Entity(parent = self)
         self.StartingUIParentEntity = Entity(parent = self.UniversalParentEntity)
         self.RecentProjectsParentEntity = Entity(parent = self.StartingUIParentEntity)
-        self.RecentProjectsScrollerParentEntity = Button(parent = self.StartingUIParentEntity,scale = Vec3(1.77792, 0.535418, 1),position = Vec3(0, -0.232639, 0),color = color.clear,visible_self = False,radius=0)
+        self.RecentProjectsScrollerParentEntity = Button(parent = self.StartingUIParentEntity,scale = Vec3(1.77792, 0.535418, 1),position = Vec3(0, -0.232639, 1),color = color.white,visible_self = True,radius=0)
         self.CreateNewProjectMenuParentEntity = Entity(parent = self.UniversalParentEntity,enabled = False)
         self.ChangeVarsMenuParentEntity = Entity(parent = self.UniversalParentEntity,enabled = False)
         self.ChangeVarsTextParentEntity = Entity(parent = self.ChangeVarsMenuParentEntity)
@@ -53,9 +54,9 @@ class StartingUI(Entity):
 
         self.LanguageText = Text(name = "Select project language text",parent = self.CreateNewProjectMenuParentEntity,text="Language",position = (-0.8, 0.105, 0),scale = 1) #-0.81, 0.09, 0
         self.LanguageText.create_background(.03,0)
-        self.LanguageMenuParentEntity = Entity(name = "Language parent",parent = self.CreateNewProjectMenuParentEntity,model = "cube",color = color.dark_gray,scale = (.3,.2),enabled = False,position = (-0.664, -.040,-60))
-        self.LanguagePythonButton = Button(parent = self.LanguageMenuParentEntity,text = "Python",color = color.blue,highlight_color = color.blue.tint(-.2),clicked_color = color.blue,scale = (.7,.3),enabled = False,position = (.15,-.214),radius = 0,always_on_top = True,on_click = self.SetProjectLanguage)
-        self.LanguageBlueprintButton = Button(parent = self.LanguageMenuParentEntity,text = "Blueprint",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (.7,.3),enabled = False,position = (-.15,.214),radius = 0,always_on_top = True,on_click = self.SetProjectLanguage)
+        self.LanguageMenuParentEntity = Entity(name = "Language parent",parent = self.CreateNewProjectMenuParentEntity,model = "cube",color = color.dark_gray,scale = (.3,.2),enabled = False,position = (-0.664, -.040,1))
+        self.LanguagePythonButton = Button(parent = self.LanguageMenuParentEntity,text = "Python",color = color.blue,highlight_color = color.blue.tint(-.2),clicked_color = color.blue,scale = (.7,.3),enabled = False,position = (.15,-.214,-1),radius = 0,on_click = self.SetProjectLanguage)
+        self.LanguageUrsaVisorButton = Button(parent = self.LanguageMenuParentEntity,text = "Ursa-visor",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (.7,.3),enabled = False,position = (-.15,.214,-1),radius = 0,on_click = self.SetProjectLanguage)
 
         self.TargatedPlatformText = Text(name = "Select project targated platform text",parent = self.CreateNewProjectMenuParentEntity,text="Targated platform",position = (-0.485, 0.105, 0),scale = 1)
         self.TargatedPlatformText.create_background(.03,0)
@@ -66,16 +67,16 @@ class StartingUI(Entity):
         self.ProjectNetworkingText = Text(name = "Select project networking text",parent = self.CreateNewProjectMenuParentEntity,text="Networking",position = (-0.8, -0.1649999, 0),scale = 1)
         self.ProjectNetworkingText.create_background(.03,0)
         self.ProjectNetworkingMenuParentEntity = Entity(name = "Networking parent",parent = self.CreateNewProjectMenuParentEntity,model = "cube",color = color.dark_gray,scale = (.3,.2),enabled = False,position = (-0.664, -.31,60))
-        self.ProjectNetworkignOnlineButton = Button(parent = self.ProjectNetworkingMenuParentEntity,text = "Offline",color = color.blue,highlight_color = color.blue.tint(-.2),clicked_color = color.blue,scale = (1,.3),enabled = False,position = (0,-.214,-20),radius = 0,always_on_top = True,on_click = self.SetProjectNetworking)
-        self.ProjectNetworkignOfflineButton = Button(parent = self.ProjectNetworkingMenuParentEntity,text = "Online",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (1,.3),enabled = False,position = (0,.214,-20),radius = 0,always_on_top = True,on_click = self.SetProjectNetworking)
+        self.ProjectNetworkignOnlineButton = Button(parent = self.ProjectNetworkingMenuParentEntity,text = "Offline",color = color.blue,highlight_color = color.blue.tint(-.2),clicked_color = color.blue,scale = (1,.3),enabled = False,position = (0,-.214,-20),radius = 0,on_click = self.SetProjectNetworking)
+        self.ProjectNetworkignOfflineButton = Button(parent = self.ProjectNetworkingMenuParentEntity,text = "Online",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (1,.3),enabled = False,position = (0,.214,-20),radius = 0,on_click = self.SetProjectNetworking)
 
         self.ProjectGraphicsQualityText = Text(name = "Select project graphics quality text",parent = self.CreateNewProjectMenuParentEntity,text="Select graphics quality",position = (-0.49, -0.1, 0),scale = 1)
         self.ProjectGraphicsQualityText.create_background(.03,0)
         self.ProjectGraphicsQualityMenuParentEntity = Entity(name = "Graphics parent",parent = self.CreateNewProjectMenuParentEntity,model = "cube",color = color.dark_gray,scale = Vec3(0.3, 0.26, 1),enabled = False,position = (-0.354, -0.28, 60))
 
-        self.ProjectGraphicsQualityLowButton = Button(name = "Low",parent = self.ProjectGraphicsQualityMenuParentEntity,text = "Low",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (1,.25),enabled = False,position = (0,.336667,-20),radius = 0,always_on_top = True,on_click = Func(self.SetProjectGraphicsQuality,"Low"))
-        self.ProjectGraphicsQualityMediumButton = Button(name = "Medium",parent = self.ProjectGraphicsQualityMenuParentEntity,text = "Medium",color = color.blue,highlight_color = color.blue.tint(-.2),clicked_color = color.blue,scale = (1,.25),enabled = False,position = (0,.0033333,-20),radius = 0,always_on_top = True,on_click = Func(self.SetProjectGraphicsQuality,"Medium"))
-        self.ProjectGraphicsQualityHighButton = Button(name = "High",parent = self.ProjectGraphicsQualityMenuParentEntity,text = "High (AAA)",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (1,.25),enabled = False,position = (0,-.33,-20),radius = 0,always_on_top = True,on_click = Func(self.SetProjectGraphicsQuality,"High"))
+        self.ProjectGraphicsQualityLowButton = Button(name = "Low",parent = self.ProjectGraphicsQualityMenuParentEntity,text = "Low",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (1,.25),enabled = False,position = (0,.336667,-20),radius = 0,on_click = Func(self.SetProjectGraphicsQuality,"Low"))
+        self.ProjectGraphicsQualityMediumButton = Button(name = "Medium",parent = self.ProjectGraphicsQualityMenuParentEntity,text = "Medium",color = color.blue,highlight_color = color.blue.tint(-.2),clicked_color = color.blue,scale = (1,.25),enabled = False,position = (0,.0033333,-20),radius = 0,on_click = Func(self.SetProjectGraphicsQuality,"Medium"))
+        self.ProjectGraphicsQualityHighButton = Button(name = "High",parent = self.ProjectGraphicsQualityMenuParentEntity,text = "High (AAA)",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (1,.25),enabled = False,position = (0,-.33,-20),radius = 0,on_click = Func(self.SetProjectGraphicsQuality,"High"))
         self.CurrentGraphicsQuality = self.ProjectGraphicsQualityMediumButton
         self.StartProjectButton = Button(name = "Start button of create new project menu",parent = self.CreateNewProjectMenuParentEntity,text="Start",Key = "enter",scale = (.3,.25),on_click = Sequence(Func(invoke,self.StartProject,delay = .1),Func(invoke,self.SetProjectName,delay = .15)))
 
@@ -196,8 +197,10 @@ class StartingUI(Entity):
         if not self.ProjectTitleButton.active:
             ReplaceValue(self.CurrentProjectBase,self.CreateNewProjectBaseDict[NewProjectBase])
             ReplaceValue(self.CurrentProjectBase,self.CreateNewProjectBaseDict[NewProjectBase],"highlight_color")
-            print_on_screen(NewProjectBase,origin=(0,0,0),color=color.black,duration=1)
+            # print_on_screen(NewProjectBase,origin=(0,0,0),color=color.black,duration=1)
             # self.CreateNewProjectFpcButton.color = color.blue.tint(-.4)
+            self.CurrentProjectBase = self.CreateNewProjectBaseDict[NewProjectBase]
+            # print(self.CurrentProjectBase)
             self.ProjectSettings["CurrentProjectBase"] = self.CreateNewProjectBaseDict[NewProjectBase].name
 
     def SetProjectName(self):
@@ -208,13 +211,13 @@ class StartingUI(Entity):
         self.ProjectTitleButton.text = ""
 
     def SetProjectLanguage(self):
-        ReplaceValue(self.LanguagePythonButton,self.LanguageBlueprintButton)
-        ReplaceValue(self.LanguagePythonButton,self.LanguageBlueprintButton,"highlight_color")
+        ReplaceValue(self.LanguagePythonButton,self.LanguageUrsaVisorButton)
+        ReplaceValue(self.LanguagePythonButton,self.LanguageUrsaVisorButton,"highlight_color")
 
-        if self.ProjectSettings["ProjectLanguage"] == "blueprint":
-            self.ProjectSettings["ProjectLanguage"] = "python"
+        if self.ProjectSettings["ProjectLanguage"] == "Ursa-visor":
+            self.ProjectSettings["ProjectLanguage"] = "Python"
         else:
-            self.ProjectSettings["ProjectLanguage"] = "blueprint"
+            self.ProjectSettings["ProjectLanguage"] = "Ursa-visor"
 
         # print(self.ProjectLanguage)
 
@@ -316,33 +319,45 @@ class StartingUI(Entity):
         invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
 
 
-    def ShowRecentProjects(self):
+    def ShowRecentProjects(self,List):
         self.RecentProjectsText = Text(name = "RecentProjectsText",parent = self.RecentProjectsParentEntity,text = "Recent projects",position = Vec3(-0.879999, 0.025, 0),scale = 1.5)
         self.RecentProjectsLine = Entity(name = "RecentProjectsLine",parent = self.RecentProjectsParentEntity,model = "line",position = Vec3(0, -0.02, 0),scale = Vec3(1.78, 0.85, 1))
         self.TotalRunningProjects = self.LoadRecentProjects()
-        self.SetRecentProjects(self.TotalRunningProjects)
+        self.SetRecentProjects(self.TotalRunningProjects,List)
         # print(rece)
         # print(self.LoadRecentProjects())
 
     def LoadRecentProjects(self,ReturnOrder = None):
-        CurrentFolderName = CurrentFolderNameReturner(True,True)
+        CurrentFolderName = CurrentFolderNameReturner()
         # print("mine",CurrentFolderName)
-        CurrentFolderName += "\Current Games"
         CurrentFolderName = CurrentFolderName.replace("\\","/")
-        CurrentFolderName = CurrentFolderName.replace("/Editor","")
+        CurrentFolderName = CurrentFolderName.replace("Editor","Current Games")
         # print("mine : ",Pathh)
 
         # print(CurrentFolderName)
         return GetRecentProjects(CurrentFolderName,order=ReturnOrder)
 
-    def SetRecentProjects(self,ProjectSettings):
+    def SetRecentProjects(self,ProjectSettings,List):
+        # print(ProjectSettings," THis is")
         for i in range(len(ProjectSettings)):
-            Text(parent = self.RecentProjectsScrollerParentEntity,text=list(ProjectSettings)[i],position = Vec3(-0.492997-i*-0.3, 0.366999, 0),scale = Vec3(0.73, 2.39, 1))
-            Entity(parent = self.RecentProjectsScrollerParentEntity,model = "line",position = Vec3(-0.2-i*-0.3, -0.0529997, 0),scale = Vec3(0.899999, 0.2, 0.1),rotation_z = 90)
+            Text(parent = self.RecentProjectsScrollerParentEntity,text=list(ProjectSettings)[i],position = Vec3(-0.492997-i*-0.3, 0.366999, 0),scale = Vec3(0.73, 2.39, 1),always_on_top = True)
+            Entity(parent = self.RecentProjectsScrollerParentEntity,model = "line",position = Vec3(-0.2-i*-0.3, -0.0529997, 0),scale = Vec3(0.899999, 0.2, 0.1),rotation_z = 90,always_on_top = True)
+
 
             currentPro = ProjectSettings[list(ProjectSettings)[i]]
             for j in range(len(self.ProjectDataName)):
-                Text(parent = self.RecentProjectsScrollerParentEntity,text=f"{PrepareForRecentProjects(self.ProjectDataName[j])}: {currentPro[list(currentPro)[j]]}",position = Vec3(-0.492997-i*-0.3, 0.2-i*0.07-j*.07, 0),scale = Vec3(0.73, 2.39, 1),always_on_top = True)
+                Text(parent = self.RecentProjectsScrollerParentEntity,text=f"{PrepareForRecentProjects(self.ProjectDataName[j])}: {currentPro[list(currentPro)[j]]}",position = Vec3(-0.492997-i*-0.3, 0.27-j*.07, 0),scale = Vec3(0.63, 2.19, 1),always_on_top = True)
+
+            for k in range(int(len(self.RecentProjectButtonTexts)/2)):
+            # Button(parent = self.RecentProjectsScrollerParentEntity,text=f"{self.RecentProjectButtonTexts[int(k/2)]}1",color = color.blue,scale = Vec3(0.12,.1,1),position = Vec3(-0.43-i*-.3,-.15,0))
+                Button(parent = self.RecentProjectsScrollerParentEntity,text=f"{self.RecentProjectButtonTexts[int(k)]}",color = color.blue,scale = Vec3(0.12,.1,1),position = Vec3(-0.43-i*-.3+k*.15,-.15,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),List = List,ProjectName = list(ProjectSettings)[i]))
+
+            for l in range(int(len(self.RecentProjectButtonTexts)/2),len(self.RecentProjectButtonTexts)):
+            # # Button(parent = self.RecentProjectsScrollerParentEntity,text=f"{self.RecentProjectButtonTexts[int(k/2)]}1",color = color.blue,scale = Vec3(0.12,.1,1),position = Vec3(-0.43-i*-.3,-.3,0))
+                Button(parent = self.RecentProjectsScrollerParentEntity,text=f"{self.RecentProjectButtonTexts[int(l)]}",color = color.blue,scale = Vec3(0.12,.1,1),position = Vec3(-0.43-i*-.3-l*.15,-.3,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),List = List,ProjectName = list(ProjectSettings)[i]))
+                # print(list(ProjectSettings)[i])
+
+            # print(ProjectSettings)
 
         Entity(parent = self.RecentProjectsScrollerParentEntity,model = "line",position = Vec3(-0.349999, 0.298, 0),scale = len(ProjectSettings))
         self.RecentProjectsScrollerParentEntity.add_script(Scrollable(max = -.001,axis = 'x',scroll_speed = .01))
@@ -387,9 +402,30 @@ class StartingUI(Entity):
         for i in range(len(self.ProjectGraphicsQualityMenuParentEntity.children)):
             self.ProjectGraphicsQualityMenuParentEntity.children[i].enable()
 
-    # def input(self,key):
-    #     if key == "p":
-    #         self.RecentProjectsScrollerParentEntity.visible_self = not self.RecentProjectsScrollerParentEntity.visible_self
+
+    def Setup(self):
+        self.UiData = dict(zip(self.NameVarsList, self.ValueVarsList))
+        self.SetTooltip(self.UiData["Show tooltip"])
+            
+    def SetTooltip(self,value):
+        if value:
+            self.ToolTipList = ["First person games like valorant, cod etc","Third person games like pubg, gta etc","Camera is stuck at one place but not in 2d, this category is also called '2.5d games',like clash of clans, clash royale etc","2d game where camera is stuck at one place in 2d","Both TPC and FPC","If enabled,the little amount to code you will have to write will be in python","If enabled,the little amount to code you will have to write will be in ursa-visor, a gui coding language like blueprint but for ursina editor","Your game will be online","Your game will be offline","Graphics quality of your game will be low,you will be able to add lights but not too much and shadows will not be that 'real'","Graphics quality of your game will be medium, you will be able to add unlimited lights but lights will not be that 'real'","The best graphics quality be can provide"]
+            self.ItemToToolTipList = [self.CreateNewProjectFpcButton,self.CreateNewProjectTpcButton,self.CreateNewProjectTopDownButton,self.CreateNewProjectPlatformerButton,self.CreateNewProjectFpcAndTpcButton,self.LanguagePythonButton,self.LanguageUrsaVisorButton,self.ProjectNetworkignOnlineButton,self.ProjectNetworkignOfflineButton,self.ProjectGraphicsQualityLowButton,self.ProjectGraphicsQualityMediumButton,self.ProjectGraphicsQualityHighButton]
+            for i in range(len(self.ItemToToolTipList)):
+                self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -10)
+                # self.ItemToToolTipList[i].tool_tip.background.z = -1
+
+        else:
+            self.ItemToToolTipList = [self.CreateNewProjectFpcButton,self.CreateNewProjectTpcButton,self.CreateNewProjectTopDownButton,self.CreateNewProjectPlatformerButton,self.CreateNewProjectFpcAndTpcButton,self.LanguagePythonButton,self.LanguageUrsaVisorButton,self.ProjectNetworkignOnlineButton,self.ProjectNetworkignOfflineButton,self.ProjectGraphicsQualityLowButton,self.ProjectGraphicsQualityMediumButton,self.ProjectGraphicsQualityHighButton]
+            for i in range(len(self.ItemToToolTipList)):
+                self.ItemToToolTipList[i].tool_tip = None
+
+    def OpenProject(self,ProjectName,List,FileName,FilePath):
+        LoadProjectToScene(FileName = FileName,FilePath = FilePath,List=List)
+        self.ProjectName = ProjectName
+        print("helo")
+        self.OnProjectStart()
+        self.UniversalParentEntity.disable()
 
 if __name__ == "__main__":
     app = Ursina()
@@ -405,5 +441,10 @@ if __name__ == "__main__":
     def input(key):
         if key == "p":
             Ui.RecentProjectsScrollerParentEntity.visible = not Ui.RecentProjectsScrollerParentEntity.visible
+        if key == "0":
+            Ui.SetTooltip(True)
+        elif key == "1":
+            Ui.SetTooltip(False)
+
         # print(key)
     app.run()
