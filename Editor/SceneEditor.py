@@ -4,11 +4,13 @@ from DirectionBox import PointOfViewSelector as DirectionEntity
 from OtherStuff import TextToVar
 
 class SceneEditor(Entity):
-    def __init__(self,editor_camera,enabled,WorldItems: list,SaveFunction,cam2 = camera,**kwargs):
+    def __init__(self,editor_camera,enabled,WorldItems: list,SaveFunction,ShowInstructionFunc,cam2 = camera,CurrentProjectName = "",**kwargs):
         super().__init__(enabled = enabled,**kwargs)
         # self.Path = Path
         self.WorldItems = WorldItems
         self.Save = SaveFunction
+        self.CurrentProjectName = CurrentProjectName
+        self.ShowInstructionFunc = ShowInstructionFunc
 
         self.BasicFunctions = ["Position x: ","Position y: ","Position z: ","Rotation x: ","Rotation y: ","Rotation z: ","Scale x: ","Scale y: ","Scale z: ","Color: ","Texture: "]
         self.ToEditEntity = None
@@ -16,12 +18,13 @@ class SceneEditor(Entity):
         self.PosSnapping3d = .7
 
         self.UniversalParentEntity = Entity(parent = cam2.ui,enabled = False)
-        self.TopButtonsParentEntity = Entity(parent = self.UniversalParentEntity,enabled = enabled,model = "cube",color = color.white.tint(-3),texture ="white_cube",position  = (window.top[0],window.top[1] - .03,-3) ,scale =(window.screen_resolution[0] / 1052,window.screen_resolution[1]/18000))
-        self.TabsMenuParentEntity = Button(parent  = self.UniversalParentEntity,enabled = enabled,model = "cube",color = color.green,position  = Vec3(0, 0.5, -1) ,scale = Vec3(1.78, 0.1, 1),Key = "tab",on_key_press=self.ShowTabMenu) # Vec3(0, 0.39, 1) animate
-        self.SideBarTopParentEntity = Entity(name = "TODO",parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 1),scale = Vec3(0.43, 0.56, 2),color = color.gray)
+        self.TopButtonsParentEntity = Entity(parent = self.UniversalParentEntity,enabled = enabled,model = "cube",color = color.white,texture ="white_cube",position  = (window.top[0],window.top[1] - .03,-20) ,scale =(window.screen_resolution[0] / 1052,window.screen_resolution[1]/18000,1))
+        self.TabsMenuParentEntity = Button(parent  = self.UniversalParentEntity,enabled = enabled,model = "cube",color = color.green,position  = Vec3(0, 0.5, 0) ,scale = Vec3(1.78, 0.1, 1),Key = "tab",on_key_press=self.ShowTabMenu) # Vec3(0, 0.39, 1) animate
+        self.SideBarTopParentEntity = Entity(name = "TODO",parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 10),scale = Vec3(0.43, 0.56, 2),color = color.gray)
         self.AddObjectMenuParentEntity = Entity(name = "a;lld",parent = self.UniversalParentEntity,model = None,enabled = enabled,position = Vec3(0.38, -0.35, 2),scale = Vec3(1.69, 0.1, 1),color = color.dark_gray,origin_y = 1)
         self.SideBarBottomParentEntity = Entity(name = "TODO2",parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -200),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1))
         self.SideBarTopSlideHandler = Button(parent = self.SideBarTopParentEntity,model = "cube",radius=0,visible_self = False,z = -200)
+
         # self.SideBarTopSlider = Entity(parent = self.SideBarTopSlideHandler,model = "cube",visible_self = False,z = -202)
         self.ScrollUpdater = self.SideBarTopSlideHandler.add_script(Scrollable(min=-.1,max = .3,scroll_speed = .01))
 
@@ -106,12 +109,12 @@ class SceneEditor(Entity):
         Parent.children = []
 
 
-        Parent.children.append(Text(parent = Parent,text =type(Obj).__name__,scale = 3,origin = (0,0),y = .45,z = -100,scale_x = 3.5))
-        Parent.children.append(Entity(name = "Line",parent = Parent,model = "line",color = color.black,z = -250,scale = Vec3(0.99, 1.02, 1),position  = Vec3(0.01, 0.39, -250)))
+        Parent.children.append(Text(parent = Parent,text =type(Obj).__name__,scale = 3,origin = (0,0),y = .45,z = 20,scale_x = 3.5))
+        Parent.children.append(Entity(name = "Line",parent = Parent,model = "line",color = color.black,scale = Vec3(0.99, 1.02, 1),position  = Vec3(0.01, 0.39, 20)))
 
         for i in range(len(self.BasicFunctions)):
-            Parent.children.append(Text(parent = Parent,text = f"{self.BasicFunctions[i]}",scale = 2,y = -i*0.08+.36,z = -100,x = -.47))
-            Parent.children.append(InputField(name = TextToVar(self.BasicFunctions[i],'_'),parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -100,x = .1,active = False,text_scale = .75,cursor_y = .1,submit_on='enter',on_submit = Func(self.UpdateItemContent,Obj,Parent)))
+            Parent.children.append(Text(parent = Parent,text = f"{self.BasicFunctions[i]}",scale = 2,y = -i*0.08+.36,z = 20,x = -.47))
+            Parent.children.append(InputField(name = TextToVar(self.BasicFunctions[i],'_'),parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = 20,x = .1,active = False,text_scale = .75,cursor_y = .1,submit_on='enter',on_submit = Func(self.UpdateItemContent,Obj,Parent)))
 
     def UpdateItemContent(self,Obj,Parent):
         # Obj.position.x += .2
@@ -128,6 +131,7 @@ class SceneEditor(Entity):
         # print(key)
         if key == "s" and held_keys["control"] and not held_keys["shift"]:
             self.Save()
+            self.ShowInstructionFunc("Saved!")
         elif key == "left mouse down":
             if mouse.hovered_entity in self.WorldItems:
             # ray = raycast(mouse.position,camera.forward,ignore=self.WorldGrid).entity
@@ -136,42 +140,42 @@ class SceneEditor(Entity):
                 self.ToEditEntity = ray
             # print(mouse.hovered_entity)
 
-        elif key in "right arrow hold":
+        elif key == "right arrow hold":
             try:
-                if self.ToEditEntity.parent:
-                    self.ToEditEntity.x += self.PosSnapping2d
-                    print(mouse.hovered_entity.name)
+                # if self.ToEditEntity.parent:
+                self.ToEditEntity.x += self.PosSnapping2d
+                print(mouse.hovered_entity.name)
                 # else:
                 #     self.ToEditEntity.x += self.PosSnapping3d
                     # print(mouse.hovered_entity.name)
 
             except:
                 print_on_screen("<red>Choose an item to edit")
-        elif key in "left arrow hold":
+        elif key == "left arrow hold":
             try:
 
-                if self.ToEditEntity.parent:
-                    self.ToEditEntity.x -= self.PosSnapping2d
-                    print(mouse.hovered_entity.name)
+                # if self.ToEditEntity.parent:
+                self.ToEditEntity.x -= self.PosSnapping2d
+                print(mouse.hovered_entity.name)
                 # else:
                 #     self.ToEditEntity.x += self.PosSnapping3d
             except:
                 print_on_screen("hoose an item to edit",color = color.red)
-        elif key in "up arrow hold":
+        elif key == "up arrow hold":
             try:
-                if self.ToEditEntity.parent:
-                    self.ToEditEntity.y += self.PosSnapping2d
-                    print(mouse.hovered_entity.name)
+                # if self.ToEditEntity.parent:
+                self.ToEditEntity.y += self.PosSnapping2d
+                print(mouse.hovered_entity.name)
                 # else:
                 #     self.ToEditEntity.x += self.PosSnapping3d
             except:
                 print_on_screen("Choose an item to edit",origin=0,color = color.orange)
-        elif key in "down arrow hold":
+        elif key == "down arrow hold":
             try:
 
-                if self.ToEditEntity.parent:
-                    self.ToEditEntity.y -= self.PosSnapping2d
-                    print(mouse.hovered_entity.name)
+                # if self.ToEditEntity.parent:
+                self.ToEditEntity.y -= self.PosSnapping2d
+                print(mouse.hovered_entity.name)
                 # else:
                 #     self.ToEditEntity.x += self.PosSnapping3d
             except:
@@ -183,6 +187,9 @@ class SceneEditor(Entity):
                 self.ToEditEntity = mouse.hovered_entity
                 # print(self.ToEditEntity)
 
+        elif key == "delete up":
+            destroy(self.ToEditEntity)
+
     def update(self):
         self.WorldGrid[0].scale=distance(camera.position,(0,0,0)) - .4
         
@@ -192,6 +199,7 @@ class SceneEditor(Entity):
         self.WorldDr.setDimensions(size)
         base.set_background_color(color[0]/255,color[1]/255,color[2]/255,color[3]/255)
         # print(size)
+
 
     # def OpenProject(self,List):
     #     self.WorldItems = List

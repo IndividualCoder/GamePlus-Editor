@@ -5,7 +5,9 @@ from ProjectSaver import ProjectSaver
 # from CurrentFolderNameReturner import CurrentFolderNameReturner
 from OtherStuff import FormatForSaving,CurrentFolderNameReturner
 import os
-from OpenFile import OpenFile
+from OpenFile import OpenFile,SaveFile
+from ursina.prefabs.memory_counter import MemoryCounter
+from CoreFiles.InstructionMenu import InstructionMenu
 
 class UrsinaEditor(Entity):
     def __init__(self,EditorCamera,DataToLoad):
@@ -16,16 +18,19 @@ class UrsinaEditor(Entity):
         self.UDSrc = [] #User defined script to run after making all the world items
         self.WindowConfing = [] #User defined script to run after making all the world items
         # self.WorldItemsModification = [] #Every change made to world items
-        self.CurrentProjectNames = []
         self.EditorCamera = EditorCamera
-        self.EditorData = OpenFile("Editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),DataToLoad,True)
+        self.NonConfiableEditorDataDefault = {"CurrentProjectNames": []}
+        self.NonConfiableEditorData = OpenFile("Non configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.NonConfiableEditorDataDefault,True)
+        self.InstructionList = []
+
+        self.ConfiableEditorData = OpenFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),DataToLoad,True)
         self.FolderName = os.path.dirname(os.path.abspath(__file__))
         self.RecentEdits = ["",""]
         self.ProjectSettings = None
 
-
-        self.StartingUi = StartingUI(NameOfChangeVarsList=list(self.EditorData),TypeOfChangeVarsList = [sublist[1] for sublist in self.EditorData.values()],DefaultValueOfChangeVarsList = [sublist[0] for sublist in self.EditorData.values()],OnProjectStart=self.StartEdit,ExistingProjectsName=self.CurrentProjectNames,ProjectName="")
-        self.Editor = SceneEditor(self.EditorCamera,enabled = False,WorldItems=self.WorldItems,SaveFunction= self.Save)
+        self.MemoryCounter = MemoryCounter()
+        self.StartingUi = StartingUI(EditorDataDict=  self.ConfiableEditorData,OnProjectStart=self.StartEdit,ExistingProjectsName=self.NonConfiableEditorData["CurrentProjectNames"],ProjectName="",SaveNonConfiableData=self.SaveData,ShowInstructionFunc = self.ShowInstruction)
+        self.Editor = SceneEditor(self.EditorCamera,enabled = False,WorldItems=self.WorldItems,SaveFunction= self.Save,ShowInstructionFunc = self.ShowInstruction)
 
         # self.StartingUi.ShowRecentProjects()
         # self.StartingUi.RecentProjectsScrollerParentEntity.= len(self.StartingUi.TotalRunningProjects)
@@ -39,6 +44,7 @@ class UrsinaEditor(Entity):
         self.Editor.GetPosTemp()
         self.SetupSceneEditor()
         self.Editor.DirectionEntity.enable()
+        # self.Editor.Tempa.enable()
         # self.Editor.ignore = False
 
     def CheckAndStartSceneEditor(self,Entity):
@@ -57,24 +63,39 @@ class UrsinaEditor(Entity):
         self.ProjectName = self.StartingUi.ProjectName
         # print(self.StartingUi.ProjectSettings)
         ProjectSaver(ProjectName = self.ProjectName,UdFunc = self.UDFunc,UdVar=self.UDVars,Udsrc=self.UDSrc,WindowConfig=self.WindowConfing,Items = self.WorldItems,Path=f'{FormatForSaving(self.FolderName)}Current Games',GameSettings=self.ProjectSettings)
+        # print(type(self.ProjectName).__name__)
+        if not self.ProjectName in self.NonConfiableEditorData["CurrentProjectNames"]:
+            self.NonConfiableEditorData["CurrentProjectNames"].append(self.ProjectName)
+            self.SaveData()
 
     def Setup(self):
         # self.EditorData = 
         self.StartingUi.Setup()
         self.StartingUi.ShowRecentProjects(self.WorldItems)
 
+    def SaveData(self):
+        SaveFile("Non configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.NonConfiableEditorData)
+        SaveFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.ConfiableEditorData)
+
+    def ShowInstruction(self,Str):
+        self.InstructionList.append(InstructionMenu(ToSay=Str,OnXClick=Func(print,"-1"),DestroyFunc=Func(self.DestroyInstruction,-1)))
+
+    def DestroyInstruction(self,Index):
+        print("helo")
+        for i in range(len(self.InstructionList)):
+            destroy(self.InstructionList[i])
+
     # def update(self):
     #     print(self.WorldItems)
 
 if __name__ == "__main__":
-    from ursina.prefabs.memory_counter import MemoryCounter
-    MemoryCounter()
     
     app = Ursina(editor_ui_enabled = True)
     window.fps_counter.disable()
     window.exit_button.disable()
     Sky()
-    Editor = UrsinaEditor(EditCam := EditorCamera(),DataToLoad = {"Show tooltip":[True,"bool"],"Coordinates": [0,"int"]}) # the ':=' operator is called walrus operator. google it!  
+    DataToLoad = {"Show tooltip":True,"Coordinates": 0}
+    Editor = UrsinaEditor(EditCam := EditorCamera(),DataToLoad = DataToLoad) # the ':=' operator is called walrus operator. google it!  
     Editor.Setup()
     EditCam.item_to_in_find_on_mouse_hit_rotate = Editor.Editor.WorldItems
     app.run()
