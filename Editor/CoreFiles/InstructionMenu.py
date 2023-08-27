@@ -1,10 +1,10 @@
 from ursina import *
 from ursina.color import tint
 class InstructionMenu(Entity):
-    def __init__(self,ToSay: str,OnXClick,DestroyFunc,killAfter = 5,killIn = 1,**kwargs) -> None:
+    def __init__(self,ToSay: str,OnXClick,DestroyFunc,killAfter = 5,killIn = 1,Color = tint(color.white,-.2),**kwargs) -> None:
         super().__init__(parent = camera.ui,kwargs=kwargs)
         # self.super = Entity(parent = camera.ui)
-        self.Background = Entity(name = "background",parent = self,model = "cube",scale = (.4,.15),color = tint(color.black,.1), position = Vec3(1.09, -0.36, -20),always_on_top = True)
+        self.Background = Entity(name = "background",parent = self,model = "cube",scale = (.4,.15),color = Color, position = Vec3(1.09, -0.36, -20),always_on_top = True)
         self.CloseButton = Button(name = "button",parent = self.Background,text="X",model = "cube",scale =  (0.029, 0.14),color = color.clear,position = Vec3(0.425, 0.38, 0),on_click = OnXClick)
         self.CloseButton.text_color = tint(color.black,.7)
         self.Text = Text(name = "txt",parent = self.Background,text=ToSay,scale = (3,7),wordwrap = 30,position = Vec3(-0.49, 0.349, 0))

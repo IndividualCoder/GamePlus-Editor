@@ -7,7 +7,7 @@ from ProjectLoader import LoadProjectToScene
 # Dropdown menu fixing
 
 class StartingUI(Entity):
-    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"}):
+    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"}):
         super().__init__(parent = camera.ui)
 
         self.ProjectName = ProjectName
@@ -19,6 +19,8 @@ class StartingUI(Entity):
         self.SaveNonConfiableData = SaveNonConfiableData
         self.ProjectDataName = ["ProjectGraphicsQuality","ProjectLanguage","ProjectNetworkingOnline","CurrentTargatedPlatform","CurrentProjectBase"]
         self.RecentProjectButtonTexts = ["Open project","Config project","Finish project","Delete project"]
+        self.ChangeConfigDataToDefaultTypeFunc = ChangeConfigDataToDefaultTypeFunc
+
 
         self.UniversalParentEntity = Entity(parent = self)
         self.StartingUIParentEntity = Entity(parent = self.UniversalParentEntity)
@@ -41,6 +43,7 @@ class StartingUI(Entity):
         self.GoBackOfChangeVarsMenuButton = Button(name = "Go Back Of Change Vars Menu Button",parent = self.ChangeVarsMenuParentEntity,text="Done",Key="escape",on_click = Sequence(Func(self.DestroyChangeVarsMenuButtons),Func(self.ChangeVarsMenuParentEntity.disable),Func(self.EnableStaringUI)),radius=0,scale = Vec3(0.280001, 0.0800007, 1),position = Vec3(-0.744999, 0.455, 0))
         self.LineBetweenNameAndTypeLine = Entity(name = "LineBetweenNameAndTypeLine",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = len(list(self.EditorDataDict)),rotation_z = 90,position = (-.38,0),color = color.gray,z = -10)
         self.BackgroundOfChangeVarsMenu = Entity(parent = self.ChangeVarsMenuParentEntity,model = "cube",color = color.rgba(0,0,0,200),scale = Vec3(10,10, 0),position = Vec3(0, 0, 0))
+        self.SaveChangedVarsButton = Button(name= "pirnce",parent = self.ChangeVarsMenuParentEntity,text="Save",radius=0,hover_highlight=True,hover_highlight_size=1,highlight_color = color.light_blue,model = "cube",color = color.light_blue,scale = Vec3(0.22, 0.14, 1),position = Vec3(-0.02, -0.34, -20),on_click = self.SaveNonConfiableData,Key = "s",partKey="control")
 
         self.CreateNewProjectFpcButton = Button(name = "FPC",parent = self.CreateNewProjectMenuParentEntity,text="FPC\nFirst person controller",radius = 0,enabled = False,scale = (0.27, 0.23, 1),position = (-0.68, 0.3, 0),on_click = Func(self.CreateNewProject,"FPC"),Key = "1",on_key_press=Func(self.CreateNewProject,"FPC"),color = color.red) #Game is based on First person controller (3d)
         self.CreateNewProjectTpcButton = Button(name = "TPC",parent = self.CreateNewProjectMenuParentEntity,text="TPC\nThird person controller",radius = 0,enabled = False,scale = (0.27, 0.23, 1),position = (-0.37, 0.3, 0),on_click = Func(self.CreateNewProject,"TPC"),Key = "2",on_key_press=Func(self.CreateNewProject,"TPC")) #Game is based on Third person controller (3d)
@@ -79,109 +82,6 @@ class StartingUI(Entity):
         self.ProjectGraphicsQualityHighButton = Button(name = "High",parent = self.ProjectGraphicsQualityMenuParentEntity,text = "High (AAA)",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (1,.25),enabled = False,position = (0,-.33,-20),radius = 0,on_click = Func(self.SetProjectGraphicsQuality,"High"))
         self.CurrentGraphicsQuality = self.ProjectGraphicsQualityMediumButton
         self.StartProjectButton = Button(name = "Start button of create new project menu",parent = self.CreateNewProjectMenuParentEntity,text="Start",Key = "enter",scale = (.3,.25),on_click = Func(invoke,self.StartProject,delay = .1))
-
-        # self.TempButton  = Button(scale = (0,0),Key="o",on_key_press=self.ShowPosTemp)
-
-        # self.TempButton3 = Button(scale = (0,0),Key=["a","a hold"],on_key_press=self.ChangeTitleFieldPositionXN)
-        # self.TempButton4 = Button(scale = (0,0),Key=["d","d hold"],on_key_press=self.ChangeTitleFieldPositionXP)
-        # self.TempButton5 = Button(scale = (0,0),Key=["w","w hold"],on_key_press=self.ChangeTitleFieldPositionYP)
-        # self.TempButton6 = Button(scale = (0,0),Key=["s","s hold"],on_key_press=self.ChangeTitleFieldPositionYN)
-
-        # self.TempButton7 = Button(scale = (0,0),Key=["left arrow","left arrow hold"],on_key_press=self.ChangeDescriptionFieldPositionXN)
-        # self.TempButton8 = Button(scale = (0,0),Key=["right arrow","right arrow hold"],on_key_press=self.ChangeDescriptionFieldPositionXP)
-        # self.TempButton9 = Button(scale = (0,0),Key=["up arrow","up arrow hold"],on_key_press=self.ChangeDescriptionFieldPositionYP)
-        # self.TempButton10 = Button(scale = (0,0),Key=["down arrow","down arrow hold"],on_key_press=self.ChangeDescriptionFieldPositionYN)
-
-        # self.TempButton11 = Button(scale = (0,0),Key=["z","z hold"],on_key_press=self.ChangeDescriptionFieldPositionXN2)
-        # self.TempButton12 = Button(scale = (0,0),Key=["x","x hold"],on_key_press=self.ChangeDescriptionFieldPositionXP2)
-        # self.TempButton13 = Button(scale = (0,0),Key=["c","c hold"],on_key_press=self.ChangeDescriptionFieldPositionYP2)
-        # self.TempButton14 = Button(scale = (0,0),Key=["v","v hold"],on_key_press=self.ChangeDescriptionFieldPositionYN2)
-
-        # self.TempButton15  = Button(scale = (0,0),Key=["5","5 hold"],on_key_press=self.ScaleUpX)
-        # self.TempButton16  = Button(scale = (0,0),Key=["6","6 hold"],on_key_press=self.ScaleUpY)
-        # self.TempButton17  = Button(scale = (0,0),Key=["7","7 hold"],on_key_press=self.ScaleUpX2)
-        # self.TempButton18  = Button(scale = (0,0),Key=["8","8 hold"],on_key_press=self.ScaleUpY2)
-
-        # self.TempButton19  = Button(scale = (0,0),Key=["5","5 hold"],on_key_press=self.ScaleUpX3)
-        # self.TempButton20  = Button(scale = (0,0),Key=["6","6 hold"],on_key_press=self.ScaleUpY3)
-        # self.TempButton21  = Button(scale = (0,0),Key=["7","7 hold"],on_key_press=self.ScaleUpX4)
-        # self.TempButton22  = Button(scale = (0,0),Key=["8","8 hold"],on_key_press=self.ScaleUpY4)
-
-    def ShowPosTemp(self):
-        for i in range(len(self.RecentProjectsScrollerParentEntity.children)):
-            print(f'name: {self.RecentProjectsScrollerParentEntity.children[i].name},pos:{self.RecentProjectsScrollerParentEntity.children[i].position},Scale:{self.RecentProjectsScrollerParentEntity.children[i].scale}')
-
-    def ScaleUpX(self):
-        # for i in range(len(self.ChangeVarsMenuParentEntity.children)):
-        self.RecentProjectsScrollerParentEntity.children[1].scale_x -= .01
-
-    def ScaleUpY(self):
-        # for i in range(len(self.ChangeVarsMenuParentEntity.children)):
-        self.RecentProjectsScrollerParentEntity.children[1].scale_y -= .01
-
-    def ScaleUpX2(self):
-        # for i in range(len(self.ChangeVarsMenuParentEntity.children)):
-        self.RecentProjectsScrollerParentEntity.children[1].scale_x += .01
-
-    def ScaleUpY2(self):
-        # for i in range(len(self.ChangeVarsMenuParentEntity.children)):
-        self.RecentProjectsScrollerParentEntity.children[1].scale_y += .01
-
-    # def ScaleUpX3(self):
-    #     # for i in range(len(self.ChangeVarsMenuParentEntity.children)):
-    #     self.ProjectGraphicsQualityMediumButton.x -= .01
-
-    # def ScaleUpY3(self):
-    #     # for i in range(len(self.ChangeVarsMenuParentEntity.children)):
-    #     self.ProjectGraphicsQualityMediumButton.y -= .01
-
-    # def ScaleUpX4(self):
-    #     # for i in range(len(self.ChangeVarsMenuParentEntity.children)):
-    #     self.ProjectGraphicsQualityMediumButton.x += .01
-
-    # def ScaleUpY4(self):
-    #     # for i in range(len(self.ChangeVarsMenuParentEntity.children)):
-    #     self.ProjectGraphicsQualityMediumButton.y += .01
-
-
-    def ChangeTitleFieldPositionXP(self):
-        self.RecentProjectsText.x += .005
-
-    def ChangeTitleFieldPositionXN(self):
-        self.RecentProjectsText.x -= .005
-
-    def ChangeTitleFieldPositionYP(self):
-        self.RecentProjectsText.y += .005
-
-    def ChangeTitleFieldPositionYN(self):
-        self.RecentProjectsText.y -= .005
-
-
-    def ChangeDescriptionFieldPositionXP(self):
-        self.RecentProjectsScrollerParentEntity.children[1].x += .001
-
-    def ChangeDescriptionFieldPositionXN(self):
-        self.RecentProjectsScrollerParentEntity.children[1].x -= .001
-
-    def ChangeDescriptionFieldPositionYP(self):
-        self.RecentProjectsScrollerParentEntity.children[1].y += .001
-
-    def ChangeDescriptionFieldPositionYN(self):
-        self.RecentProjectsScrollerParentEntity.children[1].y -= .001
-
-
-    def ChangeDescriptionFieldPositionXP2(self):
-        self.ProjectGraphicsQualityHighButton.x += .01
-
-    def ChangeDescriptionFieldPositionXN2(self):
-        self.ProjectGraphicsQualityHighButton.x -= .01
-
-    def ChangeDescriptionFieldPositionYP2(self):
-        self.ProjectGraphicsQualityHighButton.y += .01
-
-    def ChangeDescriptionFieldPositionYN2(self):
-        self.ProjectGraphicsQualityHighButton.y -= .01
-
 
 
     def ShowCreateNewProject(self):
@@ -296,7 +196,17 @@ class StartingUI(Entity):
         self.EnableChangeVarsMenuButtons()
 
     def OnEditorVarsChanged(self):
-        pass
+        for i in range(len(list(self.EditorDataDict))):
+            self.DataToPut = []
+            for i in range(len(self.ChangeVarsTextParentEntity.children)):
+                if type(self.ChangeVarsTextParentEntity.children[i]) == InputField:
+                    self.DataToPut.append(self.ChangeVarsTextParentEntity.children[i].text)
+                    self.ChangeVarsTextParentEntity.children[i].active  = False
+
+            self.EditorDataDict = dict(zip(list(self.EditorDataDict),self.DataToPut))
+            # print(self.EditorDataDict)
+
+        self.ChangeConfigDataToDefaultTypeFunc(self.EditorDataDict)
 
 
     def DestroyChangeVarsMenuButtons(self):
@@ -404,18 +314,26 @@ class StartingUI(Entity):
 
 
     def Setup(self):
+        # self.SaveChangedVarsButton._on_click = self.SaveData
+        self.SaveChangedVarsButton.text_entity.color = color.black
+        self.SaveChangedVarsButton.text_entity.always_on_top = True
+        self.SaveChangedVarsButton.highlight_button.scale_x -= 0.1
+        # self.SaveChangedVarsButton.highlight_button.z = 10
+        # self.SaveChangedVarsButton.z  = -20
+        self.ConfigEditorAsSettings()
+
+    def ConfigEditorAsSettings(self):
         self.SetTooltip(self.EditorDataDict["Show tooltip"])
 
     def SetTooltip(self,value):
+        self.ItemToToolTipList = [self.CreateNewProjectFpcButton,self.CreateNewProjectTpcButton,self.CreateNewProjectTopDownButton,self.CreateNewProjectPlatformerButton,self.CreateNewProjectFpcAndTpcButton,self.LanguagePythonButton,self.LanguageUrsaVisorButton,self.ProjectNetworkignOnlineButton,self.ProjectNetworkignOfflineButton,self.ProjectGraphicsQualityLowButton,self.ProjectGraphicsQualityMediumButton,self.ProjectGraphicsQualityHighButton,self.SaveChangedVarsButton]
         if value:
-            self.ToolTipList = ["First person games like valorant, cod etc","Third person games like pubg, gta etc","Camera is stuck at one place but not in 2d, this category is also called '2.5d games',like clash of clans, clash royale etc","2d game where camera is stuck at one place in 2d","Both TPC and FPC","If enabled,the little amount to code you will have to write will be in python","If enabled,the little amount to code you will have to write will be in ursa-visor, a gui coding language like blueprint but for ursina editor","Your game will be online","Your game will be offline","Graphics quality of your game will be low,you will be able to add lights but not too much and shadows will not be that 'real'","Graphics quality of your game will be medium, you will be able to add unlimited lights but lights will not be that 'real'","The best graphics quality be can provide"]
-            self.ItemToToolTipList = [self.CreateNewProjectFpcButton,self.CreateNewProjectTpcButton,self.CreateNewProjectTopDownButton,self.CreateNewProjectPlatformerButton,self.CreateNewProjectFpcAndTpcButton,self.LanguagePythonButton,self.LanguageUrsaVisorButton,self.ProjectNetworkignOnlineButton,self.ProjectNetworkignOfflineButton,self.ProjectGraphicsQualityLowButton,self.ProjectGraphicsQualityMediumButton,self.ProjectGraphicsQualityHighButton]
+            self.ToolTipList = ["First person games like valorant, cod etc","Third person games like pubg, gta etc","Camera is stuck at one place but not in 2d, this category is also called '2.5d games',like clash of clans, clash royale etc","2d game where camera is stuck at one place in 2d","Both TPC and FPC","If enabled,the little amount to code you will have to write will be in python","If enabled,the little amount to code you will have to write will be in ursa-visor, a gui coding language like blueprint but for ursina editor","Your game will be online","Your game will be offline","Graphics quality of your game will be low,you will be able to add lights but not too much and shadows will not be that 'real'","Graphics quality of your game will be medium, you will be able to add unlimited lights but lights will not be that 'real'","The best graphics quality be can provide","Will save the changed values in a file and apply the next time you open the editors"]
             for i in range(len(self.ItemToToolTipList)):
-                self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -10)
+                self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -30,render_queue = 3,always_on_top = True)
                 # self.ItemToToolTipList[i].tool_tip.background.z = -1
 
         else:
-            self.ItemToToolTipList = [self.CreateNewProjectFpcButton,self.CreateNewProjectTpcButton,self.CreateNewProjectTopDownButton,self.CreateNewProjectPlatformerButton,self.CreateNewProjectFpcAndTpcButton,self.LanguagePythonButton,self.LanguageUrsaVisorButton,self.ProjectNetworkignOnlineButton,self.ProjectNetworkignOfflineButton,self.ProjectGraphicsQualityLowButton,self.ProjectGraphicsQualityMediumButton,self.ProjectGraphicsQualityHighButton]
             for i in range(len(self.ItemToToolTipList)):
                 self.ItemToToolTipList[i].tool_tip = None
 
@@ -434,16 +352,34 @@ if __name__ == "__main__":
     MemoryCounter()
     # window.fullscreen  = True
     from OtherStuff import ScaleTransformer
-    Ui = StartingUI(NameOfChangeVarsList=["Text 1","Text 2","Text 3","Text 1","Text 2","Text 3"],TypeOfChangeVarsList=["int","float","bool"],DefaultValueOfChangeVarsList = ["755",5.8,False,"yes"],OnProjectStart=Func(print,"started"),ExistingProjectsName=["pro"],ProjectName="PRoejcts1qe1234")
+    Ui = StartingUI(EditorDataDict={"Show tooltip":True,"Coordinates": 0},OnProjectStart=Func(print,"started"),ExistingProjectsName=["pro"],ProjectName="PRoejcts1qe1234",SaveNonConfiableData=Func(print,"hi"),ShowInstructionFunc=Func(print_on_screen,"hi"),ChangeConfigDataToDefaultTypeFunc=Func(print_on_screen,"f"))
     Sky()
-    Ui.ShowRecentProjects()
+    Ui.Setup()
     def input(key):
+
+        if key in {"w","w hold"}:
+            Ui.SaveChangedVarsButton.y += .01
+        if key in {"s","s hold"}:
+            Ui.SaveChangedVarsButton.y -= .01
+        if key in {"a","a hold"}:
+            Ui.SaveChangedVarsButton.x -= .01
+        if key in {"d","d hold"}:
+            Ui.SaveChangedVarsButton.x += .01
+
+        if key == "1":
+            Ui.SaveChangedVarsButton.scale_x += .01
+        if key == "2":
+            Ui.SaveChangedVarsButton.scale_x -= .01
+        if key == "3":
+            Ui.SaveChangedVarsButton.scale_y += .01
+        if key == "4":
+            Ui.SaveChangedVarsButton.scale_y -= .01
+
+        if key == "y":
+            Ui.SaveChangedVarsButton.text = Ui.SaveChangedVarsButton.text
+
         if key == "p":
-            Ui.RecentProjectsScrollerParentEntity.visible = not Ui.RecentProjectsScrollerParentEntity.visible
-        if key == "0":
-            Ui.SetTooltip(True)
-        elif key == "1":
-            Ui.SetTooltip(False)
+            print(Ui.SaveChangedVarsButton.position)
 
         # print(key)
     app.run()

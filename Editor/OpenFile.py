@@ -29,3 +29,4 @@ def SaveFile(FileName: str,Folder: str,Data):
 if __name__ == "__main__":
     from OtherStuff import CurrentFolderNameReturner
     OpenFile("Hello.txt",CurrentFolderNameReturner().replace("Editor","aaa"),{"item 1": [19,True],"item 2": ["shit","helo"]},MakeIfNotFound=True)
+    SaveFile('helo.txt',CurrentFolderNameReturner(),"helo\nmy")
