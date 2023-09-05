@@ -47,7 +47,7 @@ def ProjectExporter(ProjectName,ProjectPath,ToSavePath):
         name = re.search(r"name='([^']*)'", item['args']).group(1)
         FinalFile += f'{Indent}self.{name} = {item["cls"] + item["args"]}\n'
 
-    FinalFile += "if __name__ == '__main__':\n    app = Ursina()\n    Game()\n        render.setAntialias(AntialiasAttrib.MAuto)\n    EditorCamera()\n    app.run()"
+    FinalFile += "if __name__ == '__main__':\n    app = Ursina()\n    Sky()\n    Game()\n    render.setAntialias(AntialiasAttrib.MAuto)\n    EditorCamera()\n    app.run()"
 
     # print(FinalFile)
     with open(f"{ToSavePath}/{ProjectName}/Main.py","w") as File:
@@ -57,5 +57,5 @@ def ProjectExporter(ProjectName,ProjectPath,ToSavePath):
 
 if __name__ == "__main__":
     from OtherStuff import CurrentFolderNameReturner
-    ProjectExporter("PrinceHuMai",CurrentFolderNameReturner().replace("Editor","Current Games"),ToSavePath=CurrentFolderNameReturner().replace("Editor","FInal"))
+    ProjectExporter("w",CurrentFolderNameReturner().replace("Editor","Current Games"),ToSavePath=CurrentFolderNameReturner().replace("Editor","FInal"))
 

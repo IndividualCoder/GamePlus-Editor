@@ -4,10 +4,11 @@ from DirectionBox import PointOfViewSelector as DirectionEntity
 from OtherStuff import TextToVar,CustomWindow,CurrentFolderNameReturner
 from ursina.color import tint
 # from panda3d.core import AntialiasAttrib
-from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
+import threading
+# from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
 
 class SceneEditor(Entity):
-    def __init__(self,editor_camera,enabled,WorldItems: list,ToImport,SaveFunction,ShowInstructionFunc,EditorCamera,cam2 = camera,CurrentProjectName = "",**kwargs):
+    def __init__(self,enabled,WorldItems: list,ToImport,SaveFunction,ShowInstructionFunc,EditorCamera,cam2 = camera,CurrentProjectName = "",**kwargs):
         super().__init__(kwargs)
 
         self.WorldItems = WorldItems
@@ -17,7 +18,6 @@ class SceneEditor(Entity):
         self.ShowInstructionFunc = ShowInstructionFunc
         self.EditorCamera = EditorCamera
         self.IsEditing = True
-
 
         self.BasicFunctions = ["Position x: ","Position y: ","Position z: ","Rotation x: ","Rotation y: ","Rotation z: ","Scale x: ","Scale y: ","Scale z: ","Color: ","Texture: "]
         self.ToEditEntity = None
@@ -37,7 +37,7 @@ class SceneEditor(Entity):
 
 
         self.WorldGrid = [Entity(parent=self, model=Grid(100,100), rotation_x=90, scale=distance(camera.position,(0,0,0)), collider=None, color=color.black33),Entity(parent=self, model=Grid(100,100), rotation_x=90, scale=distance(camera.position,(0,0,0))*10, collider=None, color=color.black33)]
-        self.DirectionEntity = DirectionEntity(cam2.ui,window.top_right- Vec2(.1,.038),editor_camera,camera,enabled = enabled,z = -30,always_on_top = True,render_queue = 1)
+        self.DirectionEntity = DirectionEntity(cam2.ui,window.top_right- Vec2(.1,.038),self.EditorCamera,camera,enabled = enabled,z = -30,always_on_top = True,render_queue = 1)
         # self.DirectionEntity.setAntialias(AntialiasAttrib.MAuto)
         #will make these buttons generate by a function later in time
         self.AddObjectEntityButton = Button(name = "Add an entity in scene",parent = self.AddObjectMenuParentEntity,text="Add Entity",texture = "white_cube",position = Vec3(-0.41, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddEntityInScene)
@@ -56,30 +56,16 @@ class SceneEditor(Entity):
         self.AddObjectTpcButton = Button(name = "Add a TPC in scene",parent = self.AddObjectMenuParentEntity,text="Add TPC\n(Third person controller)",texture = "white_cube",position = Vec3(1.93, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddTpcInScene)
         self.AddObjectAbstractionButton = Button(name = "Add an abstraction",parent = self.AddObjectMenuParentEntity,text="Add\nAbstraction",texture = "white_cube",position = Vec3(2.10, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddAbstractionInScene)
 
-        # self.constantOneStencil = StencilAttrib.make(1, StencilAttrib.SCFAlways, StencilAttrib.SOZero, StencilAttrib.SOReplace, StencilAttrib.SOReplace, 1, 0, 1)
-        # self.stencilReader = StencilAttrib.make(1, StencilAttrib.SCFEqual, StencilAttrib.SOKeep, StencilAttrib.SOKeep, StencilAttrib.SOKeep, 1, 1, 0)
-
-
-        # self.cm = CardMaker("cardmaker")
-        # self.cm.setFrame(-.5,.5,-.5,.5)
-
-
-        # self.viewingSquare = render.attachNewNode(self.cm.generate())
-        # self.viewingSquare.reparentTo(camera.ui)
-        # self.viewingSquare.setPos(Vec3(0,0,5))
-
-        # self.viewingSquare.node().setAttrib(self.constantOneStencil)
-        # self.viewingSquare.node().setAttrib(ColorWriteAttrib.make(0))
-
-        # self.viewingSquare.setBin('background', 0)
-        # self.viewingSquare.setDepthWrite(0)
-
     def GetPosTemp(self):
+        self.AddedScriptAddObjectMenu = self.AddObjectMenuParentEntity.add_script(Scrollable(min=.38,max=.38,scroll_speed = .03,axis = "x"))
         for i in range(1,len(self.AddObjectMenuParentEntity.children)):
             self.AddObjectMenuParentEntity.children[i].x = self.AddObjectMenuParentEntity.children[i-1].x + 0.18
+            self.AddedScriptAddObjectMenu.update_target("min",self.AddedScriptAddObjectMenu.min - 0.23)
+            print(self.AddedScriptAddObjectMenu.min)
+
             # self.AddObjectMenuParentEntity.children[i].color = color.white
             # print(self.AddObjectMenuParentEntity.children[i].x,"  :  ",self.AddObjectMenuParentEntity.children[i].name)
-        self.AddObjectMenuParentEntity.add_script(Scrollable(min=len(self.AddObjectMenuParentEntity.children)/-5.3,max=.38,scroll_speed = .03,axis = "x"))
+        # self.AddObjectMenuParentEntity.add_script(Scrollable(min=len(self.AddObjectMenuParentEntity.children)/-5.2,max=.38,scroll_speed = .03,axis = "x"))
 
 
     def AddEntityInScene(self):
@@ -87,16 +73,14 @@ class SceneEditor(Entity):
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
+        # print("helo",type(self.ToEditEntity).__name__)
 
-        # self.WorldItems[-1].node().setAttrib(self.stencilReader)
-        # self.WorldGrid[0].node().setAttrib(self.stencilReader)
 
     def AddButtonInScene(self):
         self.WorldItems.append(Button(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
-
         # print_on_screen(self.AddObjectButtonButton.name)
 
     def AddInputFieldInScene(self):
@@ -134,17 +118,37 @@ class SceneEditor(Entity):
 
         for i in range(len(self.BasicFunctions)):
             Parent.children.append(Text(parent = Parent,text = f"{self.BasicFunctions[i]}",scale = 2,y = -i*0.08+.36,z = 20,x = -.47))
+        
+        for i in range(len(self.BasicFunctions)):
             Parent.children.append(InputField(name = TextToVar(self.BasicFunctions[i],'_'),parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,submit_on='enter',on_submit = Func(self.UpdateItemContent,Obj,Parent)))
+
+            if i > 0:
+                Parent.children[i-1].next_field = Parent.children[i]
 
 
     def UpdateItemContent(self,Obj,Parent):
-        # Obj.position.x += .2
-        # Entity.position_x
-        setattr(Obj,"position",(.2,.2,.2))
-        for i in range((len(Parent.children))-2):
-            if type(Parent.children[i+2]) == InputField:
-                setattr(Obj,Parent.children[i+2].name,Parent.children[i+2].text)
-                print(f"  :  {Parent.children[i+2].name}  :  {Parent.children[i+2].text}")
+        for i in range((len(Parent.children))):
+            if type(Parent.children[i]) == InputField:
+                # if not Parent.children[i].name == "color" or not Parent.children[i].name == "texture":
+                try:
+                    print(Parent.children[i].name ," : ",Parent.children[i].text)
+
+                    setattr(Obj,Parent.children[i].name.replace("position_",""),float(eval(Parent.children[i].text)))
+
+                except:
+                    try:
+                        self.TempColor:str = Parent.children[i].text.replace("Color(","")
+                        self.TempColor  = self.TempColor.replace(")","")
+
+                        self.TempColor = self.TempColor.split(",",maxsplit=3)
+                        for i in range(len(self.TempColor)):
+                            self.TempColor[i] = float(eval(self.TempColor[i])) * 255
+                        print("this: ",self.TempColor)
+                        Obj.color = color.rgba(self.TempColor[0],self.TempColor[1],self.TempColor[2],self.TempColor[3])
+
+                    except Exception as e:
+                        print(e)
+                # print(f"  :  {Parent.children[i].name}  :  {Parent.children[i].text}")
 
         # print(Parent.children)
 
@@ -154,14 +158,16 @@ class SceneEditor(Entity):
             if key == "s" and held_keys["control"] and not held_keys["shift"]:
                 self.Save()
                 self.ShowInstructionFunc("Saved!",Color = tint(color.white,-.6))
-            elif key == "left mouse down":
-                if mouse.hovered_entity in self.WorldItems:
-                # ray = raycast(mouse.position,camera.forward,ignore=self.WorldGrid).entity
-                # print(ray)
-                    self.ToEditEntity =  mouse.hovered_entity
-                # print(mouse.hovered_entity)
 
-            elif key == "right arrow hold":
+            elif key in ["left mouse","left mouse down"]:
+                if mouse.hovered_entity in self.WorldItems:
+                    if mouse.hovered_entity == self.ToEditEntity:
+                        return
+
+                    self.ToEditEntity =  mouse.hovered_entity
+                    self.ShowObjectContent(self.ToEditEntity,self.SideBarTopSlideHandler)
+
+            elif key in ["right arrow","right arrow hold"]:
                 try:
                     # if self.ToEditEntity.parent:
                     self.ToEditEntity.x += self.PosSnapping2d
@@ -172,7 +178,7 @@ class SceneEditor(Entity):
 
                 except AttributeError:
                     print_on_screen("<red>Choose an item to edit")
-            elif key == "left arrow hold":
+            elif key in ["left arrow","left arrow hold"]:
                 try:
 
                     # if self.ToEditEntity.parent:
@@ -182,7 +188,7 @@ class SceneEditor(Entity):
                     #     self.ToEditEntity.x += self.PosSnapping3d
                 except AttributeError:
                     print_on_screen("hoose an item to edit",color = color.red)
-            elif key == "up arrow hold":
+            elif key in ["up arrow","up arrow hold"]:
                 try:
                     # if self.ToEditEntity.parent:
                     self.ToEditEntity.y += self.PosSnapping2d
@@ -191,7 +197,7 @@ class SceneEditor(Entity):
                     #     self.ToEditEntity.x += self.PosSnapping3d
                 except AttributeError:
                     print_on_screen("Choose an item to edit",origin=0,color = color.orange)
-            elif key == "down arrow hold":
+            elif key in ["down arrow","down arrow hold"]:
                 try:
 
                     # if self.ToEditEntity.parent:
@@ -213,6 +219,7 @@ class SceneEditor(Entity):
                     index = self.WorldItems.index(self.ToEditEntity)
                     destroy(self.ToEditEntity)
                     del self.WorldItems[index]
+                    self.ToEditEntity = None
                 except ValueError:
                     pass
 

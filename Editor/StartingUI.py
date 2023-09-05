@@ -7,7 +7,7 @@ from ProjectLoader import LoadProjectToScene
 # Dropdown menu fixing
 
 class StartingUI(Entity):
-    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"}):
+    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
         super().__init__(parent = camera.ui)
 
         self.ProjectName = ProjectName
@@ -20,6 +20,8 @@ class StartingUI(Entity):
         self.ProjectDataName = ["ProjectGraphicsQuality","ProjectLanguage","ProjectNetworkingOnline","CurrentTargatedPlatform","CurrentProjectBase"]
         self.RecentProjectButtonTexts = ["Open project","Config project","Finish project","Delete project"]
         self.ChangeConfigDataToDefaultTypeFunc = ChangeConfigDataToDefaultTypeFunc
+        self.OpenedProjects = OpenedProjects
+
 
 
         self.UniversalParentEntity = Entity(parent = self)
@@ -314,14 +316,15 @@ class StartingUI(Entity):
 
 
     def Setup(self):
-        # self.SaveChangedVarsButton._on_click = self.SaveData
-        self.SaveChangedVarsButton.text_entity.color = color.black
-        self.SaveChangedVarsButton.text_entity.always_on_top = True
-        self.SaveChangedVarsButton.highlight_button.scale_x -= 0.1
-        # self.SaveChangedVarsButton.highlight_button.z = 10
-        # self.SaveChangedVarsButton.z  = -20
-        self.ConfigEditorAsSettings()
-
+        if self.OpenedProjects == []:
+            # self.SaveChangedVarsButton._on_click = self.SaveData
+            self.SaveChangedVarsButton.text_entity.color = color.black
+            self.SaveChangedVarsButton.text_entity.always_on_top = True
+            self.SaveChangedVarsButton.highlight_button.scale_x -= 0.1
+            # self.SaveChangedVarsButton.highlight_button.z = 10
+            # self.SaveChangedVarsButton.z  = -20
+            self.ConfigEditorAsSettings()
+        
     def ConfigEditorAsSettings(self):
         self.SetTooltip(self.EditorDataDict["Show tooltip"])
 
