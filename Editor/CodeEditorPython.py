@@ -6,9 +6,9 @@ class CodeEditorPython(Entity):
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
-        self.EveryItemMenuParentEntity = Entity(name = "EveryItemMenuParentEntity",parent = self.UniversalParentEntity,model = "cube",color = color.white,scale = Vec3(0.625005, 0.446007, 1),position = Vec3(-0.571996, -0.27, 0))
+        self.EveryItemMenuParentEntity = Button(name = "EveryItemMenuParentEntity",parent = self.UniversalParentEntity,model = "cube",color = color.white,scale = Vec3(0.625005, 0.446007, 1),position = Vec3(-0.571996, -0.27, 0),NotRotateOnHover = True)
 
-        self.CodeWriter = TextField(name = "Text field", parent = self.UniversalParentEntity,active = True,position = Vec3(-0.254003, 0.435, 0),rotation = Vec3(0, 0, 0),scale = Vec3(1, 1, 1),register_mouse_input = True)
+        self.CodeWriter = TextField(name = "Text field", parent = self.UniversalParentEntity,active = False,position = Vec3(-0.254003, 0.435, 0),rotation = Vec3(0, 0, 0),scale = Vec3(1, 1, 1),register_mouse_input = True,NotRotateOnHover = True)
         self.CodeWriter.line_numbers.enable()
         # self.CodeWriter.line_numbers_background.enable()
 
@@ -71,5 +71,6 @@ if __name__ == "__main__":
             editor.PrintItemStatTemp(editor.UniversalParentEntity)
             
 
-    project.CurrnetTabs.append(editor)
+    project.CurrentTabs.append(editor)
     app.run()
+

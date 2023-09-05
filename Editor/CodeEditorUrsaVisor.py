@@ -4,7 +4,7 @@ class CodeEditorPython(Entity):
     def __init__(self,CodeBlocks = [],**kwargs):
         super().__init__()
         self.CodeBlocks = CodeBlocks
-        self.PosSnapping = 0.001
+        self.PosSnapping = 0.004
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
@@ -12,7 +12,9 @@ class CodeEditorPython(Entity):
 
         self.RotateWorldButton = Button(parent = self.UniversalParentEntity,color = color.clear,radius=0,position = Vec3(-0.571996, 0.197, 0),rotation = Vec3(0, 0, 0),scale = Vec3(0.628005, 0.475007, 1),render_queue  = -1)
 
-        self.CodeBlockGraph = Button(name = "Text field", parent = self.UniversalParentEntity,model = "cube",NotRotateOnHover = True,position = Vec3(0.314997, -0.028998, 20),rotation = Vec3(0, 0, 0),scale = Vec3(1000,1000, 1),color = color.white,texture = "white_cube",render_queue  = -3)
+        self.CodeBlockGraph = Button(name = "Text field", parent = self.UniversalParentEntity,model = "cube",NotRotateOnHover = True,position = Vec3(0, 0, 20),rotation = Vec3(0, 0, 0),scale = Vec3(1000,1000, 1),color = color.white,texture = "white_cube",render_queue  = -3)
+
+        self.PosText = Text(parent = self.UniversalParentEntity,name  = "Texte",text = f"({round(self.CodeBlockGraph.x,2)},{round(self.CodeBlockGraph.y,2)})", position = Vec3(0.874992, 0.480997, -20),rotation = Vec3(0, 0, 0),scale = Vec3(1, 1, 1),always_on_top = True,origin = (.5,.5))
 
         self.CodeBlockGraph.texture_scale = (10000,10000)
         self.constantOneStencil = StencilAttrib.make(1, StencilAttrib.SCFAlways, StencilAttrib.SOZero, StencilAttrib.SOReplace, StencilAttrib.SOReplace, 1, 0, 1)
@@ -66,12 +68,20 @@ class CodeEditorPython(Entity):
         if held_keys["d"]:
             self.CodeBlockGraph.x -= self.PosSnapping
 
+        self.PosText.text = f"({round(self.CodeBlockGraph.x,2)},{round(self.CodeBlockGraph.y,2)})"
 
     def input(self,key):
         if key == "up arrow":
             self.PosSnapping += 0.001
         elif key == "down arrow":
             self.PosSnapping -= 0.001
+
+        elif key == "o" and held_keys["control"]:
+            self.CodeBlockGraph.x = 0
+            self.CodeBlockGraph.y = 0
+
+        elif key == "r" and held_keys["control"]:
+            self.PosSnapping = 0.004
 
 if __name__ == "__main__":
     from ProjectEditor import ProjectEditor
@@ -82,43 +92,47 @@ if __name__ == "__main__":
     Entity(model  = "cube",texture = "white_cube")
     # editor.model = "cube"
     Sky()
+
     left = .001
     right = .001
     top = .001
     bottom = .001
     editor.AddStencilToBlocks(editor.CodeBlockGraph)
     editor.MakeEditorEnvironment(application.base.camNode,(125,125,124,0),(0.0019, 0.355, 0.4599 ,0.935))
+
+    ToEdit = editor.PosText
+
     # def input(key):
     #     global top,bottom,left,right
-    #     if key in ["w","w hold"] and not held_keys["shift"]:
+    #     if key in ["up arrow","up arrow hold"] and not held_keys["shift"]:
     #         # top += .001
-    #         editor.RotateWorldButton.y += top
-    #     elif key in ["s","s hold"] and not held_keys["shift"]:
+    #         ToEdit.y += top
+    #     elif key in ["down arrow","down arrow hold"] and not held_keys["shift"]:
     #         # bottom += .001
-    #         editor.RotateWorldButton.y -= top
-    #     elif key in ["a","a hold"] and not held_keys["shift"]:
+    #         ToEdit.y -= top
+    #     elif key in ["left arrow","left arrow hold"] and not held_keys["shift"]:
     #         # left += .001
-    #         editor.RotateWorldButton.x -= top
-    #     elif key in ["d","d hold"] and not held_keys["shift"]:
+    #         ToEdit.x -= top
+    #     elif key in ["right arrow","right arrow hold"] and not held_keys["shift"]:
     #         # right += .001
     #         # editor.cm.setFrame(right,left,bottom,top)
-    #         editor.RotateWorldButton.x += top
+    #         ToEdit.x += top
 
 
     #     if key in ["r","r hold"] and not held_keys["shift"]:
     #         # top += .001
-    #         editor.RotateWorldButton.scale_y += top
+    #         ToEdit.scale_y += top
     #     elif key in ["t","t hold"] and not held_keys["shift"]:
     #         # bottom += .001
-    #         editor.RotateWorldButton.scale_x += top
+    #         ToEdit.scale_x += top
 
     #     elif key in ["r","r hold"] and held_keys["shift"]:
     #         # left += .001
-    #         editor.RotateWorldButton.scale_y -= top
+    #         ToEdit.scale_y -= top
     #     elif key in ["t","t hold"] and held_keys["shift"]:
     #         # right += .001
     #         # editor.cm.setFrame(right,left,bottom,top)
-    #         editor.RotateWorldButton.scale_x -= top
+    #         ToEdit.scale_x -= top
 
 
     #     elif key == "p":
@@ -129,6 +143,7 @@ if __name__ == "__main__":
     #         print(mouse.hovered_entity.name)
     #     except:
     #         ...
-    project.CurrnetTabs.append(editor)
+    project.CurrentTabs.append(editor)
+    # project.TopButtonsParentEntity.color = color.clear
     app.run()
 
