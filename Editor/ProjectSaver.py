@@ -4,10 +4,11 @@ from ProjectSavingEncoder import ProjectSavingEncoder
 
 def ProjectSaver(ProjectName,UdFunc,UdVar,Udsrc,WindowConfig,GameSettings,ToImport,Items,Path):
     Items = list(Items)
-    ItemChanges = []
-    for i in range(len(Items)):
-        ItemChanges.append(Items[i].get_changes())
+    # ItemChanges = []
+    # for i in range(len(Items)):
+    #     ItemChanges.append(Items[i].get_changes())
     # print(ItemChanges)
+
     if not os.path.exists(f"{Path}/{ProjectName}"):
         os.makedirs(f"{Path}/{ProjectName}")
 

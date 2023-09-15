@@ -27,7 +27,7 @@ def SaveFile(FileName: str,Folder: str,Data):
         with open(f"{Folder}/{FileName}","w") as File:
             json.dump(Data,File)
 
-def OpenSeletor(Mode = "Folder") -> str:
+def Openselector(Mode = "Folder") -> str:
     Root = tkinter.Tk()
     Root.withdraw() # prevents an empty tkinter window from appearing
     Path = None
@@ -44,4 +44,4 @@ if __name__ == "__main__":
     from OtherStuff import CurrentFolderNameReturner
     OpenFile("Hello.txt",CurrentFolderNameReturner().replace("Editor","aaa"),{"item 1": [19,True],"item 2": ["shit","helo"]},MakeIfNotFound=True)
     SaveFile('helo.txt',CurrentFolderNameReturner(),"helo\nmy")
-    print("selected file:",OpenSeletor())
+    print("selected file:",Openselector())

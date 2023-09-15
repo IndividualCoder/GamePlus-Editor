@@ -4,16 +4,18 @@ from ursina.color import tint
 from OtherStuff import CustomWindow
 from SceneEditor import SceneEditor
 from random import randint
-from OpenFile import OpenSeletor
+from OpenFile import Openselector
+
 class ProjectEditor(Entity):
-    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,cam = camera,enabled = True,**kwargs):
+    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
         super().__init__(kwargs)
         self.ExportToPyFunc = ExportToPyFunc
         self.CurrentTabs = CurrentTabs
         self.EditorCamera = EditorCamera
         self.IsEditing = True
         self.enabled = enabled
-
+        self.ToAddTabsText = ToAddTabsText
+        self.ToAddTabsFunc = ToAddTabsFunc
 
         self.UniversalParentEntity = Entity(parent = cam.ui,enabled = self.enabled)
 
@@ -24,7 +26,12 @@ class ProjectEditor(Entity):
 
         self.ProjectTabsScrollEntity = Button(parent = self.TabsMenuParentEntity,radius=0,color = tint(color.green,-.1),highlight_color = tint(color.green,-.1),pressed_color = tint(color.green,-.1),origin = (-.5,0,0),position = Vec3(0.2277, 0, -21),rotation = Vec3(0, 0, 0),scale = Vec3(.271, 1, 1),always_on_top = True,render_queue = -2)
 
-        self.AddEditorToPrjectButton = Button(parent = self.TabsForegroundParentEntity,text = "+",on_click = Func(print,"hi"),render_queue = self.TabsForegroundParentEntity.render_queue,always_on_top = True,radius=.1)
+        self.AddEditorToPrjectButton = Button(parent = self.TabsForegroundParentEntity,text = "+",on_click = self.ShowToAddTabsMenu,render_queue = self.TabsForegroundParentEntity.render_queue,always_on_top = True,radius=.1)
+        self.BDict = {}
+        for i in range(len(self.ToAddTabsText)):
+            self.BDict[self.ToAddTabsText[i]] = self.ToAddTabsFunc[i]
+        self.AddEditorToPrjectButtonList = ButtonList(dict(zip([i for i in self.ToAddTabsText],[i for i in self.ToAddTabsFunc])),scale = 10,scale_y = 30,parent  = self.AddEditorToPrjectButton,color = color.red,render_queue = -1,always_on_top = True)
+        print(dict(zip([i for i in self.ToAddTabsText],[i for i in self.ToAddTabsFunc])))
 
         self.SaveProjectButton = Button(parent = self.TopButtonsParentEntity,text="Save",color = color.blue,radius  = 0,position =(-0.437, 0, -25),scale = (1/11,0.7),always_on_top = True) #Vec3(0.179, 0.0385, 1)
         self.FinishProjectButton = Button(parent = self.TopButtonsParentEntity,text="Finish",color = color.blue,radius  = 0,position =(-0.337, 0, -25),scale = (1/11,0.7),on_click = self.FinishProject,always_on_top = True) #Vec3(0.179, 0.0385, 1)
@@ -57,7 +64,7 @@ class ProjectEditor(Entity):
                 self.CurrentTabs[i].IsEditing = False
 
     def ExportToPy(self):
-        self.ExportToPyFunc(OpenSeletor())
+        self.ExportToPyFunc(Openselector())
 
     def CancelFinishingProject(self):
         self.EditorCamera.enable()
@@ -129,6 +136,9 @@ class ProjectEditor(Entity):
             if len(Entity.children[i].children) > 0:
                 self.PrintItemStatTemp(Entity.children[i])
 
+    def ShowToAddTabsMenu(self):
+        self.AddEditorToPrjectButtonList.enable()
+
     def DestroyCurrentWindow(self):
         self.CurrentCustomWindow.PlayerNotQuitting()
         # print("hi")
@@ -149,7 +159,7 @@ if __name__ == "__main__":
     app = Ursina()
     cam = EditorCamera()
     Sky()
-    editor = ProjectEditor(ExportToPyFunc=Func(print_on_screen,"<color:red>yeah <color:blue>yes"),CurrentTabs=[SceneEditor(EditorCamera=cam,enabled=False,WorldItems=[],ToImport=set(),SaveFunction=Func(print,'hi'),ShowInstructionFunc=Func(print,"e")),CodeEditorPython(enabled=False)],EditorCamera=cam)
+    editor = ProjectEditor(ExportToPyFunc=Func(print_on_screen,"<color:red>yeah <color:blue>yes"),CurrentTabs=[SceneEditor(EditorCamera=cam,enabled=False,WorldItems=[],ToImport=set(),SaveFunction=Func(print,'hi'),ShowInstructionFunc=Func(print,"e")),CodeEditorPython(enabled=False)],EditorCamera=cam,ToAddTabsText=["helo","by","hi"],ToAddTabsFunc=[Func(print,"helo"),Func(print,"by"),Func(print,"hi")])
     editor.AddTabsMenuButtons()
     top,left = 0.001,0.001
     editor.SetUp()
@@ -161,62 +171,62 @@ if __name__ == "__main__":
     # print(editor.CurrentTabs)
 
 
-    def input(key):
-        global top,bottom,left,right,toedit
-        if key == "-":
-            editor.UpdateTabsMenu()
-        if key in ["w","w hold"] and not held_keys["shift"]:
-            # top += .001
+    # def input(key):
+    #     global top,bottom,left,right,toedit
+    #     if key == "-":
+    #         editor.UpdateTabsMenu()
+    #     if key in ["w","w hold"] and not held_keys["shift"]:
+    #         # top += .001
 
-            toedit.y += top
-        elif key in ["s","s hold"] and not held_keys["shift"]:
-            # bottom += .001
-            toedit.y -= top
-        elif key in ["a","a hold"] and not held_keys["shift"]:
-            # left += .001
-            toedit.x -= left
-        elif key in ["d","d hold"] and not held_keys["shift"]:
-            # right += .001
-            toedit.x += left
+    #         toedit.y += top
+    #     elif key in ["s","s hold"] and not held_keys["shift"]:
+    #         # bottom += .001
+    #         toedit.y -= top
+    #     elif key in ["a","a hold"] and not held_keys["shift"]:
+    #         # left += .001
+    #         toedit.x -= left
+    #     elif key in ["d","d hold"] and not held_keys["shift"]:
+    #         # right += .001
+    #         toedit.x += left
 
-        elif key in ["r","r hold"] and not held_keys["shift"]:
-            # left += .001
-            toedit.scale_x += left
-            toedit.collider = toedit.collider
-        elif key in ["t","t hold"] and not held_keys["shift"]:
-            # right += .001
-            toedit.scale_y += left
-            toedit.collider = toedit.collider
+    #     elif key in ["r","r hold"] and not held_keys["shift"]:
+    #         # left += .001
+    #         toedit.scale_x += left
+    #         toedit.collider = toedit.collider
+    #     elif key in ["t","t hold"] and not held_keys["shift"]:
+    #         # right += .001
+    #         toedit.scale_y += left
+    #         toedit.collider = toedit.collider
 
-        elif key in ["r","r hold"] and held_keys["shift"]:
-            # left += .001
-            toedit.scale_x -= left
-            toedit.collider = toedit.collider
-        elif key in ["t","t hold"] and held_keys["shift"]:
-            # right += .001
-            toedit.scale_y -= left
-            toedit.collider = toedit.collider
+    #     elif key in ["r","r hold"] and held_keys["shift"]:
+    #         # left += .001
+    #         toedit.scale_x -= left
+    #         toedit.collider = toedit.collider
+    #     elif key in ["t","t hold"] and held_keys["shift"]:
+    #         # right += .001
+    #         toedit.scale_y -= left
+    #         toedit.collider = toedit.collider
 
-        elif key == "up arrow":
-            left += 0.001
-            top += 0.001
-        elif key == "down arrow":
-            left -= 0.001
-            top -= 0.001
+    #     elif key == "up arrow":
+    #         left += 0.001
+    #         top += 0.001
+    #     elif key == "down arrow":
+    #         left -= 0.001
+    #         top -= 0.001
 
-        # elif key == "o":
-        #     if toedit == editor.TempButton1 :
-        #         toedit = editor.TempButton2
-        #     elif toedit == editor.TempButton2 :
-        #         toedit = editor.TempButton1
+    #     # elif key == "o":
+    #     #     if toedit == editor.TempButton1 :
+    #     #         toedit = editor.TempButton2
+    #     #     elif toedit == editor.TempButton2 :
+    #     #         toedit = editor.TempButton1
 
-        elif key == "p":
-            # dis = 0
-            # ray = raycast(origin=editor.TempButton1.position,direction=editor.TempButton2.position,traverse_target=editor.TempButton2,debug=True)
-            # if ray.hit:
-            # print(ray.hit)
-            # print(dis)
-            editor.PrintItemStatTemp(editor.UniversalParentEntity)
+    #     elif key == "p":
+    #         # dis = 0
+    #         # ray = raycast(origin=editor.TempButton1.position,direction=editor.TempButton2.position,traverse_target=editor.TempButton2,debug=True)
+    #         # if ray.hit:
+    #         # print(ray.hit)
+    #         # print(dis)
+    #         editor.PrintItemStatTemp(editor.UniversalParentEntity)
 
     # def update():
     #     if held_keys["1"]:

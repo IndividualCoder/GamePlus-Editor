@@ -5,14 +5,14 @@ from ProjectSaver import ProjectSaver
 # from CurrentFolderNameReturner import CurrentFolderNameReturner
 from OtherStuff import FormatForSaving,CurrentFolderNameReturner
 import os
-from OpenFile import OpenFile,SaveFile,OpenSeletor
+from OpenFile import OpenFile,SaveFile
 from ursina.prefabs.memory_counter import MemoryCounter
 from CoreFiles.InstructionMenu import InstructionMenu
 from ursina.color import tint
 from ProjectExporter import ProjectExporter
 from ProjectEditor import ProjectEditor
 from CodeEditorPython import CodeEditorPython
-
+import atexit
 
 
 class UrsinaEditor(Entity):
@@ -33,14 +33,13 @@ class UrsinaEditor(Entity):
         self.NonConfiableEditorData = OpenFile("Non configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.NonConfiableEditorDataDefault,True)
         self.InstructionList = []
 
-        self.ConfiableEditorDataDefault = {"Show tooltip":True,"Test": 0}
-        self.ConfiableEditorDataDefaultType = [bool,int]
+        self.ConfiableEditorDataDefault = {"Show tooltip":True,"Auto save on exit": False,"Show memory counter": True}
+        self.ConfiableEditorDataDefaultType = ["bool","bool","bool"]
         self.ConfiableEditorData = OpenFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.ConfiableEditorDataDefault,True)
         self.FolderName = os.path.dirname(os.path.abspath(__file__))
         self.RecentEdits = ["",""]
         self.ProjectSettings = None
 
-        self.MemoryCounter = MemoryCounter()
         self.StartingUi = StartingUI(EditorDataDict=  self.ConfiableEditorData,OnProjectStart=self.StartEdit,ExistingProjectsName=self.NonConfiableEditorData["CurrentProjectNames"],ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,ShowInstructionFunc = self.ShowInstruction)
         # self.StartingUi.ShowRecentProjects()
         # self.StartingUi.RecentProjectsScrollerParentEntity.= len(self.StartingUi.TotalRunningProjects)
@@ -73,17 +72,25 @@ class UrsinaEditor(Entity):
         # self.WorldItems = self.SceneEditor.WorldItems
         # self.ToImport = self.SceneEditor.ToImport
         # print(type(self.WorldItems[0]).__name__)
+
         self.ProjectSettings = self.StartingUi.ProjectSettings
         self.ProjectName = self.StartingUi.ProjectName
-        # print(self.StartingUi.ProjectSettings)
+        print(self.StartingUi.ProjectSettings)
         ProjectSaver(ProjectName = self.ProjectName,UdFunc = self.UDFunc,UdVar=self.UDVars,Udsrc=self.UDSrc,WindowConfig=self.WindowConfing,ToImport=list(self.ToImport),Items = self.WorldItems,Path=f'{FormatForSaving(self.FolderName)}Current Games',GameSettings=self.ProjectSettings)
         # print(type(self.ProjectName).__name__)
         if not self.ProjectName in self.NonConfiableEditorData["CurrentProjectNames"]:
             self.NonConfiableEditorData["CurrentProjectNames"].append(self.ProjectName)
             self.SaveData()
 
+    def SaveOnExit(self):
+        if self.ConfiableEditorData["Auto save on exit"] and self.StartingUi.ProjectName:
+            self.Save()
     def Setup(self):
-        # self.EditorData = 
+        # Register the exit_handler function
+        self.MemoryCounter = MemoryCounter(enabled=self.ConfiableEditorData["Show memory counter"])
+
+        atexit.register(self.SaveOnExit)
+
         self.StartingUi.Setup()
         self.StartingUi.ShowRecentProjects(self.WorldItems)
 
@@ -92,10 +99,7 @@ class UrsinaEditor(Entity):
         # print("saveing")
         SaveFile("Non configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.NonConfiableEditorData)
         SaveFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.ConfiableEditorData)
-        try:
-            self.ProjectEditor.UpdateTabsMenu()
-        except:
-            pass
+
     def ChangeConfigDataToDefaultType(self,Data: dict):
         try:
             for i in range(len(self.ConfiableEditorDataDefaultType)):
@@ -110,22 +114,26 @@ class UrsinaEditor(Entity):
                         Data[list(Data)[i]] = True
                     elif Data[list(Data)[i]].lower() == "false":
                         Data[list(Data)[i]] = False
+                    else:
+                        Data[list(Data)[i]] = True
 
                 elif type(self.ConfiableEditorDataDefault[list(self.ConfiableEditorDataDefault)[i]]).__name__ == "str":
                     Data[list(Data)[i]] = str(Data[list(Data)[i]])
+
+                print(type(self.ConfiableEditorDataDefault[list(self.ConfiableEditorDataDefault)[i]]).__name__,list(self.ConfiableEditorDataDefault)[i])
 
                 # self.ConfiableEditorDataDefaultType[i]
 
             self.ConfiableEditorData = Data
             # print("helo",self.ConfiableEditorData)
-            self.StartingUi.EditorDataDict = self.ConfiableEditorData
-            self.StartingUi.ConfigEditorAsSettings()
+            self.ConfigEditorAsSettings()
 
         except Exception as e:
             print(e)
 
-    def ShowInstruction(self,Str,Color = tint(color.white,-.6)):
-        self.InstructionList.append(InstructionMenu(ToSay=Str,OnXClick=Func(self.DestroyInstruction,Index = -1),DestroyFunc=Func(self.DestroyInstruction,Index = -1),Color=Color))
+
+    def ShowInstruction(self,Str,Color = tint(color.white,-.6),Title = "Info",KillIn = 1,KillAfter = 5,WordWrap = 40):
+        self.InstructionList.append(InstructionMenu(ToSay=Str,OnXClick=Func(self.DestroyInstruction,Index = -1),Title=Title,DestroyFunc=Func(self.DestroyInstruction,Index = -1),Color=Color,KillIn =KillIn,killAfter=KillAfter,WordWrap=WordWrap))
 
     def AddSceneEditor(self):
         self.ProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,WorldItems=self.WorldItems,SaveFunction= self.Save,ShowInstructionFunc = self.ShowInstruction,ToImport=self.ToImport,ExportToPyFunc=self.ExportProjectToPy,EditorCamera = self.EditorCamera))
@@ -165,8 +173,12 @@ class UrsinaEditor(Entity):
         # print("helo")
         for i in range(len(self.InstructionList)):
             # self.InstructionList[i].kill(.2)
-            destroy(self.InstructionList[i],delay=.3)
+            destroy(self.InstructionList[i],delay=.1)
 
+    def ConfigEditorAsSettings(self):
+        self.MemoryCounter.enabled = self.ConfiableEditorData["Show memory counter"]
+        self.StartingUi.EditorDataDict = self.ConfiableEditorData
+        self.StartingUi.ConfigEditorAsSettings()
 
 
     def ExportProjectToPy(self,Path):
@@ -189,7 +201,7 @@ class UrsinaEditor(Entity):
 if __name__ == "__main__":
     from panda3d.core import AntialiasAttrib
     from direct.filter.CommonFilters import CommonFilters
-    app = Ursina()
+    app = Ursina() 
     window.exit_button.disable()
     window.fps_counter.disable()
     # window.fullscreen = True

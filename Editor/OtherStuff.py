@@ -1,6 +1,7 @@
 from ursina import Text,color,Entity,camera,Button,Func,destroy,application,Slider,Sequence
 from ursina.prefabs.window_panel import WindowPanel
 import os
+import shutil
 
 def ValueToString(value: bool):
     if value:
@@ -63,7 +64,11 @@ def FormatForSaving(string: str):
 
 
 def CurrentFolderNameReturner():
-    return os.path.dirname(os.path.abspath(__file__))
+    return os.path.dirname(os.path.abspath(__file__)).replace("\\","/")
+
+def DeleteProject(Name,Path):
+    shutil.rmtree(f"{Path}/{Name}")
+
 # print(CurrentFolderNameReturner())
 # print(TextToVar("hew:lwOr X"))
 
@@ -115,51 +120,3 @@ def ScaleTransformer(Obj,MinValue:int = 0.01,MaxValue:int =  1):
 
 
 
-from ursina import ButtonList,mouse
-
-class AssetMenu(Entity):
-    def __init__(self):
-        super().__init__(parent=camera.ui, enabled=True, z=-2, name=__class__.__name__)
-        self.button_list = ButtonList({}, parent=self, font='VeraMono.ttf', x=-.25*.75, scale=.75)
-        self.bg = Entity(parent=self.button_list, model='quad', collider='box', color=color.black33, on_click=self.disable, z=.1, scale=100)
-
-    def on_enable(self):
-        if not self.asset_names:
-            print('no texture assets found')
-            # return
-        asset_dict = {name : Func(self.on_select_asset, name) for name in self.asset_names}
-        self.button_list.button_dict = asset_dict
-        self.button_list.y = len(asset_dict) / 2 * self.button_list.button_height * Text.size
-        self.button_list.x = mouse.x
-        self.button_list.y = mouse.y
-
-
-class ModelMenu(AssetMenu):
-    def on_enable(self):
-        # self.model_names = [e.stem for e in application.internal_models_compressed_folder.glob('**/*.ursinamesh')]
-        self.asset_names = ['None', 'cube', 'sphere', 'plane']
-        for file_type in ('.bam', '.obj', '.ursinamesh'):
-            self.asset_names += [e.stem for e in application.asset_folder.glob(f'**/*{file_type}') if not 'animation' in e.stem]
-
-        super().on_enable()
-
-    def on_select_asset(self, name):
-        if name == 'None':
-            name = None
-
-        changes = []
-        for e in LEVEL_EDITOR.selection:
-            index = LEVEL_EDITOR.entities.index(e)
-            if not e.model:
-                changes.append((index, 'model', None, name))
-            else:
-                changes.append((index, 'model', e.model.name, name))
-
-        for e in LEVEL_EDITOR.selection:
-            e.model = name
-            if name == 'cube':
-                e.collider = 'cube'
-            else:
-                e.collider = None
-
-        LEVEL_EDITOR.menu_handler.state = 'None'

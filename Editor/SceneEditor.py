@@ -19,6 +19,9 @@ class SceneEditor(Entity):
         self.EditorCamera = EditorCamera
         self.IsEditing = True
 
+
+        self.AddObjectTextList = ["Add static object","Add dynamic object","Add FPC","Add TPC","Add abstraction"]
+        self.AddObjectOnClickFuncList = [self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene]
         self.BasicFunctions = ["Position x: ","Position y: ","Position z: ","Rotation x: ","Rotation y: ","Rotation z: ","Scale x: ","Scale y: ","Scale z: ","Color: ","Texture: "]
         self.ToEditEntity = None
         self.PosSnapping2d = .01
@@ -38,35 +41,27 @@ class SceneEditor(Entity):
 
         self.WorldGrid = [Entity(parent=self, model=Grid(100,100), rotation_x=90, scale=distance(camera.position,(0,0,0)), collider=None, color=color.black33),Entity(parent=self, model=Grid(100,100), rotation_x=90, scale=distance(camera.position,(0,0,0))*10, collider=None, color=color.black33)]
         self.DirectionEntity = DirectionEntity(cam2.ui,window.top_right- Vec2(.1,.038),self.EditorCamera,camera,enabled = enabled,z = -30,always_on_top = True,render_queue = 1)
-        # self.DirectionEntity.setAntialias(AntialiasAttrib.MAuto)
-        #will make these buttons generate by a function later in time
-        self.AddObjectEntityButton = Button(name = "Add an entity in scene",parent = self.AddObjectMenuParentEntity,text="Add Entity",texture = "white_cube",position = Vec3(-0.41, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddEntityInScene)
-        self.AddObjectButtonButton = Button(name = "Add a button in scene",parent = self.AddObjectMenuParentEntity,text="Add Button",texture = "white_cube",position = Vec3(-0.23, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddButtonInScene)
-        self.AddObjectCharacterButton = Button(name = "Add a button in scene",parent = self.AddObjectMenuParentEntity,text="Add an\nAI character",texture = "white_cube",position = Vec3(-0.05, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddButtonInScene)
-        self.AddObjectInputFieldButton = Button(name = "Add a input field in scene",parent = self.AddObjectMenuParentEntity,text="Add Input field",texture = "white_cube",position = Vec3(0.13, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddInputFieldInScene)
-        self.AddObjectTextFieldButton = Button(name = "Add a text field in scene",parent = self.AddObjectMenuParentEntity,text="Add Text field",texture = "white_cube",position = Vec3(0.31, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddTextFieldInScene)
-        self.AddObjectDraggableButton = Button(name = "Add a draggable in scene",parent = self.AddObjectMenuParentEntity,text="Add Draggable",texture = "white_cube",position = Vec3(0.49, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddDraggableInScene)
-        self.AddObjectDropdownSimpleButton = Button(name = "Add a dropdown(simple) in scene",parent = self.AddObjectMenuParentEntity,text="Add\nSimple Dropdown",texture = "white_cube",position = Vec3(0.67, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddDropdownSimpleInScene)
-        self.AddObjectDropdownAdvanceButton = Button(name = "Add a dropdown(advance) in scene",parent = self.AddObjectMenuParentEntity,text="Add\nAdvance Dropdown",texture = "white_cube",position = Vec3(0.85, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddDropdownAdvanceInScene)
-        self.AddObjectCustomWindowButton = Button(name = "Add a custom window in scene",parent = self.AddObjectMenuParentEntity,text="Add Window panel",texture = "white_cube",position = Vec3(1.02, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddCustomWindowInScene)
-        self.AddObjectHealthbarButton = Button(name = "Add a healthbar in scene",parent = self.AddObjectMenuParentEntity,text="Add Healthbar",texture = "white_cube",position = Vec3(1.2, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddHealthbarInScene)
-        self.AddObjectSliderButton = Button(name = "Add a slider in scene",parent = self.AddObjectMenuParentEntity,text="Add Horizontal Slider",texture = "white_cube",position = Vec3(1.3899, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddSliderInScene)
-        self.AddObjectThinSliderButton = Button(name = "Add a vertical slider in scene",parent = self.AddObjectMenuParentEntity,text="Add\nVertical silder",texture = "white_cube",position = Vec3(1.57, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddThinSliderInScene)
-        self.AddObjectFpcButton = Button(name = "Add a FPC in scene",parent = self.AddObjectMenuParentEntity,text="Add FPC\n(First person controller)",texture = "white_cube",position = Vec3(1.75, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddFpcInScene)
-        self.AddObjectTpcButton = Button(name = "Add a TPC in scene",parent = self.AddObjectMenuParentEntity,text="Add TPC\n(Third person controller)",texture = "white_cube",position = Vec3(1.93, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddTpcInScene)
-        self.AddObjectAbstractionButton = Button(name = "Add an abstraction",parent = self.AddObjectMenuParentEntity,text="Add\nAbstraction",texture = "white_cube",position = Vec3(2.10, -1.02, 0),scale = Vec3(0.1800007, 1, 1),color = color.blue,radius = 0,on_click  = self.AddAbstractionInScene)
+
+    def UpdateScroller(self):
+        if len(self.AddObjectMenuParentEntity.children) == 5:
+            self.AddedScriptAddObjectMenu.update_target("min",self.AddedScriptAddObjectMenu.min - 0.17)
+            return
+        self.AddedScriptAddObjectMenu.update_target("min",self.AddedScriptAddObjectMenu.min - 0.3042)
 
     def GetPosTemp(self):
         self.AddedScriptAddObjectMenu = self.AddObjectMenuParentEntity.add_script(Scrollable(min=.38,max=.38,scroll_speed = .03,axis = "x"))
-        for i in range(1,len(self.AddObjectMenuParentEntity.children)):
-            self.AddObjectMenuParentEntity.children[i].x = self.AddObjectMenuParentEntity.children[i-1].x + 0.18
-            self.AddedScriptAddObjectMenu.update_target("min",self.AddedScriptAddObjectMenu.min - 0.23)
-            print(self.AddedScriptAddObjectMenu.min)
+        for i in range(len(self.AddObjectTextList)):
+            self.AddObjectToScroll(Button(parent = self.AddObjectMenuParentEntity,text=self.AddObjectTextList[i],scale = Vec3(0.1800007, 1, 1),radius=0,color=color.blue,texture = "white_cube",position = Vec3(-0.41+i*.18, -1.02, 0),on_click = self.AddObjectOnClickFuncList[i]))
+            # print(self.AddedScriptAddObjectMenu.min)
 
             # self.AddObjectMenuParentEntity.children[i].color = color.white
             # print(self.AddObjectMenuParentEntity.children[i].x,"  :  ",self.AddObjectMenuParentEntity.children[i].name)
         # self.AddObjectMenuParentEntity.add_script(Scrollable(min=len(self.AddObjectMenuParentEntity.children)/-5.2,max=.38,scroll_speed = .03,axis = "x"))
 
+    def AddObjectToScroll(self,object): 
+        self.AddObjectMenuParentEntity.children.append(object)
+        if len(self.AddObjectMenuParentEntity.children) > 4:
+            self.UpdateScroller()
 
     def AddEntityInScene(self):
         self.WorldItems.append(Entity(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",collider = "mesh",collision = True,hovered = True,color = color.white))
@@ -76,27 +71,27 @@ class SceneEditor(Entity):
         # print("helo",type(self.ToEditEntity).__name__)
 
 
-    def AddButtonInScene(self):
-        self.WorldItems.append(Button(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
-        self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
-        self.ScrollUpdater.update_target("max",34)
-        self.ToEditEntity = self.WorldItems[-1]
-        # print_on_screen(self.AddObjectButtonButton.name)
+    # def AddButtonInScene(self):
+    #     self.WorldItems.append(Button(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
+    #     self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
+    #     self.ScrollUpdater.update_target("max",34)
+    #     self.ToEditEntity = self.WorldItems[-1]
+    #     # print_on_screen(self.AddObjectButtonButton.name)
 
-    def AddInputFieldInScene(self):
-        self.WorldItems.append(InputField(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
-        self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
-        self.ScrollUpdater.update_target("max",34)
-        self.ToEditEntity = self.WorldItems[-1]
+    # def AddInputFieldInScene(self):
+    #     self.WorldItems.append(InputField(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
+    #     self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
+    #     self.ScrollUpdater.update_target("max",34)
+    #     self.ToEditEntity = self.WorldItems[-1]
 
-    def AddTextFieldInScene(self): print_on_screen(self.AddObjectTextFieldButton.name)
-    def AddDraggableInScene(self): print_on_screen(self.AddObjectDraggableButton.name)
-    def AddDropdownSimpleInScene(self): print_on_screen(self.AddObjectDropdownSimpleButton.name)
-    def AddDropdownAdvanceInScene(self): print_on_screen(self.AddObjectDropdownAdvanceButton.name)
-    def AddCustomWindowInScene(self): print_on_screen(self.AddObjectCustomWindowButton.name)
-    def AddHealthbarInScene(self): print_on_screen(self.AddObjectHealthbarButton.name)
-    def AddSliderInScene(self): print_on_screen(self.AddObjectSliderButton.name)
-    def AddThinSliderInScene(self): print_on_screen(self.AddObjectThinSliderButton.name)
+    # def AddTextFieldInScene(self): print_on_screen(self.AddObjectTextFieldButton.name)
+    # def AddDraggableInScene(self): print_on_screen(self.AddObjectDraggableButton.name)
+    # def AddDropdownSimpleInScene(self): print_on_screen(self.AddObjectDropdownSimpleButton.name)
+    # def AddDropdownAdvanceInScene(self): print_on_screen(self.AddObjectDropdownAdvanceButton.name)
+    # def AddCustomWindowInScene(self): print_on_screen(self.AddObjectCustomWindowButton.name)
+    # def AddHealthbarInScene(self): print_on_screen(self.AddObjectHealthbarButton.name)
+    # def AddSliderInScene(self): print_on_screen(self.AddObjectSliderButton.name)
+    # def AddThinSliderInScene(self): print_on_screen(self.AddObjectThinSliderButton.name)
     def AddFpcInScene(self): print_on_screen(self.AddObjectFpcButton.name)
     def AddTpcInScene(self): print_on_screen(self.AddObjectTpcButton.name)
     def AddAbstractionInScene(self): print_on_screen(self.AddObjectAbstractionButton.name)
@@ -157,7 +152,7 @@ class SceneEditor(Entity):
         if self.IsEditing:
             if key == "s" and held_keys["control"] and not held_keys["shift"]:
                 self.Save()
-                self.ShowInstructionFunc("Saved!",Color = tint(color.white,-.6))
+                self.ShowInstructionFunc("Your project is saved :)",Color = tint(color.white,-.6),Title = "Saved!")
 
             elif key in ["left mouse","left mouse down"]:
                 if mouse.hovered_entity in self.WorldItems:
@@ -257,6 +252,7 @@ class SceneEditor(Entity):
         self.DirectionEntity.right_text.render_queue = 1
         self.DirectionEntity.top_text.render_queue = 1
         self.DirectionEntity.bottom_text.render_queue = 1
+
 
 if __name__ == "__main__":
     from OtherStuff import *
