@@ -5,6 +5,7 @@ class CodeEditorPython(Entity):
         super().__init__()
         self.CodeBlocks = CodeBlocks
         self.PosSnapping = 0.004
+        self.ScaleSnapping = 100
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
@@ -20,6 +21,7 @@ class CodeEditorPython(Entity):
         self.constantOneStencil = StencilAttrib.make(1, StencilAttrib.SCFAlways, StencilAttrib.SOZero, StencilAttrib.SOReplace, StencilAttrib.SOReplace, 1, 0, 1)
         self.stencilReader = StencilAttrib.make(1, StencilAttrib.SCFEqual, StencilAttrib.SOKeep, StencilAttrib.SOKeep, StencilAttrib.SOKeep, 1, 1, 0)
 
+        self.temp = Button(name = "EveryItemMenuParentEntity",parent = self.CodeBlockGraph,model = "cube",NotRotateOnHover = True,color = color.black,scale = Vec3(0.001, 0.001, 1),position = Vec3(0,0,0),render_queue  = -2)
 
         self.cm = CardMaker("cardmaker")
         self.cm.setFrame(-.25,.882,-.49,.433)
@@ -73,15 +75,33 @@ class CodeEditorPython(Entity):
     def input(self,key):
         if key == "up arrow":
             self.PosSnapping += 0.001
+            return
         elif key == "down arrow":
             self.PosSnapping -= 0.001
+            return
+        elif key == "up arrow" and held_keys["shift"]:
+            self.PosSnapping += 10
+            return
+        elif key == "down arrow" and held_keys["shift"]:
+            self.PosSnapping -= 10
+            return
+
+        elif key == "1":
+            self.CodeBlockGraph.scale = (self.CodeBlockGraph.scale_x + self.ScaleSnapping,self.CodeBlockGraph.scale_y + self.ScaleSnapping,1)
+            return
+        elif key == "2":
+            self.CodeBlockGraph.scale =  (self.CodeBlockGraph.scale_x - self.ScaleSnapping,self.CodeBlockGraph.scale_y - self.ScaleSnapping,1)
+            return
 
         elif key == "o" and held_keys["control"]:
             self.CodeBlockGraph.x = 0
             self.CodeBlockGraph.y = 0
+            return
 
         elif key == "r" and held_keys["control"]:
             self.PosSnapping = 0.004
+            return
+
 
 if __name__ == "__main__":
     from ProjectEditor import ProjectEditor

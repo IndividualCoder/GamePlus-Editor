@@ -200,7 +200,7 @@ class UrsinaEditor(Entity):
 
 if __name__ == "__main__":
     from panda3d.core import AntialiasAttrib
-    from direct.filter.CommonFilters import CommonFilters
+    # from direct.filter.CommonFilters import CommonFilters
     app = Ursina() 
     window.exit_button.disable()
     window.fps_counter.disable()
@@ -209,15 +209,14 @@ if __name__ == "__main__":
 
     # filters = CommonFilters(base.win, base.cam)
 
-    # filters.setCartoonInk(separation  = .9)
-
+    # filters.setMSAA(1)
     # from ursina.shaders.basic_lighting_shader import basic_lighting_shader
     # camera.shader = basic_lighting_shader
     # from ursina.camera
     # def input(key):
     #     if key == "-":
     #         Editor.ProjectEditor.UpdateTabsMenu()
-
+    # camera.shader = Shader(fragment="shader/camera_motion_blur.frag.glsl")
     Editor = UrsinaEditor(EditCam := EditorCamera()) # the ':=' operator is called walrus operator. google it!  
     Editor.Setup()
     render.setAntialias(AntialiasAttrib.MAuto)

@@ -4,8 +4,10 @@ from ursina.prefabs.dropdown_menu import DropdownMenuButton
 from CoreFiles.dropdown_menu import DropdownMenu as SimpleDropdownMenu
 from RecentProjectFinder import GetRecentProjects
 from ProjectLoader import LoadProjectToScene
-# Dropdown menu fixing
+# from ursina import color
 
+# Dropdown menu fixing
+# color
 class StartingUI(Entity):
     def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
         super().__init__(parent = camera.ui)

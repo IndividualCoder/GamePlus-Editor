@@ -115,7 +115,7 @@ class SceneEditor(Entity):
             Parent.children.append(Text(parent = Parent,text = f"{self.BasicFunctions[i]}",scale = 2,y = -i*0.08+.36,z = 20,x = -.47))
         
         for i in range(len(self.BasicFunctions)):
-            Parent.children.append(InputField(name = TextToVar(self.BasicFunctions[i],'_'),parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,submit_on='enter',on_submit = Func(self.UpdateItemContent,Obj,Parent)))
+            Parent.children.append(InputField(name = TextToVar(self.BasicFunctions[i],'_'),submit_on=["enter","escape"],parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,enter_active = True,on_submit = Func(self.UpdateItemContent,Obj,Parent)))
 
             if i > 0:
                 Parent.children[i-1].next_field = Parent.children[i]
