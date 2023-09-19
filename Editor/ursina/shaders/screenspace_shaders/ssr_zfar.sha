@@ -1,0 +1,112 @@
+//Cg
+//Cg profile glslv glslf
+
+// This parameters should be configured according to Far and Near plane
+// of your main camera
+const float zFar = 500.0;       
+const float zNear = 1.0;        
+const float maxDelta = 0.001;   // Delta depth test value
+const float rayLength = 0.02;   // 0..1 Ray length (percent of zFar)
+const int stepsCount = 35;      // Quality. With too match value may 
+                                // be problem on non-nvidia cards
+                                
+const float fade = 1.1;         // Fade out reflection
+
+// --------------------- Vertex program ----------------------------
+
+void vshader(float4 vtx_position : POSITION, 
+        uniform float4x4 mat_modelproj,
+        uniform float4 texpad_albedo,
+        out float4 l_position : POSITION,
+        out float2 l_texcoord0 : TEXCOORD0,
+        out float2 l_texcoord1 : TEXCOORD1)
+{
+    l_position = mul(mat_modelproj, vtx_position);
+    l_texcoord0 = vtx_position.xz * texpad_albedo.xy + texpad_albedo.xy;
+    l_texcoord1 = vtx_position.xz;
+}
+
+// --------------------- Fragment program ----------------------------
+
+float linearizeDepth(float depth)
+{
+    return (2.0 * zNear) / (zFar + zNear - depth * (zFar - zNear));
+}
+
+
+
+float4 raytrace(in float3 startPos, 
+              in float3 endPos, 
+              uniform float4x4 mat_proj,
+              uniform sampler2D albedo : TEXUNIT0,
+              uniform sampler2D depth : TEXUNIT1,
+              in float4 texpad_albedo)
+{
+    // Convert start and end positions of reflect vector from the
+    // camera space to the screen space
+    float4 startPosSS = mul(mat_proj, float4(startPos,1));
+    startPosSS /= startPosSS.w;
+    startPosSS.xy = startPosSS.xy * texpad_albedo.xy + texpad_albedo.xy;
+    float4 endPosSS = mul(mat_proj, float4(endPos,1));
+    endPosSS /= endPosSS.w;
+    endPosSS.xy = endPosSS.xy * texpad_albedo.xy + texpad_albedo.xy;
+    // Reflection vector in the screen space
+    //float3 vectorSS = normalize(endPosSS.xyz - startPosSS.xyz)*stepSize;
+    float3 vectorSS = (endPosSS.xyz - startPosSS.xyz)/stepsCount;
+    
+    // Init vars for cycle
+    float2 samplePos = 0;       // texcoord for the depth and color
+    float sampleDepth = 0;      // depth from texture
+    float currentDepthSS = 0;   // current depth calculated with reflection vector in screen space
+    float currentDepth = 0;     // current depth calculated with reflection vector
+    float deltaD = 0;
+    float4 color = 0;
+    for (int i = 1; i < stepsCount; i++)
+    {
+        samplePos = (startPosSS.xy + vectorSS.xy*i);
+        currentDepthSS = startPosSS.z + vectorSS.z*i;
+        currentDepth = linearizeDepth(currentDepthSS);        
+        sampleDepth = linearizeDepth( f1tex2D(depth, samplePos) );
+        deltaD = currentDepth - sampleDepth;
+        if ( deltaD > 0 && deltaD < maxDelta * currentDepthSS)
+        //if ( deltaD > 0 && deltaD < maxDelta)
+        {
+            color = tex2D(albedo, samplePos);
+            color.a *= fade * (1 - (float)i / (float)stepsCount);
+            break;
+        }
+    }
+    return color;
+}
+
+void fshader(float2 l_texcoord0 : TEXCOORD0,
+             float2 l_texcoord1 : TEXCOORD1,
+             float4 l_position : TEXCOORD2,
+             uniform sampler2D albedo : TEXUNIT0,
+             uniform sampler2D depth : TEXUNIT1,
+             uniform sampler2D normal : TEXUNIT2,
+             uniform float4x4 trans_clip_of_mcamera_to_view_of_mcamera,
+             uniform float4x4 trans_view_of_mcamera_to_clip_of_mcamera,
+             uniform float4 texpad_albedo,
+             out float4 o_color : COLOR0)
+{
+    float4 N = tex2D(normal, l_texcoord0);
+    float D = f1tex2D(depth, l_texcoord0);
+    
+    // Camera Space position reconstruct
+    float4 P;
+    P.xy = l_texcoord1.xy;
+    P.z = D;
+    P.w = 1;
+    P = mul(trans_clip_of_mcamera_to_view_of_mcamera, P);
+    P /= P.w;
+    float3 V = normalize(P.xyz);
+    // Normal
+    N.xyz = (N.xyz - 0.5) * 2.0;
+    // Reflection vector in camera space
+    float3 R = normalize(reflect(V.xyz, N.xyz)) * zFar * rayLength;
+    
+    o_color = raytrace(P.xyz, P.xyz + R, 
+                       trans_view_of_mcamera_to_clip_of_mcamera, 
+                       albedo, depth, texpad_albedo);
+}
