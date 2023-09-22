@@ -1,14 +1,26 @@
 from ursina import *
 from ursina import invoke
 from ursina.color import tint
-from OtherStuff import CustomWindow
+from OtherStuff import CustomWindow,MultiFunctionCaller,RecursivePerformer
 from SceneEditor import SceneEditor
 from random import randint
 from OpenFile import Openselector
+from ursina import SimpleButtonList
 
 class ProjectEditor(Entity):
-    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
+    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
         super().__init__(kwargs)
+        self.UDVars = [] #User defined vars (like bye = 2 or helo = 3)
+        self.UDFunc = [] #User defined func (any function)
+        self.UDSrc = [] #User defined script or run after initializing  the item (like item.add_script(whatever the script is))
+        self.UDWindowConfig = [] #User defined configuration to apply to the window 
+        self.ToImport = {"from ursina import *","from panda3d.core import AntialiasAttrib"} # modules to import before the game starts (stored in a set)
+        self.ProjectName = ""
+        self.ProjectSettings = ProjectSettings
+        self.CurrentEditor = None
+        self.CurrentSceneEditor:SceneEditor = None
+
+
         self.ExportToPyFunc = ExportToPyFunc
         self.CurrentTabs = CurrentTabs
         self.EditorCamera = EditorCamera
@@ -16,6 +28,8 @@ class ProjectEditor(Entity):
         self.enabled = enabled
         self.ToAddTabsText = ToAddTabsText
         self.ToAddTabsFunc = ToAddTabsFunc
+
+
 
         self.UniversalParentEntity = Entity(parent = cam.ui,enabled = self.enabled)
 
@@ -27,11 +41,15 @@ class ProjectEditor(Entity):
         self.ProjectTabsScrollEntity = Button(parent = self.TabsMenuParentEntity,radius=0,color = tint(color.green,-.1),highlight_color = tint(color.green,-.1),pressed_color = tint(color.green,-.1),origin = (-.5,0,0),position = Vec3(0.2277, 0, -21),rotation = Vec3(0, 0, 0),scale = Vec3(.271, 1, 1),always_on_top = True,render_queue = -2)
 
         self.AddEditorToPrjectButton = Button(parent = self.TabsForegroundParentEntity,text = "+",on_click = self.ShowToAddTabsMenu,render_queue = self.TabsForegroundParentEntity.render_queue,always_on_top = True,radius=.1)
-        self.BDict = {}
+        self.ButtonDict = {}
+        self.AddEditorToPrjectButtonList = SimpleButtonList(self.ButtonDict,scale_x = 20,scale_y = 40,parent  = self.AddEditorToPrjectButton,color = color.red,render_queue = 4,always_on_top = True,enabled = False)
+        self.AddEditorToPrjectButtonList.Background.on_click = Func(MultiFunctionCaller,self.AddEditorToPrjectButtonList.disable,self.AddEditorToPrjectButtonList.Background.disable)
+        self.AddEditorToPrjectButtonList.Background.render_queue = 3
+
         for i in range(len(self.ToAddTabsText)):
-            self.BDict[self.ToAddTabsText[i]] = self.ToAddTabsFunc[i]
-        self.AddEditorToPrjectButtonList = ButtonList(dict(zip([i for i in self.ToAddTabsText],[i for i in self.ToAddTabsFunc])),scale = 10,scale_y = 30,parent  = self.AddEditorToPrjectButton,color = color.red,render_queue = -1,always_on_top = True)
-        print(dict(zip([i for i in self.ToAddTabsText],[i for i in self.ToAddTabsFunc])))
+            self.ButtonDict[self.ToAddTabsText[i]] = Func(MultiFunctionCaller,self.ToAddTabsFunc[i],self.AddEditorToPrjectButtonList.disable,self.AddEditorToPrjectButtonList.Background.disable)
+
+        self.AddEditorToPrjectButtonList.button_dict = self.ButtonDict
 
         self.SaveProjectButton = Button(parent = self.TopButtonsParentEntity,text="Save",color = color.blue,radius  = 0,position =(-0.437, 0, -25),scale = (1/11,0.7),always_on_top = True) #Vec3(0.179, 0.0385, 1)
         self.FinishProjectButton = Button(parent = self.TopButtonsParentEntity,text="Finish",color = color.blue,radius  = 0,position =(-0.337, 0, -25),scale = (1/11,0.7),on_click = self.FinishProject,always_on_top = True) #Vec3(0.179, 0.0385, 1)
@@ -95,14 +113,51 @@ class ProjectEditor(Entity):
         
         # a = ",".join([str(self.CurrentTabs[i].name) for i in range(len(self.CurrentTabs))])
         # print(",".join([str(self.CurrentTabs[i].name.replace("_"," ").capitalize()) for i in range(len(self.CurrentTabs))]))
+    def JumpTabs(self,ToJump):
+        if self.CurrentTabs[ToJump] == self.CurrentEditor:
+            return
+
+        self.CurrentEditor.UniversalParentEntity.disable()
+        self.CurrentEditor.disable()
+        self.CurrentEditor.ignore = True
+
+        if type(self.CurrentEditor).__name__ == "SceneEditor":
+            RecursivePerformer(self.CurrentEditor.SpecialEntities,"disable")
+
+
+        self.CurrentEditor = self.CurrentTabs[ToJump]
+        self.CurrentEditor.enable()
+        self.CurrentEditor.ignore = False
+        RecursivePerformer(self.CurrentEditor.UniversalParentEntity)
+        # self.CurrentEditor.SetUp()
+        if hasattr(self.CurrentEditor,"MakeEditorEnvironment"):
+            if type(self.CurrentEditor).__name__ == "CodeEditorPython":
+                self.CurrentEditor.MakeEditorEnvironment(application.base.camNode,(125,125,124,0),(0.0019, 0.355, 0.4599 ,0.935))
+
+            elif type(self.CurrentEditor).__name__ == "CodeEditorUrsaVisor":
+                self.CurrentEditor.AddStencilToBlocks(self.CurrentEditor.CodeBlockGraph)
+                self.CurrentEditor.MakeEditorEnvironment(application.base.camNode,(125,125,124,0),(0.0019, 0.355, 0.4599 ,0.935))
+
+            elif type(self.CurrentEditor).__name__ == "SceneEditor":
+                self.CurrentEditor.MakeEditorEnvironment(application.base.camNode,(255,255,255,0),(0.2399, .999, 0.1009, 0.938))
+        if type(self.CurrentTabs[ToJump]).__name__ == "SceneEditor":
+            self.CurrentSceneEditor = self.CurrentTabs[ToJump]
+            RecursivePerformer(self.CurrentEditor.SpecialEntities)
+
+        # for i in range(len(self.ProjectTabsScrollEntity.children)):
+        #     if self.CurrentTabs[self.ProjectTabsScrollEntity.children[i].TabNum] == self.CurrentEditor:
+        #         self.ProjectTabsScrollEntity.children[i].color = color.red
+        #         self.ProjectTabsScrollEntity.children[i].highlight_color = color.red
+
+
 
     def UpdateTabsMenu(self):
         # for i in range(len())
-        self.ProjectTabsScrollEntity.children.append(Button(text=self.CurrentTabs[len(self.ProjectTabsScrollEntity.children)].name,parent = self.ProjectTabsScrollEntity,scale = (.28,.4),position = (len(self.ProjectTabsScrollEntity.children)/3+.2,0,-22),radius=0,render_queue = self.ProjectTabsScrollEntity.render_queue))
+        self.ProjectTabsScrollEntity.children.append(Button(text=self.CurrentTabs[len(self.ProjectTabsScrollEntity.children)].name,TabNum = len(self.ProjectTabsScrollEntity.children),parent = self.ProjectTabsScrollEntity,scale = (.28,.4),position = (len(self.ProjectTabsScrollEntity.children)/3+.2,0,-22),radius=0,render_queue = self.ProjectTabsScrollEntity.render_queue))
         self.ProjectTabsScrollEntity.children[-1].text_entity.render_queue = self.ProjectTabsScrollEntity.render_queue
         self.ProjectTabsScrollEntity.children[-1].text_entity.wordwrap = 10
         self.ProjectTabsScrollEntity.children[-1].text_entity.scale -= .1
-
+        self.ProjectTabsScrollEntity.children[-1].on_click = Func(self.JumpTabs,self.ProjectTabsScrollEntity.children[-1].TabNum)
 
         for i in range(len(self.ProjectTabsScrollEntity.children)):
             self.ProjectTabsScrollEntity.children[i].text_entity.render_queue = self.ProjectTabsScrollEntity.children[i].text_entity.render_queue
@@ -126,10 +181,6 @@ class ProjectEditor(Entity):
             self.updateVal()
             self.Scroller.update_target("min",self.val)
 
-    def AddTabsMenuButtons(self):
-
-        ...
-
     def PrintItemStatTemp(self,Entity):
         for i in range(len(Entity.children)):
             print(f"name: {Entity.children[i].name} position = {Entity.children[i].position},rotation = {Entity.children[i].rotation},scale = {Entity.children[i].scale}")
@@ -138,6 +189,8 @@ class ProjectEditor(Entity):
 
     def ShowToAddTabsMenu(self):
         self.AddEditorToPrjectButtonList.enable()
+        self.AddEditorToPrjectButtonList.Background.enable()
+
 
     def DestroyCurrentWindow(self):
         self.CurrentCustomWindow.PlayerNotQuitting()
@@ -151,7 +204,11 @@ class ProjectEditor(Entity):
 
         self.val = .22
         self.Scroller  = self.ProjectTabsScrollEntity.add_script(Scrollable(axis = "x",scroll_speed = 0.004,min = self.val,max = .2))
-
+        self.AddEditorToPrjectButtonList.text_entity.color = color.white
+        self.AddEditorToPrjectButtonList.text_entity.always_on_top = True
+        self.AddEditorToPrjectButtonList.text_entity.render_queue = 1
+        # for i in range(len(self.AddEditorToPrjectButtonList.button_dict)):
+        #     self.AddEditorToPrjectButtonList.button_dict[list(self.AddEditorToPrjectButtonList.button_dict)[i]]
 
 if __name__ == "__main__":
     from CodeEditorPython import CodeEditorPython
@@ -160,7 +217,7 @@ if __name__ == "__main__":
     cam = EditorCamera()
     Sky()
     editor = ProjectEditor(ExportToPyFunc=Func(print_on_screen,"<color:red>yeah <color:blue>yes"),CurrentTabs=[SceneEditor(EditorCamera=cam,enabled=False,WorldItems=[],ToImport=set(),SaveFunction=Func(print,'hi'),ShowInstructionFunc=Func(print,"e")),CodeEditorPython(enabled=False)],EditorCamera=cam,ToAddTabsText=["helo","by","hi"],ToAddTabsFunc=[Func(print,"helo"),Func(print,"by"),Func(print,"hi")])
-    editor.AddTabsMenuButtons()
+    # editor.AddTabsMenuButtons()
     top,left = 0.001,0.001
     editor.SetUp()
     # def input(key):

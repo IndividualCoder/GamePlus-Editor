@@ -1,9 +1,10 @@
 from ursina import *
-from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,DeleteProject
+from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,MultiFunctionCaller
 from ursina.prefabs.dropdown_menu import DropdownMenuButton
-from CoreFiles.dropdown_menu import DropdownMenu as SimpleDropdownMenu
+from ursina.prefabs.dropdown_menu import SimpleDropdownMenu
 from RecentProjectFinder import GetRecentProjects
 from ProjectLoader import LoadProjectToScene
+
 # from ursina import color
 
 # Dropdown menu fixing
@@ -178,7 +179,6 @@ class StartingUI(Entity):
             self.SetProjectName()
             self.OnProjectStart()
 
-
     def ChangeVarsMenu(self):
         self.ChangeVarsTextParentEntity.enable()
         self.DisableStartingUI()
@@ -228,10 +228,10 @@ class StartingUI(Entity):
         print_on_screen("Load project",origin=(0,0),color=color.black66)
 
     def CheckUserQuit(self):
-        invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
+        invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,title = "Quit?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
 
 
-    def ShowRecentProjects(self,List):
+    def ShowRecentProjects(self,FuncToEnableOnOpen):
         self.RecentProjectsText = Text(name = "RecentProjectsText",parent = self.RecentProjectsParentEntity,text = "Recent projects",position = Vec3(-0.879999, 0.025, 0),scale = 1.5)
         self.RecentProjectsLine = Entity(name = "RecentProjectsLine",parent = self.RecentProjectsParentEntity,model = "line",position = Vec3(0, -0.02, 0),scale = Vec3(1.78, 0.85, 1))
         self.TotalRunningProjects = self.LoadRecentProjects()
@@ -239,7 +239,7 @@ class StartingUI(Entity):
         if self.TotalRunningProjects == {}:
             invoke(self.ShowInstructionFunc,"Looks like you are new to this editor. You should first watch tutorial to get a working understanding of the editor",KillAfter = 7,delay = .8)
 
-        self.SetRecentProjects(self.TotalRunningProjects,List)
+        self.SetRecentProjects(ProjectSettings=self.TotalRunningProjects,FuncToEnableOnOpen=FuncToEnableOnOpen)
         # print(rece)
         # print(self.LoadRecentProjects())
 
@@ -253,16 +253,16 @@ class StartingUI(Entity):
         # print(CurrentFolderName)
         return GetRecentProjects(CurrentFolderName,order=ReturnOrder)
 
-    def SetRecentProjects(self,ProjectSettings,List):
+    def SetRecentProjects(self,ProjectSettings,FuncToEnableOnOpen):
 
         for i in range(len(ProjectSettings)):
             Text(parent = self.RecentProjectsScrollerParentEntity,text=list(ProjectSettings)[i],position = Vec3(-0.492997-i*-0.3, 0.366999, 0),scale = Vec3(0.73, 2.39, 1),always_on_top = True)
             Entity(parent = self.RecentProjectsScrollerParentEntity,model = "line",position = Vec3(-0.2-i*-0.3, -0.0529997, 0),scale = Vec3(0.899999, 0.2, 0.1),rotation_z = 90,always_on_top = True)
 
-            Button(parent = self.RecentProjectsScrollerParentEntity,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.12,.1,1),position = (-.42+i*.3,-.16,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),List = List,ProjectName = list(ProjectSettings)[i]))
-            Button(parent = self.RecentProjectsScrollerParentEntity,radius=.15,text= self.RecentProjectButtonTexts[1],color = color.blue,scale = Vec3(0.12,.1,1),position = (-.42+i*.3+.14,-.16,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),List = List,ProjectName = list(ProjectSettings)[i]))
-            Button(parent = self.RecentProjectsScrollerParentEntity,radius=.15,text= self.RecentProjectButtonTexts[2],color = color.blue,scale = Vec3(0.12,.1,1),position = (-.42+i*.3,-.31,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),List = List,ProjectName = list(ProjectSettings)[i]))
-            Button(parent = self.RecentProjectsScrollerParentEntity,radius=.15,text= self.RecentProjectButtonTexts[3],color = color.blue,scale = Vec3(0.12,.1,1),position = (-.42+i*.3+.14,-.31,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),List = List,ProjectName = list(ProjectSettings)[i]))
+            Button(parent = self.RecentProjectsScrollerParentEntity,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.12,.1,1),position = (-.42+i*.3,-.16,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = list(ProjectSettings)[i]))
+            Button(parent = self.RecentProjectsScrollerParentEntity,radius=.15,text= self.RecentProjectButtonTexts[1],color = color.blue,scale = Vec3(0.12,.1,1),position = (-.42+i*.3+.14,-.16,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = list(ProjectSettings)[i]))
+            Button(parent = self.RecentProjectsScrollerParentEntity,radius=.15,text= self.RecentProjectButtonTexts[2],color = color.blue,scale = Vec3(0.12,.1,1),position = (-.42+i*.3,-.31,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = list(ProjectSettings)[i]))
+            Button(parent = self.RecentProjectsScrollerParentEntity,radius=.15,text= self.RecentProjectButtonTexts[3],color = color.blue,scale = Vec3(0.12,.1,1),position = (-.42+i*.3+.14,-.31,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = list(ProjectSettings)[i],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = list(ProjectSettings)[i]))
             # (-.42+i*.3+.14,-.31,-1)
             # in this formula (of x axis), -.42 is a constant value of starting positon, i*.3 is just for decreasing i's value, +.14 is used for 2nd and 4th button to shift their pos-x a little bit (this number is .14 because the last button is .12 scaled on x axis and .2 for gap in between)
 
@@ -351,11 +351,9 @@ class StartingUI(Entity):
             for i in range(len(self.ItemToToolTipList)):
                 self.ItemToToolTipList[i].tool_tip = None
 
-    def OpenProject(self,ProjectName,List,FileName,FilePath):
-        LoadProjectToScene(FileName = FileName,FilePath = FilePath,List=List)
+    def OpenProject(self,ProjectName,FuncToEnableOnOpen,FileName,FilePath):
+        LoadProjectToScene(FileName = FileName,FilePath = FilePath,FuncToEnableOnOpen=FuncToEnableOnOpen)
         self.ProjectName = ProjectName
-        print("helo")
-        self.OnProjectStart()
         self.UniversalParentEntity.disable()
 
 if __name__ == "__main__":

@@ -69,8 +69,39 @@ def CurrentFolderNameReturner():
 def DeleteProject(Name,Path):
     shutil.rmtree(f"{Path}/{Name}")
 
-# print(CurrentFolderNameReturner())
-# print(TextToVar("hew:lwOr X"))
+def MultiFunctionCaller(*args):
+    for i in range(len(args)):
+        args[i]()
+
+def RecursivePerformer(Entity,ToPerform:str = "enable",kwargs: dict = {}):
+    """Performs a fucntion to an entity and its all children recursively.\n
+    The Entity can also be a list.\n
+    The second input is ToPerform which by default performs the enable action to the entities but the action can be anything\n
+    but remember, if ToPerform returns something, it will be ignored by this function and None will be returned\n
+    Keyword arguments can also be defined to give to the ToPerform function"""
+
+    if isinstance(Entity,list):
+        for j in range(len(Entity)):
+            ToRunFunc = getattr(Entity[j],ToPerform)
+            ToRunFunc(*kwargs)
+            for i in range(len(Entity[j].children)):
+                ToRunFunc = getattr(Entity[j].children[i],ToPerform)
+                ToRunFunc(*kwargs)
+                if Entity[j].children[i].children != []:
+                    RecursivePerformer(Entity[j].children[i],ToPerform=ToPerform,kwargs=kwargs)
+        return
+
+
+    ToRunFunc = getattr(Entity,ToPerform)
+    ToRunFunc(*kwargs)
+
+    for i in range(len(Entity.children)):
+        ToRunFunc = getattr(Entity.children[i],ToPerform)
+        ToRunFunc(*kwargs)
+        if Entity.children[i].children != []:
+            RecursivePerformer(Entity.children[i],ToPerform=ToPerform,kwargs=kwargs)
+
+    return
 
 class CustomWindow():
     def __init__(self,ToEnable,OnEnable,ToEnableOnYes = Func(application.quit),title = "Quit?",text =  "Are you sure you want to quit?",B1text = "No",B2text = "Yes",B1Key = None,B2Key = None,content = None,CalcAndAddTextLines = True,ToAddHeight = 0):

@@ -33,7 +33,7 @@
 from ursina import *
 import json
 
-def LoadProjectToScene(FileName: str, FilePath: str, List: list):
+def LoadProjectToScene(FileName: str, FilePath: str, FuncToEnableOnOpen):
     WorldItemsList = []
     GameSettings = []
 
@@ -43,10 +43,10 @@ def LoadProjectToScene(FileName: str, FilePath: str, List: list):
     # ... Other file reading code ...
 
     # print(WorldItemsList)
-    
-    for item in WorldItemsList:
-        # Evaluate the class constructor as an expression and append the result to wa
-        List.append(eval(item['cls'] + item['args']))
+    FuncToEnableOnOpen(WorldItemsList)
+    # for item in WorldItemsList:
+    #     # Evaluate the class constructor as an expression and append the result to the list
+    #     List.append(eval(item['cls'] + item['args']))
 
     # print(List)
 

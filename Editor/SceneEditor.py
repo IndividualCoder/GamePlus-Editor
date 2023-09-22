@@ -1,19 +1,19 @@
 from ursina import *
 from DirectionBox import PointOfViewSelector as DirectionEntity
 # import random
-from OtherStuff import TextToVar,CustomWindow,CurrentFolderNameReturner
+from OtherStuff import TextToVar #,CustomWindow,CurrentFolderNameReturner
 from ursina.color import tint
 # from panda3d.core import AntialiasAttrib
-import threading
+# import threading
 # from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
 
 class SceneEditor(Entity):
-    def __init__(self,enabled,WorldItems: list,ToImport,SaveFunction,ShowInstructionFunc,EditorCamera,cam2 = camera,CurrentProjectName = "",**kwargs):
+    def __init__(self,enabled,SaveFunction,ShowInstructionFunc,EditorCamera,cam2 = camera,CurrentProjectName = "",**kwargs):
         super().__init__(kwargs)
 
-        self.WorldItems = WorldItems
+        self.WorldItems = []
         self.Save = SaveFunction
-        self.ToImport  = ToImport
+        # self.ToImport  = ToImport
         self.CurrentProjectName = CurrentProjectName
         self.ShowInstructionFunc = ShowInstructionFunc
         self.EditorCamera = EditorCamera
@@ -28,12 +28,13 @@ class SceneEditor(Entity):
         self.PosSnapping3d = .7
 
         self.UniversalParentEntity = Entity(parent = cam2.ui,enabled = False)
-        self.SideBarTopParentEntity = Entity(name = "TODO",parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 10),scale = Vec3(0.43, 0.56, 2),color = color.gray)
-        self.AddObjectMenuParentEntity = Entity(name = "a;lld",parent = self.UniversalParentEntity,model = None,enabled = enabled,position = Vec3(0.38, -0.35, 2),scale = Vec3(1.69, 0.1, 1),color = color.dark_gray,origin_y = 1)
-        self.SideBarBottomParentEntity = Entity(name = "TODO2",parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -200),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1))
+        self.SideBarTopParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 10),scale = Vec3(0.43, 0.56, 2),color = color.red)
+        self.AddObjectMenuParentEntity = Entity(parent = self.UniversalParentEntity,model = None,enabled = enabled,position = Vec3(0.38, -0.35, 2),scale = Vec3(1.69, 0.1, 1),color = color.dark_gray,origin_y = 1)
+        self.SideBarBottomParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -200),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1))
         self.SideBarTopSlideHandler = Button(parent = self.SideBarTopParentEntity,model = "cube",radius=0,visible_self = False,z = -200)
 
-        self.ToImport.add("from ursina import *")
+
+        # self.ToImport.add("from ursina import *")
 
         # self.SideBarTopSlider = Entity(parent = self.SideBarTopSlideHandler,model = "cube",visible_self = False,z = -202)
         self.ScrollUpdater = self.SideBarTopSlideHandler.add_script(Scrollable(min=-.1,max = .3,scroll_speed = .01))
@@ -41,6 +42,8 @@ class SceneEditor(Entity):
 
         self.WorldGrid = [Entity(parent=self, model=Grid(100,100), rotation_x=90, scale=distance(camera.position,(0,0,0)), collider=None, color=color.black33),Entity(parent=self, model=Grid(100,100), rotation_x=90, scale=distance(camera.position,(0,0,0))*10, collider=None, color=color.black33)]
         self.DirectionEntity = DirectionEntity(cam2.ui,window.top_right- Vec2(.1,.038),self.EditorCamera,camera,enabled = enabled,z = -30,always_on_top = True,render_queue = 1)
+
+        self.SpecialEntities = [self.DirectionEntity,self.WorldGrid[0],self.WorldGrid[1]]
 
     def UpdateScroller(self):
         if len(self.AddObjectMenuParentEntity.children) == 5:
@@ -68,30 +71,11 @@ class SceneEditor(Entity):
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
+   
+    
         # print("helo",type(self.ToEditEntity).__name__)
 
 
-    # def AddButtonInScene(self):
-    #     self.WorldItems.append(Button(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
-    #     self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
-    #     self.ScrollUpdater.update_target("max",34)
-    #     self.ToEditEntity = self.WorldItems[-1]
-    #     # print_on_screen(self.AddObjectButtonButton.name)
-
-    # def AddInputFieldInScene(self):
-    #     self.WorldItems.append(InputField(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",scale = 1,color = color.green))
-    #     self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
-    #     self.ScrollUpdater.update_target("max",34)
-    #     self.ToEditEntity = self.WorldItems[-1]
-
-    # def AddTextFieldInScene(self): print_on_screen(self.AddObjectTextFieldButton.name)
-    # def AddDraggableInScene(self): print_on_screen(self.AddObjectDraggableButton.name)
-    # def AddDropdownSimpleInScene(self): print_on_screen(self.AddObjectDropdownSimpleButton.name)
-    # def AddDropdownAdvanceInScene(self): print_on_screen(self.AddObjectDropdownAdvanceButton.name)
-    # def AddCustomWindowInScene(self): print_on_screen(self.AddObjectCustomWindowButton.name)
-    # def AddHealthbarInScene(self): print_on_screen(self.AddObjectHealthbarButton.name)
-    # def AddSliderInScene(self): print_on_screen(self.AddObjectSliderButton.name)
-    # def AddThinSliderInScene(self): print_on_screen(self.AddObjectThinSliderButton.name)
     def AddFpcInScene(self): print_on_screen(self.AddObjectFpcButton.name)
     def AddTpcInScene(self): print_on_screen(self.AddObjectTpcButton.name)
     def AddAbstractionInScene(self): print_on_screen(self.AddObjectAbstractionButton.name)

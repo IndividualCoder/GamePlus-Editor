@@ -1,6 +1,6 @@
 from ursina import *
 from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
-class CodeEditorPython(Entity):
+class CodeEditorUrsaVisor(Entity):
     def __init__(self,CodeBlocks = [],**kwargs):
         super().__init__()
         self.CodeBlocks = CodeBlocks
@@ -21,7 +21,7 @@ class CodeEditorPython(Entity):
         self.constantOneStencil = StencilAttrib.make(1, StencilAttrib.SCFAlways, StencilAttrib.SOZero, StencilAttrib.SOReplace, StencilAttrib.SOReplace, 1, 0, 1)
         self.stencilReader = StencilAttrib.make(1, StencilAttrib.SCFEqual, StencilAttrib.SOKeep, StencilAttrib.SOKeep, StencilAttrib.SOKeep, 1, 1, 0)
 
-        self.temp = Button(name = "EveryItemMenuParentEntity",parent = self.CodeBlockGraph,model = "cube",NotRotateOnHover = True,color = color.black,scale = Vec3(0.001, 0.001, 1),position = Vec3(0,0,0),render_queue  = -2)
+        self.temp = Button(name = "EveryItemMenuParentEntity",parent = self.CodeBlockGraph,model = "cube",NotRotateOnHover = True,color = color.black,scale = Vec3(0.001, 0.001, 1),position = Vec3(0,0,0),render_queue  = -3)
 
         self.cm = CardMaker("cardmaker")
         self.cm.setFrame(-.25,.882,-.49,.433)
@@ -70,7 +70,9 @@ class CodeEditorPython(Entity):
         if held_keys["d"]:
             self.CodeBlockGraph.x -= self.PosSnapping
 
-        self.PosText.text = f"({round(self.CodeBlockGraph.x,2)},{round(self.CodeBlockGraph.y,2)})"
+        self.PosText.text = f"({round(self.CodeBlockGraph.x,1)},{round(self.CodeBlockGraph.y,1)})"
+        return
+        # print(self.CodeBlockGraph.scale)
 
     def input(self,key):
         if key == "up arrow":
@@ -108,7 +110,7 @@ if __name__ == "__main__":
     app = Ursina()
     ed = EditorCamera()
     project = ProjectEditor(Func(print,"yeah"),CurrentTabs=[],EditorCamera=ed)
-    editor = CodeEditorPython(enabled=True)
+    editor = CodeEditorUrsaVisor(enabled=True)
     Entity(model  = "cube",texture = "white_cube")
     # editor.model = "cube"
     Sky()
