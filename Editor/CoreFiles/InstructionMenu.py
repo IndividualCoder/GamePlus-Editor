@@ -3,6 +3,7 @@ from ursina.color import tint
 from ursina.curve import out_cubic
 
 class InstructionMenu(Entity):
+    '''Used to show instructions, Used all over the UrsinaEditor'''
     def __init__(self,ToSay: str,OnXClick,DestroyFunc,Title = "Info",killAfter = 5,killIn = 1,WordWrap = 40,Color = tint(color.white,-.2),**kwargs) -> None:
         super().__init__(parent = camera.ui,kwargs=kwargs)
         # self.super = Entity(parent = camera.ui)

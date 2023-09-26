@@ -28,7 +28,7 @@ class SceneEditor(Entity):
         self.PosSnapping3d = .7
 
         self.UniversalParentEntity = Entity(parent = cam2.ui,enabled = False)
-        self.SideBarTopParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 10),scale = Vec3(0.43, 0.56, 2),color = color.red)
+        self.SideBarTopParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 10),scale = Vec3(0.43, 0.56, 2),color = color.gray)
         self.AddObjectMenuParentEntity = Entity(parent = self.UniversalParentEntity,model = None,enabled = enabled,position = Vec3(0.38, -0.35, 2),scale = Vec3(1.69, 0.1, 1),color = color.dark_gray,origin_y = 1)
         self.SideBarBottomParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -200),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1))
         self.SideBarTopSlideHandler = Button(parent = self.SideBarTopParentEntity,model = "cube",radius=0,visible_self = False,z = -200)
@@ -71,7 +71,7 @@ class SceneEditor(Entity):
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
-   
+        self.ToEditEntity.texture._texture.setAnisotropicDegree(128)
     
         # print("helo",type(self.ToEditEntity).__name__)
 
@@ -135,8 +135,7 @@ class SceneEditor(Entity):
         # print(key)
         if self.IsEditing:
             if key == "s" and held_keys["control"] and not held_keys["shift"]:
-                self.Save()
-                self.ShowInstructionFunc("Your project is saved :)",Color = tint(color.white,-.6),Title = "Saved!")
+                self.SaveEditor()
 
             elif key in ["left mouse","left mouse down"]:
                 if mouse.hovered_entity in self.WorldItems:
@@ -237,6 +236,9 @@ class SceneEditor(Entity):
         self.DirectionEntity.top_text.render_queue = 1
         self.DirectionEntity.bottom_text.render_queue = 1
 
+    def SaveEditor(self):
+        self.Save()
+        self.ShowInstructionFunc("Your project is saved :)",Color = tint(color.white,-.6),Title = "Saved!")
 
 if __name__ == "__main__":
     from OtherStuff import *

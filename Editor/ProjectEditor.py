@@ -15,7 +15,7 @@ class ProjectEditor(Entity):
         self.UDSrc = [] #User defined script or run after initializing  the item (like item.add_script(whatever the script is))
         self.UDWindowConfig = [] #User defined configuration to apply to the window 
         self.ToImport = {"from ursina import *","from panda3d.core import AntialiasAttrib"} # modules to import before the game starts (stored in a set)
-        self.ProjectName = ""
+        self._ProjectName = ""
         self.ProjectSettings = ProjectSettings
         self.CurrentEditor = None
         self.CurrentSceneEditor:SceneEditor = None
@@ -34,17 +34,20 @@ class ProjectEditor(Entity):
         self.UniversalParentEntity = Entity(parent = cam.ui,enabled = self.enabled)
 
         self.TopButtonsParentEntity = Entity(parent = self.UniversalParentEntity,enabled = self.enabled,model = "cube",color = tint(color.white,-.6),texture ="white_cube",position  = (window.top[0],window.top[1] - .03,0) ,scale =(window.screen_resolution[0] / 1052,window.screen_resolution[1]/18000,2),always_on_top = True)
-        self.TabsMenuParentEntity = Button(parent  = self.UniversalParentEntity,enabled = self.enabled,color = tint(color.green,-.1),highlight_color = tint(color.green,-.1),pressed_color = tint(color.green,-.1),position  = Vec3(0, 0.5, -20) ,scale = Vec3(1.78, 0.1, 1),always_on_top = True,render_queue = -3,Key = "tab",on_key_press=self.ShowTabMenu,radius=0) # Vec3(0, 0.39, 1) animate
+        self.TabsMenuParentEntity = Button(parent  = self.UniversalParentEntity,enabled = self.enabled,color = tint(color.rgb(31,31,31),.1),highlight_color = tint(color.rgb(31,31,31),.1),pressed_color =tint(color.rgb(31,31,31),.1),position  = Vec3(0, 0.5, -20) ,scale = Vec3(1.78, 0.1, 1),always_on_top = True,render_queue = -3,Key = "tab",on_key_press=self.ShowTabMenu,radius=0) # Vec3(0, 0.39, 1) animate
 
-        self.TabsForegroundParentEntity = Button(parent = self.TabsMenuParentEntity,radius=0,color = color.green,position = Vec3(-0.136, 0, -22),rotation = Vec3(0, 0, 0),scale = Vec3(0.727004, 1, 1),always_on_top = True,render_queue = -1)
+        self.EditingProjectText = Text(parent = self.TopButtonsParentEntity,render_queue = self.TopButtonsParentEntity.render_queue,text="helo",origin = (0,0),scale_y = 20,scale_x = 1)
 
-        self.ProjectTabsScrollEntity = Button(parent = self.TabsMenuParentEntity,radius=0,color = tint(color.green,-.1),highlight_color = tint(color.green,-.1),pressed_color = tint(color.green,-.1),origin = (-.5,0,0),position = Vec3(0.2277, 0, -21),rotation = Vec3(0, 0, 0),scale = Vec3(.271, 1, 1),always_on_top = True,render_queue = -2)
+        self.TabsForegroundParentEntity = Button(parent = self.TabsMenuParentEntity,radius=0,color = color.rgb(31,31,31),position = Vec3(-0.136, 0, -22),rotation = Vec3(0, 0, 0),scale = Vec3(0.727004, 1, 1),always_on_top = True,render_queue = -1)
+
+        self.ProjectTabsScrollEntity = Button(parent = self.TabsMenuParentEntity,radius=0,color = self.TabsMenuParentEntity.color,highlight_color = self.TabsMenuParentEntity.highlight_color,pressed_color = self.TabsMenuParentEntity.pressed_color,origin = (-.5,0,0),position = Vec3(0.2277, 0, -21),rotation = Vec3(0, 0, 0),scale = Vec3(.271, 1, 1),always_on_top = True,render_queue = -2)
 
         self.AddEditorToPrjectButton = Button(parent = self.TabsForegroundParentEntity,text = "+",on_click = self.ShowToAddTabsMenu,render_queue = self.TabsForegroundParentEntity.render_queue,always_on_top = True,radius=.1)
         self.ButtonDict = {}
         self.AddEditorToPrjectButtonList = SimpleButtonList(self.ButtonDict,scale_x = 20,scale_y = 40,parent  = self.AddEditorToPrjectButton,color = color.red,render_queue = 4,always_on_top = True,enabled = False)
         self.AddEditorToPrjectButtonList.Background.on_click = Func(MultiFunctionCaller,self.AddEditorToPrjectButtonList.disable,self.AddEditorToPrjectButtonList.Background.disable)
         self.AddEditorToPrjectButtonList.Background.render_queue = 3
+
 
         for i in range(len(self.ToAddTabsText)):
             self.ButtonDict[self.ToAddTabsText[i]] = Func(MultiFunctionCaller,self.ToAddTabsFunc[i],self.AddEditorToPrjectButtonList.disable,self.AddEditorToPrjectButtonList.Background.disable)
@@ -108,16 +111,23 @@ class ProjectEditor(Entity):
             if not held_keys["control"] and not held_keys["shift"] and not held_keys["alt"]:
                 if round(self.TabsMenuParentEntity.y,2) == 0.39:
                     self.TabsMenuParentEntity.animate_position(Vec3(0, 0.5, 0),.5)
+                    if self.AddEditorToPrjectButtonList.enabled:
+                        self.AddEditorToPrjectButtonList.disable()
+                        self.AddEditorToPrjectButtonList.Background.disable()
+
                 else:
                     self.TabsMenuParentEntity.animate_position(Vec3(0, 0.39, 0),.5)
-        
         # a = ",".join([str(self.CurrentTabs[i].name) for i in range(len(self.CurrentTabs))])
         # print(",".join([str(self.CurrentTabs[i].name.replace("_"," ").capitalize()) for i in range(len(self.CurrentTabs))]))
+
+
     def JumpTabs(self,ToJump):
-        if self.CurrentTabs[ToJump] == self.CurrentEditor:
+        if self.CurrentTabs[ToJump] == self.CurrentEditor and len(self.CurrentTabs) > 1:
             return
 
+
         self.CurrentEditor.UniversalParentEntity.disable()
+        self.SaveProjectButton.on_click = self.CurrentTabs[ToJump].SaveEditor
         self.CurrentEditor.disable()
         self.CurrentEditor.ignore = True
 
@@ -144,6 +154,20 @@ class ProjectEditor(Entity):
             self.CurrentSceneEditor = self.CurrentTabs[ToJump]
             RecursivePerformer(self.CurrentEditor.SpecialEntities)
 
+        def DisableInputFields(Entity):
+            if isinstance(Entity, (InputField,TextField)):
+                Entity.active = False
+                print(f"{__file__}:  dis")
+            return
+        RecursivePerformer(self.CurrentEditor.UniversalParentEntity,ToPerform=DisableInputFields,BasicFunc=False)
+
+        for i in range(len(self.ProjectTabsScrollEntity.children)):
+            if self.ProjectTabsScrollEntity.children[i].TabNum == ToJump:
+                self.ProjectTabsScrollEntity.children[i].color = tint(color.black,.3)
+                self.ProjectTabsScrollEntity.children[i].highlight_color = tint(tint(color.black,.3),.2)
+            else:
+                self.ProjectTabsScrollEntity.children[i].color = color.black66
+
         # for i in range(len(self.ProjectTabsScrollEntity.children)):
         #     if self.CurrentTabs[self.ProjectTabsScrollEntity.children[i].TabNum] == self.CurrentEditor:
         #         self.ProjectTabsScrollEntity.children[i].color = color.red
@@ -156,7 +180,7 @@ class ProjectEditor(Entity):
         self.ProjectTabsScrollEntity.children.append(Button(text=self.CurrentTabs[len(self.ProjectTabsScrollEntity.children)].name,TabNum = len(self.ProjectTabsScrollEntity.children),parent = self.ProjectTabsScrollEntity,scale = (.28,.4),position = (len(self.ProjectTabsScrollEntity.children)/3+.2,0,-22),radius=0,render_queue = self.ProjectTabsScrollEntity.render_queue))
         self.ProjectTabsScrollEntity.children[-1].text_entity.render_queue = self.ProjectTabsScrollEntity.render_queue
         self.ProjectTabsScrollEntity.children[-1].text_entity.wordwrap = 10
-        self.ProjectTabsScrollEntity.children[-1].text_entity.scale -= .1
+        self.ProjectTabsScrollEntity.children[-1].text_entity.scale -= .2
         self.ProjectTabsScrollEntity.children[-1].on_click = Func(self.JumpTabs,self.ProjectTabsScrollEntity.children[-1].TabNum)
 
         for i in range(len(self.ProjectTabsScrollEntity.children)):
@@ -209,6 +233,16 @@ class ProjectEditor(Entity):
         self.AddEditorToPrjectButtonList.text_entity.render_queue = 1
         # for i in range(len(self.AddEditorToPrjectButtonList.button_dict)):
         #     self.AddEditorToPrjectButtonList.button_dict[list(self.AddEditorToPrjectButtonList.button_dict)[i]]
+
+    @property
+    def ProjectName(self):
+        return self._ProjectName
+    
+    @ProjectName.setter
+    def ProjectName(self,Value):
+        self._ProjectName = Value
+        self.EditingProjectText.text = Value
+        return
 
 if __name__ == "__main__":
     from CodeEditorPython import CodeEditorPython

@@ -43,7 +43,7 @@ def LoadProjectToScene(FileName: str, FilePath: str, FuncToEnableOnOpen):
     # ... Other file reading code ...
 
     # print(WorldItemsList)
-    FuncToEnableOnOpen(WorldItemsList)
+    FuncToEnableOnOpen(WorldItemsList,FileName)
     # for item in WorldItemsList:
     #     # Evaluate the class constructor as an expression and append the result to the list
     #     List.append(eval(item['cls'] + item['args']))
