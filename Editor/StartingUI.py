@@ -1,14 +1,10 @@
 from ursina import *
-from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,MultiFunctionCaller
+from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,OpenBrowser,MultiFunctionCaller
 from ursina.prefabs.dropdown_menu import DropdownMenuButton
 from ursina.prefabs.dropdown_menu import SimpleDropdownMenu
 from RecentProjectFinder import GetRecentProjects
 from ProjectLoader import LoadProjectToScene
 
-# from ursina import color
-
-# Dropdown menu fixing
-# color
 class StartingUI(Entity):
     def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
         super().__init__(parent = camera.ui)
@@ -22,10 +18,11 @@ class StartingUI(Entity):
         self.SaveNonConfiableData = SaveNonConfiableData
         self.ProjectDataName = ["ProjectGraphicsQuality","ProjectLanguage","ProjectNetworkingOnline","CurrentTargatedPlatform","CurrentProjectBase"]
         self.RecentProjectButtonTexts = ["Open project","Config project","Finish project","Delete project"]
+        self.OtherOptionsText = ["Official site","View on github","Watch youtube tutorial","Load an exported project","View plugins"]
+        self.OtherOptionsFunc = [Func(print_on_screen,"Site not done yet!",position = (0,.1),color = color.blue,duration =2),Func(OpenBrowser,"https://github.com/IndividualCoder/UrsinaEditor"),Func(print_on_screen,"No tutorials yet (•_•)",position = (0,.1),color = color.blue,duration =2),Func(print_on_screen,"Even the logic is not built yet ＞︿＜",position = (0,.1),color = color.blue,duration =2),Func(print_on_screen,"No plugins yet!",position = (0,.1),color = color.blue,duration =2)]
         # self.RecentProjectButttonFunctions = [self.open]
         self.ChangeConfigDataToDefaultTypeFunc = ChangeConfigDataToDefaultTypeFunc
         self.OpenedProjects = OpenedProjects
-
 
 
         self.UniversalParentEntity = Entity(parent = self)
@@ -38,7 +35,7 @@ class StartingUI(Entity):
 
         self.CreateNewProjectButton = Button(parent = self.StartingUIParentEntity,text="Create new project",radius=.2,Key="1", on_key_press = self.ShowCreateNewProject,on_click = self.ShowCreateNewProject,scale = (0.4,0.2),position = Vec3(-0.56713, 0.384259, 0))
         self.ChangeVarsButton = Button(parent = self.StartingUIParentEntity,text="Change vars",radius=.2,Key="2", on_key_press = self.ChangeVarsMenu,on_click = self.ChangeVarsMenu,scale = (0.4,0.2),position = Vec3(0.56713, 0.384259, 0))
-        self.LoadProjectButton = Button(parent = self.StartingUIParentEntity,text="Load project",radius=.2,Key="3", on_key_press = self.LoadProject,on_click = self.LoadProject,scale = (0.4,0.2),position = Vec3(-0.56713, 0.163194, 0))
+        self.OtherOptionsButton = Button(parent = self.StartingUIParentEntity,text="More options",radius=.2,Key="3",on_click = self.ShowOtherOptionsFunc,scale = (0.4,0.2),position = Vec3(-0.56713, 0.163194, 0))
         self.QuitApplicationButton = Button(parent = self.StartingUIParentEntity,text="Close editor",radius=.2,Key=["escape",'4'], on_key_press = self.CheckUserQuit,on_click = self.CheckUserQuit,scale = (0.4,0.2),position = Vec3(0.56713, 0.163194, 0))
 
         self.BackgroundOfRecentProjects = Entity(parent = self.RecentProjectsParentEntity,model = "cube",color = color.gray,scale = Vec3(1.77792, 0.535418, 0),position = Vec3(0, -0.232639, 0))
@@ -49,7 +46,7 @@ class StartingUI(Entity):
         self.GoBackOfChangeVarsMenuButton = Button(name = "Go Back Of Change Vars Menu Button",parent = self.ChangeVarsMenuParentEntity,text="Done",Key="escape",on_click = Sequence(Func(self.DestroyChangeVarsMenuButtons),Func(self.ChangeVarsMenuParentEntity.disable),Func(self.EnableStaringUI)),radius=0,scale = Vec3(0.280001, 0.0800007, 1),position = Vec3(-0.744999, 0.455, 0))
         self.LineBetweenNameAndTypeLine = Entity(name = "LineBetweenNameAndTypeLine",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = len(list(self.EditorDataDict)),rotation_z = 90,position = (-.38,0),color = color.gray,z = -10)
         self.BackgroundOfChangeVarsMenu = Entity(parent = self.ChangeVarsMenuParentEntity,model = "cube",color = color.rgba(0,0,0,200),scale = Vec3(10,10, 0),position = Vec3(0, 0, 0))
-        self.SaveChangedVarsButton = Button(name= "pirnce",parent = self.ChangeVarsMenuParentEntity,text="Save",radius=0,hover_highlight=True,hover_highlight_size=1,highlight_color = color.light_blue,model = "cube",color = color.light_blue,scale = Vec3(0.22, 0.14, 1),position = Vec3(-0.02, -0.34, -20),on_click = self.SaveNonConfiableData,Key = "s",partKey="control")
+        self.SaveChangedVarsButton = Button(parent = self.ChangeVarsMenuParentEntity,text="Save",radius=0,hover_highlight=True,hover_highlight_size=1,highlight_color = color.light_blue,model = "cube",color = color.light_blue,scale = Vec3(0.22, 0.14, 1),position = Vec3(-0.02, -0.34, -20),on_click = self.SaveNonConfiableData,Key = "s",partKey="control")
 
         self.CreateNewProjectFpcButton = Button(name = "FPC",parent = self.CreateNewProjectMenuParentEntity,text="FPC\nFirst person controller",radius = 0,enabled = False,scale = (0.27, 0.23, 1),position = (-0.68, 0.3, 0),on_click = Func(self.CreateNewProject,"FPC"),Key = "1",on_key_press=Func(self.CreateNewProject,"FPC"),color = color.tint(color.green,-.5)) #Game is based on First person controller (3d)
         self.CreateNewProjectTpcButton = Button(name = "TPC",parent = self.CreateNewProjectMenuParentEntity,text="TPC\nThird person controller",radius = 0,enabled = False,scale = (0.27, 0.23, 1),position = (-0.37, 0.3, 0),on_click = Func(self.CreateNewProject,"TPC"),Key = "2",on_key_press=Func(self.CreateNewProject,"TPC")) #Game is based on Third person controller (3d)
@@ -224,11 +221,27 @@ class StartingUI(Entity):
         del self.TempVar
 
 
-    def LoadProject(self):
-        print_on_screen("Load project",origin=(0,0),color=color.black66)
+    def ShowOtherOptionsFunc(self):
+        # print(len(self.OtherOptionsButton.children))
+        if len(self.OtherOptionsButton.children) ==1:
+            print_on_screen("Esc to escape!",queue=2,duration=4)
+            self.TempButtonListDict = {}
+            self.OtherOptionsButton.children.append(ButtonList(self.TempButtonListDict,button_height = 1.4,parent = self.OtherOptionsButton,render_queue = 2,z = -100,scale_x = 2.5,scale_y = 4,always_on_top = True))
+            self.TempButtonListDict = {self.OtherOptionsText[i]: Func(MultiFunctionCaller,self.OtherOptionsButton.children[-1].disable,self.OtherOptionsFunc[i]) for i in range(len(self.OtherOptionsText))}
+
+            self.OtherOptionsButton.children[-1].button_dict = self.TempButtonListDict
+            self.OtherOptionsButton.children[-1].bg.color = color.black
+            self.OtherOptionsButton.children[-1].text_entity.render_queue = 2
+            self.OtherOptionsButton.children[-1].highlight.color = color.azure
+
+            self.OtherOptionsButton.children[-1].bg_button = Button(parent = self.OtherOptionsButton.children[-1],render_queue = 1,scale = 100,on_click = self.OtherOptionsButton.children[-1].disable,z = 10,highlight_color = color.black50,pressed_color = color.black50,color = color.black50,Key = "escape")
+
+        else:
+            self.OtherOptionsButton.children[-1].enable()
 
     def CheckUserQuit(self):
-        invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,title = "Quit?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
+        if len(self.OtherOptionsButton.children) == 1 or not self.OtherOptionsButton.children[1].enabled:
+            invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,title = "Quit?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
 
 
     def ShowRecentProjects(self,FuncToEnableOnOpen):

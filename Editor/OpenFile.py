@@ -4,6 +4,7 @@ import tkinter
 from tkinter import filedialog
 
 def OpenFile(FileName: str,Folder: str,Default: None = None,MakeIfNotFound = False):
+    '''Function used to open a file, can be done with "with open" method but made this func to avoid boilerplate code'''
     try:
         with open(f"{Folder}/{FileName}","r") as File:
             return json.load(File)
@@ -17,6 +18,7 @@ def OpenFile(FileName: str,Folder: str,Default: None = None,MakeIfNotFound = Fal
             return Default
 
 def SaveFile(FileName: str,Folder: str,Data):
+    '''Function used to save data in a file, can be done with "with open" method but made this func to avoid boilerplate code'''
     try:
         with open(f"{Folder}/{FileName}","w") as File:
             return json.dump(Data,File)
@@ -28,6 +30,7 @@ def SaveFile(FileName: str,Folder: str,Data):
             json.dump(Data,File)
 
 def Openselector(Mode = "Folder") -> str:
+    '''The selector from which you chose you exported file destination when you export your code'''
     Root = tkinter.Tk()
     Root.withdraw() # prevents an empty tkinter window from appearing
     Path = None

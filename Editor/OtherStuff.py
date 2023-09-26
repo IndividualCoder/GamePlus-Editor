@@ -1,21 +1,27 @@
-from ursina import Text,color,Entity,camera,Button,Func,destroy,application,Slider,Sequence
+'''Simple small function that are used all over the editor'''
+from ursina import Text,color,Entity,camera,Button,Func,destroy,application,Slider
 from ursina.prefabs.window_panel import WindowPanel
 import os
 import shutil
+import webbrowser
+
 
 def ValueToString(value: bool):
+    '''Returns a On if value is True else Off'''
     if value:
         return "On"
     else:
         return "Off"
 
 def StringToValue(string: str):
+    '''Returns True if given str is not empty, else False'''
     if string != "":
         return True
     else:
         return False
 
 def ReplaceValue(Entity1, Entity2, type="color"):
+    '''Replaces a value between Entity1 and Entity 2, type is by default color so it means the color will be swapped. it can be any variable'''
     TempColor1 = getattr(Entity1, type)
     TempColor2 = getattr(Entity2, type)
     setattr(Entity1, type, TempColor2)
@@ -24,6 +30,7 @@ def ReplaceValue(Entity1, Entity2, type="color"):
     return
 
 def Replacer(Entity1,Entity2):
+    '''Replaces 2 entities, not the value! if I want to replace entity1.children[2] and entity2.children[1], I can do it with this func'''
     Temp1 = Entity2
     Entity2 = Entity1
     Entity1 = Temp1
@@ -57,6 +64,7 @@ def PrepareForRecentProjects(String: str):
 
 
 def FormatForSaving(string: str):
+    '''Formats a given by first removing all backslashs and then removing the Editor from the str, Usually used to format the str to save'''
     string = string.replace("\\","/")
     string = string.replace("\\\\","/")
     string = string.replace("Editor","")
@@ -64,44 +72,72 @@ def FormatForSaving(string: str):
 
 
 def CurrentFolderNameReturner():
+    '''Returns the name of the current folder and to prevent confusion, replaces all backslashes with forward slashes'''
     return os.path.dirname(os.path.abspath(__file__)).replace("\\","/")
 
 def DeleteProject(Name,Path):
+    '''The name explains it all'''
     shutil.rmtree(f"{Path}/{Name}")
 
 def MultiFunctionCaller(*args):
+    '''Call as many function at once as you want. Can use the sequence but it seems like it can be called only once. Message me if it's not the case'''
     for i in range(len(args)):
         args[i]()
 
-def RecursivePerformer(Entity,ToPerform:str = "enable",kwargs: dict = {}):
+def RecursivePerformer(Entity,ToPerform:str = "enable",kwargs: dict = {},BasicFunc = True):
     """Performs a fucntion to an entity and its all children recursively.\n
     The Entity can also be a list.\n
     The second input is ToPerform which by default performs the enable action to the entities but the action can be anything\n
     but remember, if ToPerform returns something, it will be ignored by this function and None will be returned\n
-    Keyword arguments can also be defined to give to the ToPerform function"""
+    Keyword arguments can also be defined to give to the ToPerform function. Scroll to read more\n
+    The last arg is BasicFunc, it means, does the entity have a func (like this: enity.func) if it is False, it will be performed like this:\n\t(func(entity)) the entity will be given as an argument"""
+
+    if BasicFunc:
+        if isinstance(Entity,list):
+            for j in range(len(Entity)):
+                ToRunFunc = getattr(Entity[j],ToPerform)
+                ToRunFunc(*kwargs)
+                for i in range(len(Entity[j].children)):
+                    ToRunFunc = getattr(Entity[j].children[i],ToPerform)
+                    ToRunFunc(*kwargs)
+                    if Entity[j].children[i].children != []:
+                        RecursivePerformer(Entity[j].children[i],ToPerform=ToPerform,kwargs=kwargs)
+            return
+
+
+        ToRunFunc = getattr(Entity,ToPerform)
+        ToRunFunc(*kwargs)
+
+        for i in range(len(Entity.children)):
+            ToRunFunc = getattr(Entity.children[i],ToPerform)
+            ToRunFunc(*kwargs)
+            if Entity.children[i].children != []:
+                RecursivePerformer(Entity.children[i],ToPerform=ToPerform,kwargs=kwargs)
+
+        return
 
     if isinstance(Entity,list):
         for j in range(len(Entity)):
-            ToRunFunc = getattr(Entity[j],ToPerform)
-            ToRunFunc(*kwargs)
+            ToPerform(Entity[j],*kwargs)
             for i in range(len(Entity[j].children)):
-                ToRunFunc = getattr(Entity[j].children[i],ToPerform)
-                ToRunFunc(*kwargs)
+                ToPerform(Entity[j].children[i],*kwargs)
                 if Entity[j].children[i].children != []:
-                    RecursivePerformer(Entity[j].children[i],ToPerform=ToPerform,kwargs=kwargs)
+                    RecursivePerformer(Entity[j].children[i],ToPerform=ToPerform,kwargs=kwargs,BasicFunc=BasicFunc)
         return
 
 
-    ToRunFunc = getattr(Entity,ToPerform)
-    ToRunFunc(*kwargs)
+    ToPerform(Entity,*kwargs)
 
     for i in range(len(Entity.children)):
-        ToRunFunc = getattr(Entity.children[i],ToPerform)
-        ToRunFunc(*kwargs)
+        ToPerform(Entity.children[i],*kwargs)
         if Entity.children[i].children != []:
-            RecursivePerformer(Entity.children[i],ToPerform=ToPerform,kwargs=kwargs)
+            RecursivePerformer(Entity.children[i],ToPerform=ToPerform,kwargs=kwargs,BasicFunc=BasicFunc)
 
     return
+
+def OpenBrowser(url: str):
+    '''Opens a specific url in the default browser. Like https://www.youtube.com'''
+    webbrowser.open(url)
 
 class CustomWindow():
     def __init__(self,ToEnable,OnEnable,ToEnableOnYes = Func(application.quit),title = "Quit?",text =  "Are you sure you want to quit?",B1text = "No",B2text = "Yes",B1Key = None,B2Key = None,content = None,CalcAndAddTextLines = True,ToAddHeight = 0):

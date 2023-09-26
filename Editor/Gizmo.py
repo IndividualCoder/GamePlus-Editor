@@ -6,6 +6,7 @@ from ursina import *
 from ursina.shaders import *
 
 class GizmoArrow(Draggable):
+    '''Not done yet ;)'''
     def __init__(self,world_parent = scene, model='arrow', collider='box', **kwargs):
         super().__init__(model=model, origin_x=-.55, always_on_top=True, render_queue=1, is_gizmo=True, shader=unlit_shader, **kwargs)
         for key, value in kwargs.items():

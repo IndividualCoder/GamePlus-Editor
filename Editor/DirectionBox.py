@@ -1,7 +1,9 @@
 from ursina import Entity,Text,color,mouse,Vec3,held_keys
 
 # inspired from ursina.editor.editor import PointOfViewSelector
+
 class PointOfViewSelector(Entity):
+    '''As told above, inspired from ursina's gui editor'''
     def __init__(self,parent,pos,editor_camera,camera, **kwargs):
         self.camera = camera
         super().__init__(parent=parent, model='cube', collider='box', texture='white_cube', scale=.05, position=pos)

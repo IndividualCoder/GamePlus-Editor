@@ -46,6 +46,7 @@ class ProjectEditor(Entity):
         self.ButtonDict = {}
         self.AddEditorToPrjectButtonList = SimpleButtonList(self.ButtonDict,scale_x = 20,scale_y = 40,parent  = self.AddEditorToPrjectButton,color = color.red,render_queue = 4,always_on_top = True,enabled = False)
         self.AddEditorToPrjectButtonList.Background.on_click = Func(MultiFunctionCaller,self.AddEditorToPrjectButtonList.disable,self.AddEditorToPrjectButtonList.Background.disable)
+        self.AddEditorToPrjectButtonList.Background.Key = "escape"
         self.AddEditorToPrjectButtonList.Background.render_queue = 3
 
 

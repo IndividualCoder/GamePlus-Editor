@@ -3,6 +3,7 @@ import json
 import os
 
 class ConfigProjectMenu(Entity):
+    '''Not done yet ;)'''
     def __init__(self,Parent,Name,Path):
         super().__init__(parent = Parent)
         self.ProjectName = Name

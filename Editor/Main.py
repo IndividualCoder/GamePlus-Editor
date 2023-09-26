@@ -2,7 +2,6 @@ from ursina import *
 from StartingUI import StartingUI
 from SceneEditor  import SceneEditor
 from ProjectSaver import ProjectSaver
-# from CurrentFolderNameReturner import CurrentFolderNameReturner
 from OtherStuff import FormatForSaving,CurrentFolderNameReturner,RecursivePerformer
 import os
 from OpenFile import OpenFile,SaveFile
@@ -19,12 +18,6 @@ import atexit
 class UrsinaEditor(Entity):
     def __init__(self,EditorCamera,**kwargs):
         super().__init__()
-        # self.WorldItems = [] #Every world items
-        # self.UDVars = [] #User defined vars
-        # self.UDFunc = [] #User defined functions
-        # self.UDSrc = [] #User defined script to run after making all the world items
-        # self.WindowConfing = [] #User defined script to run after making all the world items
-        # self.ToImport = {"from ursina import *","from panda3d.core import AntialiasAttrib"}
         self.CurrentSupportedEditors = ["Scene editor","Code editor","Ursa-visor editor"]
         self.AddCurrentSupportedEditors = [self.AddSceneEditor,self.AddPythonCodeEditor,self.AddUrsaVisorEditor]
         self.ProjectEditorsList = []
@@ -36,8 +29,8 @@ class UrsinaEditor(Entity):
         self.NonConfiableEditorData = OpenFile("Non configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.NonConfiableEditorDataDefault,True)
         self.InstructionList = []
 
-        self.ConfiableEditorDataDefault = {"Show tooltip":True,"Auto save on exit": False,"Show memory counter": True,"Fullscreen": False}
-        self.ConfiableEditorDataDefaultType = ["bool","bool","bool","bool"]
+        self.ConfiableEditorDataDefault = {"Show tooltip":True,"Auto save on exit": False,"Show memory counter": True,"Fullscreen": False,"Render distance (near)": .10,"Render distance (far)": 10000.0}
+        self.ConfiableEditorDataDefaultType = ["bool","bool","bool","bool","float","float"]
         self.ConfiableEditorData = OpenFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.ConfiableEditorDataDefault,True)
         self.FolderName = os.path.dirname(os.path.abspath(__file__))
         self.RecentEdits = ["",""]
@@ -46,6 +39,7 @@ class UrsinaEditor(Entity):
         self.MemoryCounter = MemoryCounter(enabled=self.ConfiableEditorData["Show memory counter"])
         self.StartingUi = StartingUI(EditorDataDict=  self.ConfiableEditorData,OnProjectStart=self.StartEdit,ExistingProjectsName=self.NonConfiableEditorData["CurrentProjectNames"],ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,ShowInstructionFunc = self.ShowInstruction)
         # self.StartingUi.ShowRecentProjects()
+        
         # self.StartingUi.RecentProjectsScrollerParentEntity.= len(self.StartingUi.TotalRunningProjects)
 
     def StartEdit(self):
@@ -57,6 +51,8 @@ class UrsinaEditor(Entity):
         self.StartingUi.ProjectName = ""
         self.StartingUi.ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"}
         self.AddSceneEditor()
+        self.CurrentProjectEditor.JumpTabs(0)
+
         # self.ProjectEditor.UpdateTabsMenu()
         self.EditorCamera.item_to_in_find_on_mouse_hit_rotate = self.CurrentProjectEditor.CurrentSceneEditor.WorldItems
 
@@ -67,17 +63,19 @@ class UrsinaEditor(Entity):
         # self.Editor.ignore = False
 
 
-    def SetupEditor(self,Editor:str):
+    def SetupEditor(self,Editor):
         if Editor.name.startswith("Scene"):
             Editor.MakeEditorEnvironment(application.base.camNode,(255,255,255,0),(0.2399, .999, 0.1009, 0.938))
-            # for i in range(len(self.CurrentProjectEditor.CurrentTabs)):
+        elif Editor.name.startswith("Code"):
+            Editor.SetUp()
+        elif Editor.name.startswith("Ursa"):
+            Editor.SetUp()
 
     def Save(self):
         # self.WorldItems = self.SceneEditor.WorldItems
         # self.ToImport = self.SceneEditor.ToImport
         # print(type(self.WorldItems[0]).__name__)
 
-        print(self.StartingUi.ProjectSettings)
         ProjectSaver(ProjectName = self.CurrentProjectEditor.ProjectName,UdFunc = self.CurrentProjectEditor.UDFunc,UdVar=self.CurrentProjectEditor.UDVars,Udsrc=self.CurrentProjectEditor.UDSrc,WindowConfig=self.CurrentProjectEditor.UDWindowConfig,ToImport=list(self.CurrentProjectEditor.ToImport),Items = self.CurrentProjectEditor.CurrentSceneEditor.WorldItems,Path=f'{FormatForSaving(self.FolderName)}Current Games',GameSettings=self.CurrentProjectEditor.ProjectSettings)
 
         if not self.CurrentProjectEditor.ProjectName in self.NonConfiableEditorData["CurrentProjectNames"]:
@@ -94,7 +92,7 @@ class UrsinaEditor(Entity):
         atexit.register(self.SaveOnExit)
 
         self.StartingUi.Setup()
-        self.StartingUi.ShowRecentProjects(self.EnableWorldItems)
+        self.StartingUi.ShowRecentProjects(self.EnableWorldItemsAndSetProjectName)
 
 
 
@@ -143,10 +141,9 @@ class UrsinaEditor(Entity):
         # self.CurrentProjectEditor.CurrentEditor = self.CurrentProjectEditor.CurrentTabs[-1]
         # self.CurrentProjectEditor.CurrentEditor = self.CurrentProjectEditor.CurrentTabs[-1]
 
-        self.CurrentProjectEditor.CurrentTabs[-1].name = f"Scene Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs).__name__ == 'SceneEditor'])}"
+        self.CurrentProjectEditor.CurrentTabs[-1].name = f"Scene Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'SceneEditor'])}"
         self.CurrentProjectEditor.CurrentTabs[-1].GetPosTemp()
         self.CurrentProjectEditor.CurrentTabs[-1].Setup()
-        self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
 
         if len(self.CurrentProjectEditor.CurrentTabs) > 1:
             self.CurrentProjectEditor.CurrentTabs[-1].WorldItems = self.CurrentProjectEditor.CurrentSceneEditor.WorldItems
@@ -161,6 +158,7 @@ class UrsinaEditor(Entity):
             self.CurrentProjectEditor.CurrentTabs[-1].enable()
             RecursivePerformer(self.CurrentProjectEditor.CurrentTabs[-1].UniversalParentEntity)
             RecursivePerformer(self.CurrentProjectEditor.CurrentTabs[-1].SpecialEntities)
+            self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
 
             # destroy(self.StartingUi,delay=2)
             # del self.StartingUi
@@ -168,19 +166,19 @@ class UrsinaEditor(Entity):
         self.CurrentProjectEditor.UpdateTabsMenu()
 
 
-
     def AddPythonCodeEditor(self):
         self.CurrentProjectEditor.CurrentTabs.append(CodeEditorPython(enabled=False,ignore = True))
 
-        self.CurrentProjectEditor.CurrentTabs[-1].name = f"Code Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs) == CodeEditorPython])}" 
-
+        self.CurrentProjectEditor.CurrentTabs[-1].name = f"Code Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'CodeEditorPython'])}" 
+        self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
         self.CurrentProjectEditor.UpdateTabsMenu()
 
     def AddUrsaVisorEditor(self):
         self.CurrentProjectEditor.CurrentTabs.append(CodeEditorUrsaVisor(enabled=False,ignore = True))
 
-        self.CurrentProjectEditor.CurrentTabs[-1].name = f"Ursa Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs) == CodeEditorUrsaVisor])}" 
+        self.CurrentProjectEditor.CurrentTabs[-1].name = f"Ursa Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'CodeEditorUrsaVisor'])}" 
 
+        self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
         self.CurrentProjectEditor.UpdateTabsMenu()
 
     def DestroyInstruction(self,Index = None):
@@ -194,6 +192,8 @@ class UrsinaEditor(Entity):
         self.StartingUi.EditorDataDict = self.ConfiableEditorData
         self.StartingUi.ConfigEditorAsSettings()
         window.fullscreen = self.ConfiableEditorData["Fullscreen"]
+        camera.clip_plane_near = self.ConfiableEditorData["Render distance (near)"]
+        camera.clip_plane_far = self.ConfiableEditorData["Render distance (far)"]
 
 
     def ExportProjectToPy(self,Path):
@@ -213,15 +213,20 @@ class UrsinaEditor(Entity):
     # def input(self,key):
 
 
-    def EnableWorldItems(self,WorldItemsList):
+    def EnableWorldItemsAndSetProjectName(self,WorldItemsList,Projec = ""):
         # self.StartingUi.StartProject()
         self.StartEdit()
         for item in WorldItemsList:
             # Evaluate the class constructor as an expression and append the result to the list
             self.CurrentProjectEditor.CurrentSceneEditor.WorldItems.append(eval(item['cls'] + item['args']))
+        self.SetProjectName(Projec)
+
+    def SetProjectName(self,Value: str):
+        self.CurrentProjectEditor.ProjectName = Value
 
 if __name__ == "__main__":
     from panda3d.core import AntialiasAttrib
+
 
     # # # from direct.filter.CommonFilters import CommonFilters
     app = Ursina()
@@ -245,4 +250,5 @@ if __name__ == "__main__":
     Editor.Setup()
 
     render.setAntialias(AntialiasAttrib.MAuto)
+ 
     app.run()
