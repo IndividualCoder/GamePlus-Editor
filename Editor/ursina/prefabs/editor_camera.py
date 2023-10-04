@@ -31,7 +31,7 @@ class EditorCamera(Entity):
         self.perspective_fov = camera.fov
         self.orthographic_fov = camera.fov
         self.on_destroy = self.on_disable
-        self.hotkeys = {'toggle_orthographic':'control+shift+p', 'focus':'f', 'reset_center':'shift+f'}
+        self.hotkeys = {'toggle_orthographic':'control+shift+p', 'focus':'shift+f', 'reset_center':'shift+c'}
 
 
     def on_enable(self):
@@ -76,9 +76,10 @@ class EditorCamera(Entity):
 
         elif combined_key == self.hotkeys['focus'] and mouse.world_point:
             self.animate_position(mouse.world_point, duration=.1, curve=curve.linear)
+            
 
 
-        elif key == 'scroll up' and held_keys[self.helper_zoom_key]:
+        elif key == 'scroll up' and held_keys[self.helper_zoom_key] and not held_keys['shift']:
             if not camera.orthographic:
                 target_position = self.world_position
                 # if mouse.hovered_entity and not mouse.hovered_entity.has_ancestor(camera):
@@ -90,7 +91,7 @@ class EditorCamera(Entity):
                 self.target_fov -= self.zoom_speed * (abs(self.target_fov)*.1)
                 self.target_fov = clamp(self.target_fov, 1, 200)
 
-        elif key == 'scroll down' and held_keys[self.helper_zoom_key]:
+        elif key == 'scroll down' and held_keys[self.helper_zoom_key] and not held_keys["shift"]:
             if not camera.orthographic:
                 # camera.world_position += camera.back * self.zoom_speed * 100 * time.dt * (abs(camera.z)*.1)
                 self.target_z -= self.zoom_speed * (abs(self.target_z)*.1)

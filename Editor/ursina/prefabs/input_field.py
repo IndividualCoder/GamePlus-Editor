@@ -106,6 +106,10 @@ class InputField(Button):
                 mouse.position = self.next_field.get_position(relative_to=camera.ui)
                 invoke(setattr, self.next_field, 'active', True, delay=.01)
             return
+        if self.text_field.text == "":
+            self.EnablePlaceholder()
+        else:
+            self.DisablePlaceholder()
 
         # if self.escape_active and self.active and key == "escape":
         #     self.FlipActive()
@@ -126,13 +130,6 @@ class InputField(Button):
                 # self.active = False
                 return
 
-        if self.text_field.text == "":
-            self.EnablePlaceholder()
-            return
-        else:
-            self.DisablePlaceholder()
-            return
-        return
 
 
     @property

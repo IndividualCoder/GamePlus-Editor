@@ -18,7 +18,9 @@ class TextField(Entity):
         else:
             self.text_entity = Text(parent=self.scroll_parent, start_tag='☾', end_tag='☽', font=self.font, text='', line_height=self.line_height, origin=(-.5, .5))
 
-        self.line_numbers = Text(parent=self.scroll_parent, font=self.font, text='0', origin=(.5,.5), x=-.04, color=color.gray, enabled=False,always_on_top = True)
+        self.line_numbers = Text(parent=self.scroll_parent, font=self.font, text='', origin=(.5,.5), x=-.04, color=color.gray, enabled=False)
+
+        # self.line_numbers.render_queue = self.render_queue
 # /        self.line_numbers_background = Entity(parent=self.scroll_parent,model = "cube", origin=(.5,.5), x=-.04, color=color.black, enabled=False)
 
         self.character_width = Text.get_width('a', font=self.font)

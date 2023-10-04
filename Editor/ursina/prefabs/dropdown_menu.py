@@ -16,55 +16,6 @@ class DropdownMenuButton(Button):
             self.text_entity.origin = (-.5, 0)
             self.text_entity.scale *= .8
 
-
-class DropdownMenu(DropdownMenuButton):
-
-    def __init__(self, text='', buttons=list(),click_to_open = False, **kwargs):
-        super().__init__(text=text)
-        self.position = window.top_left
-        self.buttons = buttons
-
-        self.UnhoverToExit = click_to_open
-        for i, b in enumerate(self.buttons):
-            b.world_parent = self
-            b.original_scale = b.scale
-            b.x = 0
-            b.y = -i-1 *.98
-            b.enabled = False
-
-            if isinstance(b, DropdownMenu):
-                for e in b.buttons:
-                    e.x = 1
-                    e.y += 1
-
-        self.arrow_symbol = Text(world_parent=self, text='>', origin=(.5,.5), position=(.95, 0), color=color.gray)
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-
-    def open(self):
-        for i, b in enumerate(self.buttons):
-            invoke(setattr, self.buttons[i], 'enabled', True, delay=(i*.02))
-
-    def close(self):
-        for i, b in enumerate(reversed(self.buttons)):
-            b.disable()
-
-
-    def on_mouse_enter(self):
-        super().on_mouse_enter()
-        self.open()
-
-    def input(self, key):
-        if key == 'left mouse down' and mouse.hovered_entity and mouse.hovered_entity.has_ancestor(self) and not self.UnhoverToExit:
-            self.close()
-
-    def update(self):
-        if self.hovered or mouse.hovered_entity and mouse.hovered_entity.has_ancestor(self):
-            return
-
-        self.close()
-
 class SimpleDropdownMenu(DropdownMenuButton):
 
     def __init__(self, text='', buttons=list(),click_to_open = False, **kwargs):
@@ -125,6 +76,55 @@ class SimpleDropdownMenu(DropdownMenuButton):
             self.close()
         else:
             self.open()
+
+
+class DropdownMenu(DropdownMenuButton):
+
+    def __init__(self, text='', buttons=list(),click_to_open = False, **kwargs):
+        super().__init__(text=text)
+        self.position = window.top_left
+        self.buttons = buttons
+
+        self.UnhoverToExit = click_to_open
+        for i, b in enumerate(self.buttons):
+            b.world_parent = self
+            b.original_scale = b.scale
+            b.x = 0
+            b.y = -i-1 *.98
+            b.enabled = False
+
+            if isinstance(b, DropdownMenu):
+                for e in b.buttons:
+                    e.x = 1
+                    e.y += 1
+
+        self.arrow_symbol = Text(world_parent=self, text='>', origin=(.5,.5), position=(.95, 0), color=color.gray)
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
+    def open(self):
+        for i, b in enumerate(self.buttons):
+            invoke(setattr, self.buttons[i], 'enabled', True, delay=(i*.02))
+
+    def close(self):
+        for i, b in enumerate(reversed(self.buttons)):
+            b.disable()
+
+
+    def on_mouse_enter(self):
+        super().on_mouse_enter()
+        self.open()
+
+    def input(self, key):
+        if key == 'left mouse down' and mouse.hovered_entity and mouse.hovered_entity.has_ancestor(self) and not self.UnhoverToExit:
+            self.close()
+
+    def update(self):
+        if self.hovered or mouse.hovered_entity and mouse.hovered_entity.has_ancestor(self):
+            return
+
+        self.close()
 
 
 if __name__ == '__main__':

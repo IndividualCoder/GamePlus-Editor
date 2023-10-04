@@ -20,6 +20,7 @@ class Button(Entity):
         self.hover_highlight = hover_highlight
         self.hover_highlight_button = hover_highlight_button
         self.parent  = camera.ui
+
         # self.render_queue
         self.disabled = False
         self._on_click = None
@@ -196,6 +197,7 @@ class Button(Entity):
                 elif isinstance(self.partKey, list): #if a lot of partner keys and all should be pressed like ["control","shift"]
                     if self.on_key_press and self.Key is not None and key == self.Key and all(held_keys[key] for key in self.partKey):
                         self.on_key_press()
+
         elif isinstance(self.Key, list):
             if self.partKey == "": #if no partner key
                 if self.on_key_press and self.Key is not None and key in self.Key:  # Custom on_key_press handling assuming you have a lot of keys in a list
