@@ -143,8 +143,9 @@ def import_all_classes(path=application.asset_folder, debug=False):
     return imported_successfully
 
 
-def print_on_screen(text, position=(0,0), origin=(-.5,.5),color = rgb(255,255,255), scale=1, duration=1,blink = False,blink_color = rgb(255,255,255)):
+def print_on_screen(text, position=(0,0), origin=(-.5,.5),color = rgb(255,255,255), scale=1, duration=1,blink = False,blink_color = rgb(255,255,255),queue = 0):
     text_entity = Text(text=text, position=position, origin=origin,color = color, scale=scale)
+    text_entity.render_queue = queue
     if blink:
         text_entity.blink(blink_color)
     destroy(text_entity, delay=duration)

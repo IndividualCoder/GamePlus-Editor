@@ -32,7 +32,7 @@ class Window(WindowProperties):
 
         self.vsync = True   # can't be set during play
         self.show_ursina_splash = False
-        
+
         self.title = application.asset_folder.name
         self.borderless = True
         # self.icon = 'textures/ursina.ico'

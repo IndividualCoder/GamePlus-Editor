@@ -1426,32 +1426,5 @@ if __name__ == '__main__':
     # e.animate_rotation(Vec3(45,45,45))
     # e.ani
     # mate_scale(2, duration=1, curve=curve.out_expo_boomerang, loop=True)
-    e.animate_color(color.green, loop=True,duration = 4)
-    # e.shake()
-    # e.fade_out(delay=.5)
-    # e.fade_in(delay=2.5)
-    # e.blink(color.red, duration=1, curve=curve.linear_boomerang, loop=True)
-
-    from panda3d._rplight import RPPointLight
-    from panda3d.core import NodePath
-
-    # Create an RPLight object
-    rp_light = RPPointLight()
-
-    # Create a NodePath for the RPLight
-    light_np = NodePath(rp_light)
-
-    # # Set the properties of the RPLight
-    # # You will need to use methods specific to RPLight to set its properties
-    # # For example:
-    # rp_light.set_color((1, 1, 1, 1))  # RGBA color values (white light)
-    # rp_light.set_attenuation((1, 0, 0))  # Linear attenuation only
-    # rp_light.set_falloff((1, 0, 0))  # Linear falloff only
-
-    # # Position the light by setting the NodePath's position in the 3D world
-    # light_np.set_pos(x, y, z)
-
-    # Enable the light and set it to affect the objects you want
-    e.set_light(light_np)
 
     app.run()
