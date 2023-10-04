@@ -1,9 +1,10 @@
 from ursina import *
-from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,OpenBrowser,MultiFunctionCaller
+from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,OpenBrowser,MultiFunctionCaller,BoolInverter
 from ursina.prefabs.dropdown_menu import DropdownMenuButton
 from ursina.prefabs.dropdown_menu import SimpleDropdownMenu
 from RecentProjectFinder import GetRecentProjects
 from ProjectLoader import LoadProjectToScene
+from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
 
 class StartingUI(Entity):
     def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
@@ -57,7 +58,6 @@ class StartingUI(Entity):
         self.CurrentProjectBase = self.CreateNewProjectBaseDict["FPC"]
 
         self.ProjectTitleButton = InputField(name = "Title input field",parent = self.CreateNewProjectMenuParentEntity,placeholder="Enter your project's title",enabled = False,active = False,position = (-.485,.15),origin_x = 0,radius = 0,scale = (.66,.05),submit_on="enter",limit_content_to = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_")
-
         self.LanguageText = Text(name = "Select project language text",parent = self.CreateNewProjectMenuParentEntity,text="Language",position = (-0.8, 0.105, 0),scale = 1) #-0.81, 0.09, 0
         self.LanguageText.create_background(.03,0)
         self.LanguageMenuParentEntity = Entity(name = "Language parent",parent = self.CreateNewProjectMenuParentEntity,model = "cube",color = color.dark_gray,scale = (.3,.2),enabled = False,position = (-0.664, -.040,1))
@@ -85,6 +85,7 @@ class StartingUI(Entity):
         self.ProjectGraphicsQualityHighButton = Button(name = "High",parent = self.ProjectGraphicsQualityMenuParentEntity,text = "High (AAA)",color = color.light_gray.tint(-.2),highlight_color = color.light_gray,clicked_color = color.blue,scale = (1,.25),enabled = False,position = (0,-.33,-20),radius = 0,on_click = Func(self.SetProjectGraphicsQuality,"High"))
         self.CurrentGraphicsQuality = self.ProjectGraphicsQualityMediumButton
         self.StartProjectButton = Button(name = "Start button of create new project menu",parent = self.CreateNewProjectMenuParentEntity,text="Start",Key = "enter",scale = (.3,.25),on_click = Func(invoke,self.StartProject,delay = .1))
+
 
 
     def ShowCreateNewProject(self):
@@ -193,20 +194,26 @@ class StartingUI(Entity):
         # self.ValueVarList = [sublist for sublist in self.EditorDataDict.values()]
   
         for i in range(len([sublist for sublist in self.EditorDataDict.values()])):
-            self.ChangeVarsTextParentEntity.children.append(InputField(name = i,parent = self.ChangeVarsTextParentEntity,default_value=str([sublist for sublist in self.EditorDataDict.values()][i]),position = Vec3(0.2, 0.37-i*0.07, -10),scale = Vec3(0.32, 0.05, 1),active = False,escape_active=True,submit_on="enter",on_submit = Func(self.OnEditorVarsChanged)))
+            if str([sublist for sublist in self.EditorDataDict.values()][i]) in ["True","False"]:
+                self.ChangeVarsTextParentEntity.children.append(TrueFalseIndicator(str([sublist for sublist in self.EditorDataDict.values()][i]),[str([sublist for sublist in self.EditorDataDict.values()][i]),str(BoolInverter([sublist for sublist in self.EditorDataDict.values()][i]))],OnClick=self.OnEditorVarsChanged,position = Vec3(0.2, 0.37-i*0.07, -10),scale = Vec3(0.32, 0.05, 1),parent = self.ChangeVarsTextParentEntity,name = i))
+            elif type([sublist for sublist in self.EditorDataDict.values()][i]).__name__ in ["int","float"]:
+                self.ChangeVarsTextParentEntity.children.append(InputField(name = i,parent = self.ChangeVarsTextParentEntity,character_limit = 16,default_value=str([sublist for sublist in self.EditorDataDict.values()][i]),position = Vec3(0.2, 0.37-i*0.07, -10),scale = Vec3(0.32, 0.05, 1),active = False,escape_active=True,submit_on="enter",on_submit = Func(self.OnEditorVarsChanged),limit_content_to = "1234567890."))
 
         self.EnableChangeVarsMenuButtons()
 
     def OnEditorVarsChanged(self):
-        for i in range(len(list(self.EditorDataDict))):
-            self.DataToPut = []
-            for i in range(len(self.ChangeVarsTextParentEntity.children)):
-                if type(self.ChangeVarsTextParentEntity.children[i]) == InputField:
-                    self.DataToPut.append(self.ChangeVarsTextParentEntity.children[i].text)
-                    self.ChangeVarsTextParentEntity.children[i].active  = False
+        # for i in range(len(list(self.EditorDataDict))):
+        self.DataToPut = []
+        for i in range(len(self.ChangeVarsTextParentEntity.children)):
+            if type(self.ChangeVarsTextParentEntity.children[i]).__name__ == "InputField":
+                self.DataToPut.append(self.ChangeVarsTextParentEntity.children[i].text)
+                self.ChangeVarsTextParentEntity.children[i].active  = False
+            elif type(self.ChangeVarsTextParentEntity.children[i]).__name__ == "TrueFalseIndicator":
+                self.DataToPut.append(self.ChangeVarsTextParentEntity.children[i].Button.text)
+                # print(self.ChangeVarsTextParentEntity.children[i].Button.text)
 
-            self.EditorDataDict = dict(zip(list(self.EditorDataDict),self.DataToPut))
-            # print(self.EditorDataDict)
+        self.EditorDataDict = dict(zip(list(self.EditorDataDict),self.DataToPut))
+        # print(f"{__file__} :: {self.EditorDataDict}")
 
         self.ChangeConfigDataToDefaultTypeFunc(self.EditorDataDict)
 
@@ -226,7 +233,7 @@ class StartingUI(Entity):
         if len(self.OtherOptionsButton.children) ==1:
             print_on_screen("Esc to escape!",queue=2,duration=4)
             self.TempButtonListDict = {}
-            self.OtherOptionsButton.children.append(ButtonList(self.TempButtonListDict,button_height = 1.4,parent = self.OtherOptionsButton,render_queue = 2,z = -100,scale_x = 2.5,scale_y = 4,always_on_top = True))
+            self.OtherOptionsButton.children.append(ButtonList(self.TempButtonListDict,button_height = 1.4,parent = self.OtherOptionsButton,render_queue = 2,z = -100,scale_x = 2,scale_y = 4,always_on_top = True))
             self.TempButtonListDict = {self.OtherOptionsText[i]: Func(MultiFunctionCaller,self.OtherOptionsButton.children[-1].disable,self.OtherOptionsFunc[i]) for i in range(len(self.OtherOptionsText))}
 
             self.OtherOptionsButton.children[-1].button_dict = self.TempButtonListDict
@@ -355,7 +362,7 @@ class StartingUI(Entity):
     def SetTooltip(self,value):
         self.ItemToToolTipList = [self.CreateNewProjectFpcButton,self.CreateNewProjectTpcButton,self.CreateNewProjectTopDownButton,self.CreateNewProjectPlatformerButton,self.CreateNewProjectFpcAndTpcButton,self.LanguagePythonButton,self.LanguageUrsaVisorButton,self.ProjectNetworkignOnlineButton,self.ProjectNetworkignOfflineButton,self.ProjectGraphicsQualityLowButton,self.ProjectGraphicsQualityMediumButton,self.ProjectGraphicsQualityHighButton,self.SaveChangedVarsButton]
         if value:
-            self.ToolTipList = ["First person games like valorant, cod etc","Third person games like pubg, gta etc","Camera is stuck at one place but not in 2d, this category is also called '2.5d games',like clash of clans, clash royale etc","2d game where camera is stuck at one place in 2d","Both TPC and FPC","If enabled,the little amount to code you will have to write will be in python","If enabled,the little amount to code you will have to write will be in ursa-visor, a gui coding language like blueprint but for ursina editor","Your game will be online","Your game will be offline","Graphics quality of your game will be low,you will be able to add lights but not too much and shadows will not be that 'real'","Graphics quality of your game will be medium, you will be able to add unlimited lights but lights will not be that 'real'","The best graphics quality be can provide","Will save the changed values in a file and apply the next time you open the editors"]
+            self.ToolTipList = ["First person games like valorant, cod etc","Third person games like pubg, gta etc","Camera is stuck at one place but not in 2d, this category is also called '2.5d games',like clash of clans, clash royale etc","2d game where camera is stuck at one place in 2d","Both TPC and FPC","If enabled,the little amount to code you will have to write will be in python","If enabled,the little amount to code you will have to write will be in ursa-visor, a gui coding language like blueprint but for ursina editor","Your game will be online","Your game will be offline","Graphics quality of your game will be low,you will be able to add lights but not too much and shadows will not be that 'real'","Graphics quality of your game will be medium, you will be able to add unlimited lights but lights will not be that 'real'","The best graphics quality be can provide","Will save the changed values in a file and apply them next time you open the editor"]
             for i in range(len(self.ItemToToolTipList)):
                 self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -30,render_queue = 3,always_on_top = True)
                 # self.ItemToToolTipList[i].tool_tip.background.z = -1

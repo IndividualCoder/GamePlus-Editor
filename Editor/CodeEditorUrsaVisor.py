@@ -1,7 +1,12 @@
 from ursina import *
 from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
+from FileSystem.FileMenu import FileMenu
+import math
+from OtherStuff import CurrentFolderNameReturner
+
 class CodeEditorUrsaVisor(Entity):
-    def __init__(self,CodeBlocks = [],**kwargs):
+    '''A visual code editor, code by just drag'n droping the code blocks'''
+    def __init__(self,ProjectName,CodeBlocks = [],**kwargs):
         super().__init__()
         self.CodeBlocks = CodeBlocks
         self.PosSnapping = 0.004
@@ -9,13 +14,15 @@ class CodeEditorUrsaVisor(Entity):
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
-        self.CodeBlocksMenuParentEntity = Button(name = "EveryItemMenuParentEntity",parent = self.UniversalParentEntity,model = "cube",NotRotateOnHover = True,color = color.black,scale = Vec3(0.625005, 0.446007, 1),position = Vec3(-0.571996, -0.27, 1),render_queue  = -2)
+        self.CodeBlocksMenuParentEntity = Button(name = "EveryItemMenuParentEntity",parent = self.UniversalParentEntity,model = "cube",NotRotateOnHover = True,color = color.tint(color.black,.1),scale = Vec3(0.625005, 0.446007, 1),position = Vec3(-0.571996, -0.27, 1),render_queue  = -2)
 
         self.RotateWorldButton = Button(parent = self.UniversalParentEntity,color = color.clear,radius=0,position = Vec3(-0.571996, 0.197, 0),rotation = Vec3(0, 0, 0),scale = Vec3(0.628005, 0.475007, 1),render_queue  = -1)
 
         self.CodeBlockGraph = Button(name = "Text field", parent = self.UniversalParentEntity,model = "cube",NotRotateOnHover = True,position = Vec3(0, 0, 20),rotation = Vec3(0, 0, 0),scale = Vec3(1000,1000, 1),color = color.white,texture = "white_cube",render_queue  = -3)
 
         self.PosText = Text(parent = self.UniversalParentEntity,name  = "Texte",text = f"({round(self.CodeBlockGraph.x,2)},{round(self.CodeBlockGraph.y,2)})", position = Vec3(0.874992, 0.480997, -20),rotation = Vec3(0, 0, 0),scale = Vec3(1, 1, 1),always_on_top = True,origin = (.5,.5))
+
+        self.FileMenu = FileMenu(ProjectName=ProjectName,Path=CurrentFolderNameReturner().replace("Editor","Current games"),parent = self.CodeBlocksMenuParentEntity)
 
         self.CodeBlockGraph.texture_scale = (10000,10000)
         self.constantOneStencil = StencilAttrib.make(1, StencilAttrib.SCFAlways, StencilAttrib.SOZero, StencilAttrib.SOReplace, StencilAttrib.SOReplace, 1, 0, 1)
@@ -88,11 +95,12 @@ class CodeEditorUrsaVisor(Entity):
             self.PosSnapping -= 10
             return
 
-        elif key == "1":
-            self.CodeBlockGraph.scale = (self.CodeBlockGraph.scale_x + self.ScaleSnapping,self.CodeBlockGraph.scale_y + self.ScaleSnapping,1)
+        elif key == "left arrow":
+            self.CodeBlockGraph.scale = (self.CodeBlockGraph.scale_x - self.ScaleSnapping /self.CodeBlockGraph.scale_x + self.ScaleSnapping,self.CodeBlockGraph.scale_x - self.ScaleSnapping/self.CodeBlockGraph.scale_y + self.ScaleSnapping,1)
             return
-        elif key == "2":
-            self.CodeBlockGraph.scale =  (self.CodeBlockGraph.scale_x - self.ScaleSnapping,self.CodeBlockGraph.scale_y - self.ScaleSnapping,1)
+
+        elif key == "right arrow":
+            self.CodeBlockGraph.scale =  (self.CodeBlockGraph.scale_x + self.ScaleSnapping /self.CodeBlockGraph.scale_x - self.ScaleSnapping ,self.CodeBlockGraph.scale_y + self.ScaleSnapping /self.CodeBlockGraph.scale_x - self.ScaleSnapping ,1)
             return
 
         elif key == "o" and held_keys["control"]:
@@ -104,6 +112,13 @@ class CodeEditorUrsaVisor(Entity):
             self.PosSnapping = 0.004
             return
 
+    def SetUp(self):
+        self.FileMenu.SetUp()
+        self.AddStencilToBlocks(self.CodeBlockGraph)
+
+    def SaveEditor(self):
+        print(f"{__file__}:: helo")
+        
 
 if __name__ == "__main__":
     from ProjectEditor import ProjectEditor

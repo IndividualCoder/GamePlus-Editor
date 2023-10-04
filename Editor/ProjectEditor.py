@@ -3,12 +3,11 @@ from ursina import invoke
 from ursina.color import tint
 from OtherStuff import CustomWindow,MultiFunctionCaller,RecursivePerformer
 from SceneEditor import SceneEditor
-from random import randint
 from OpenFile import Openselector
 from ursina import SimpleButtonList
 
 class ProjectEditor(Entity):
-    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
+    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,PlayFunction,ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
         super().__init__(kwargs)
         self.UDVars = [] #User defined vars (like bye = 2 or helo = 3)
         self.UDFunc = [] #User defined func (any function)
@@ -19,7 +18,6 @@ class ProjectEditor(Entity):
         self.ProjectSettings = ProjectSettings
         self.CurrentEditor = None
         self.CurrentSceneEditor:SceneEditor = None
-
 
         self.ExportToPyFunc = ExportToPyFunc
         self.CurrentTabs = CurrentTabs
@@ -36,7 +34,7 @@ class ProjectEditor(Entity):
         self.TopButtonsParentEntity = Entity(parent = self.UniversalParentEntity,enabled = self.enabled,model = "cube",color = tint(color.white,-.6),texture ="white_cube",position  = (window.top[0],window.top[1] - .03,0) ,scale =(window.screen_resolution[0] / 1052,window.screen_resolution[1]/18000,2),always_on_top = True)
         self.TabsMenuParentEntity = Button(parent  = self.UniversalParentEntity,enabled = self.enabled,color = tint(color.rgb(31,31,31),.1),highlight_color = tint(color.rgb(31,31,31),.1),pressed_color =tint(color.rgb(31,31,31),.1),position  = Vec3(0, 0.5, -20) ,scale = Vec3(1.78, 0.1, 1),always_on_top = True,render_queue = -3,Key = "tab",on_key_press=self.ShowTabMenu,radius=0) # Vec3(0, 0.39, 1) animate
 
-        self.EditingProjectText = Text(parent = self.TopButtonsParentEntity,render_queue = self.TopButtonsParentEntity.render_queue,text="helo",origin = (0,0),scale_y = 20,scale_x = 1)
+        self.EditingProjectText = Text(parent = self.TopButtonsParentEntity,render_queue = self.TopButtonsParentEntity.render_queue,text="",origin = (0,0),scale_y = 20,scale_x = 1)
 
         self.TabsForegroundParentEntity = Button(parent = self.TabsMenuParentEntity,radius=0,color = color.rgb(31,31,31),position = Vec3(-0.136, 0, -22),rotation = Vec3(0, 0, 0),scale = Vec3(0.727004, 1, 1),always_on_top = True,render_queue = -1)
 
@@ -45,6 +43,7 @@ class ProjectEditor(Entity):
         self.AddEditorToPrjectButton = Button(parent = self.TabsForegroundParentEntity,text = "+",on_click = self.ShowToAddTabsMenu,render_queue = self.TabsForegroundParentEntity.render_queue,always_on_top = True,radius=.1)
         self.ButtonDict = {}
         self.AddEditorToPrjectButtonList = SimpleButtonList(self.ButtonDict,scale_x = 20,scale_y = 40,parent  = self.AddEditorToPrjectButton,color = color.red,render_queue = 4,always_on_top = True,enabled = False)
+        self.AddEditorToPrjectButtonList.Background.z = 100
         self.AddEditorToPrjectButtonList.Background.on_click = Func(MultiFunctionCaller,self.AddEditorToPrjectButtonList.disable,self.AddEditorToPrjectButtonList.Background.disable)
         self.AddEditorToPrjectButtonList.Background.Key = "escape"
         self.AddEditorToPrjectButtonList.Background.render_queue = 3
@@ -57,7 +56,7 @@ class ProjectEditor(Entity):
 
         self.SaveProjectButton = Button(parent = self.TopButtonsParentEntity,text="Save",color = color.blue,radius  = 0,position =(-0.437, 0, -25),scale = (1/11,0.7),always_on_top = True) #Vec3(0.179, 0.0385, 1)
         self.FinishProjectButton = Button(parent = self.TopButtonsParentEntity,text="Finish",color = color.blue,radius  = 0,position =(-0.337, 0, -25),scale = (1/11,0.7),on_click = self.FinishProject,always_on_top = True) #Vec3(0.179, 0.0385, 1)
-        self.PlayProjectButton = Button(parent = self.TopButtonsParentEntity,text="Play",color = color.blue,radius  = 0,position =(-0.237, 0, -25),scale = (1/11,0.7),always_on_top = True) #Vec3(0.179, 0.0385, 1)
+        self.PlayProjectButton = Button(parent = self.TopButtonsParentEntity,text="Play",color = color.blue,radius  = 0,position =(-0.237, 0, -25),scale = (1/11,0.7),always_on_top = True,on_click = PlayFunction) #Vec3(0.179, 0.0385, 1)
 
 
         #  = self.ProjectTabsScrollEntity.add_script(Scrollable())
@@ -143,11 +142,10 @@ class ProjectEditor(Entity):
         # self.CurrentEditor.SetUp()
         if hasattr(self.CurrentEditor,"MakeEditorEnvironment"):
             if type(self.CurrentEditor).__name__ == "CodeEditorPython":
-                self.CurrentEditor.MakeEditorEnvironment(application.base.camNode,(125,125,124,0),(0.0019, 0.355, 0.4599 ,0.935))
+                self.CurrentEditor.MakeEditorEnvironment(application.base.camNode,(255,255,255,0),(0.0019, 0.355, 0.4599 ,0.935))
 
             elif type(self.CurrentEditor).__name__ == "CodeEditorUrsaVisor":
-                self.CurrentEditor.AddStencilToBlocks(self.CurrentEditor.CodeBlockGraph)
-                self.CurrentEditor.MakeEditorEnvironment(application.base.camNode,(125,125,124,0),(0.0019, 0.355, 0.4599 ,0.935))
+                self.CurrentEditor.MakeEditorEnvironment(application.base.camNode,(200,200,200,0),(0.0019, 0.355, 0.4599 ,0.935))
 
             elif type(self.CurrentEditor).__name__ == "SceneEditor":
                 self.CurrentEditor.MakeEditorEnvironment(application.base.camNode,(255,255,255,0),(0.2399, .999, 0.1009, 0.938))

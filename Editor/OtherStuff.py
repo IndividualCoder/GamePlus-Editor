@@ -12,6 +12,12 @@ def ValueToString(value: bool):
         return "On"
     else:
         return "Off"
+def BoolInverter(value: bool):
+    '''Returns a True if value is False else False'''
+    if value:
+        return False
+    else:
+        return True
 
 def StringToValue(string: str):
     '''Returns True if given str is not empty, else False'''

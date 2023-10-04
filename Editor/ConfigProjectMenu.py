@@ -1,19 +1,19 @@
 from ursina import *
 import json
 import os
+from OtherStuff import MultiFunctionCaller
 
-class ConfigProjectMenu(Entity):
+class ConfigProjectManager(Entity):
     '''Not done yet ;)'''
-    def __init__(self,Parent,Name,Path):
+    def __init__(self,Parent,Path,CancelClick,SaveClick):
         super().__init__(parent = Parent)
-        self.ProjectName = Name
         self.ProjectPath = Path
-        
-        self.UniversalParentEntity = Entity(parent = Parent)
+
+        self.UniversalParentEntity = Entity(parent = self)
         self.BackGround = Entity(parent = self.UniversalParentEntity,model = "cube",scale = 10,color = color.black66)
         
-        self.CancelButton = Button(parent = self.UniversalParentEntity,name = "cancel button",text = "Cancel",position = Vec3(-0.71, 0.38, 0) , rotation = Vec3(0, 0, 0) , scale = Vec3(0.320001, 0.200001, 1))
-        self.SaveButton = Button(parent = self.UniversalParentEntity,name = "save buton",text = "Save and exit",position = Vec3(-0.38, 0.38, 0) , rotation = Vec3(0, 0, 0) , scale = Vec3(0.320001, 0.200001, 1))
+        self.CancelButton = Button(parent = self.UniversalParentEntity,name = "cancel button",text = "Cancel",position = Vec3(-0.74, 0.42, 0) , rotation = Vec3(0, 0, 0) , scale = Vec3(0.270001, 0.13, 1),on_click = CancelClick)
+        self.SaveButton = Button(parent = self.UniversalParentEntity,name = "save buton",text = "Save and exit",position = Vec3(-0.46, 0.42, 0) , rotation = Vec3(0, 0, 0) , scale = Vec3(0.270001, 0.130001, 1),on_click = Func(MultiFunctionCaller,SaveClick,CancelClick))
 
 
 
@@ -49,20 +49,22 @@ class ConfigProjectMenu(Entity):
             print(f'Name: {item.children[i].name} , position = {item.children[i].position} , rotation = {item.children[i].rotation} , scale = {item.children[i].scale}')
             if item.children[i].children != []:
                 self.ShowPos(item.children[i])
-        
+
 
     def SetPos(self,Entity,Axis,Val):
         setattr(Entity,Axis,getattr(Entity,Axis) + Val)
 
-    def Show(self):
-        with open(f"{self.ProjectPath}/{self.ProjectName}/Game settings.txt","r")  as File:
+    def Show(self,Name):
+        with open(f"{self.ProjectPath}/{Name}/Game settings.txt","r")  as File:
             self.GameSettings = json.load(File)
-            print(self.GameSettings)
+
+        for i,j in enumerate(self.GameSettings):
+            print(i,j)
 
 
 
 if __name__ == "__main__":
     from OtherStuff import CurrentFolderNameReturner
     app = Ursina()
-    pro = ConfigProjectMenu(Entity(parent = camera.ui),"asd",CurrentFolderNameReturner().replace("Editor","Current games")).Show()
+    pro = ConfigProjectManager(Entity(parent = camera.ui),CurrentFolderNameReturner().replace("Editor","Current games"),Func(print,"hi"),Func(print,"helo")).Show("a")
     app.run()

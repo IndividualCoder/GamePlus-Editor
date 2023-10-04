@@ -6,6 +6,7 @@ from ursina.color import tint
 # from panda3d.core import AntialiasAttrib
 # import threading
 # from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
+from panda3d.core import SamplerState
 
 class SceneEditor(Entity):
     def __init__(self,enabled,SaveFunction,ShowInstructionFunc,EditorCamera,cam2 = camera,CurrentProjectName = "",**kwargs):
@@ -71,9 +72,6 @@ class SceneEditor(Entity):
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
-        self.ToEditEntity.texture._texture.setAnisotropicDegree(128)
-    
-        # print("helo",type(self.ToEditEntity).__name__)
 
 
     def AddFpcInScene(self): print_on_screen(self.AddObjectFpcButton.name)

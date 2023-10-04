@@ -1,16 +1,23 @@
 from ursina import *
+from FileSystem.FileMenu import FileMenu
+from OtherStuff import CurrentFolderNameReturner
 
 class CodeEditorPython(Entity):
-    def __init__(self,**kwargs):
+    '''Main code editor, code with writing word by word. Mainly used to code in python but can code in any language'''
+    def __init__(self,ProjectName = None,**kwargs):
         super().__init__()
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
-        self.EveryItemMenuParentEntity = Button(name = "EveryItemMenuParentEntity",parent = self.UniversalParentEntity,model = "cube",color = color.white,scale = Vec3(0.625005, 0.446007, 1),position = Vec3(-0.571996, -0.27, 0),NotRotateOnHover = True)
+        self.EveryItemMenuParentEntity = Button(name = "EveryItemMenuParentEntity",parent = self.UniversalParentEntity,model = "cube",color = color.tint(color.black,.1),scale = Vec3(0.625005, 0.446007, 1),position = Vec3(-0.571996, -0.27, 0),NotRotateOnHover = True)
 
-        self.CodeWriter = TextField(name = "Text field", parent = self.UniversalParentEntity,active = False,position = Vec3(-0.254003, 0.435, 0),rotation = Vec3(0, 0, 0),scale = Vec3(1, 1, 1),register_mouse_input = True,NotRotateOnHover = True)
+        self.CodeWriter = TextField(name = "Text field", parent = self.UniversalParentEntity,active = False,position = Vec3(-0.254003, 0.435, 0),rotation = Vec3(0, 0, 0),scale = Vec3(1, 1, 1),register_mouse_input = True,NotRotateOnHover = True,render_queue = -3)
         self.CodeWriter.line_numbers.enable()
+        self.CodeWriter.line_numbers.render_queue = self.CodeWriter.render_queue
         # self.CodeWriter.line_numbers_background.enable()
+
+        self.FileMenu = FileMenu(ProjectName=ProjectName,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),parent = self.EveryItemMenuParentEntity,queue = 0,z = -10)
+
 
     def MakeEditorEnvironment(self,cam,color,size):
 
@@ -23,6 +30,13 @@ class CodeEditorPython(Entity):
             print(f"name: {Entity.children[i].name} position = {Entity.children[i].position},rotation = {Entity.children[i].rotation},scale = {Entity.children[i].scale}")
             if len(Entity.children[i].children) > 0:
                 self.PrintItemStatTemp(Entity.children[i])
+
+    def SetUp(self):
+        self.FileMenu.SetUp()
+
+    def SaveEditor(self):
+        print(f"{__file__}:: helo")
+        
 
 if __name__ == "__main__":
     from ProjectEditor import ProjectEditor

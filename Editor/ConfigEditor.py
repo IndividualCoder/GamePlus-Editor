@@ -1,6 +1,7 @@
 import os
 import json
 def ConfigEditorWrite(vars,values):
+    '''if you changed the values of the editor and then click the save button, this is the function that saves your changes to the pc'''
     FolderName = os.path.dirname(os.path.abspath(__file__))
     FolderName = FolderName.replace("\\","/")
     FolderName = FolderName.replace("Editor","EditorConfig")
