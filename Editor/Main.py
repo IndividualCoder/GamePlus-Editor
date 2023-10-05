@@ -235,15 +235,16 @@ class UrsinaEditor(Entity):
         myRender2d.setDepthWrite(True)
         myCamera2d.reparentTo(myRender2d)
         dr.setCamera(myCamera2d)
-        Button(on_click = Func(print,"hi"))
+        Button(on_click = Func(print,"hi")).reparentTo(myRender2d)
 
-    def EnableWorldItemsAndSetProjectName(self,WorldItemsList,Projec = ""):
+
+    def EnableWorldItemsAndSetProjectName(self,WorldItemsList,Project = ""):
         # self.StartingUi.StartProject()
         self.StartEdit()
         for item in WorldItemsList:
             # Evaluate the class constructor as an expression and append the result to the list
             self.CurrentProjectEditor.CurrentSceneEditor.WorldItems.append(eval(item['cls'] + item['args']))
-        self.SetProjectName(Projec)
+        self.SetProjectName(Project)
 
     def SetProjectName(self,Value: str):
         self.CurrentProjectEditor.ProjectName = Value

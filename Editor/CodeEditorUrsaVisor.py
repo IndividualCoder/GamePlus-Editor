@@ -80,7 +80,7 @@ class CodeEditorUrsaVisor(Entity):
         self.PosText.text = f"({round(self.CodeBlockGraph.x,1)},{round(self.CodeBlockGraph.y,1)})"
         return
         # print(self.CodeBlockGraph.scale)
-
+    
     def input(self,key):
         if key == "up arrow":
             self.PosSnapping += 0.001

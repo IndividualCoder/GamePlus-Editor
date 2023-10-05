@@ -1,7 +1,7 @@
 from ursina import *
 from DirectionBox import PointOfViewSelector as DirectionEntity
 # import random
-from OtherStuff import TextToVar #,CustomWindow,CurrentFolderNameReturner
+from OtherStuff import TextToVar,MultiFunctionCaller
 from ursina.color import tint
 # from panda3d.core import AntialiasAttrib
 # import threading
@@ -81,7 +81,7 @@ class SceneEditor(Entity):
 
         # Vec3(0, 0.5, 0)
 
-    def ShowObjectContent(self,Obj,Parent):
+    def ShowObjectContent(self,Obj,Parent: Entity):
         self.TempLen = len(Parent.children)
         # print(self.TempLen)
         for i in range(self.TempLen-1,-1,-1):
@@ -94,14 +94,11 @@ class SceneEditor(Entity):
         Parent.children.append(Entity(name = "Line",parent = Parent,model = "line",color = color.black,scale = Vec3(0.99, 1.02, 1),position  = Vec3(0.01, 0.39, 20)))
 
         for i in range(len(self.BasicFunctions)):
-            Parent.children.append(Text(parent = Parent,text = f"{self.BasicFunctions[i]}",scale = 2,y = -i*0.08+.36,z = 20,x = -.47))
+            Text(parent = Parent,text = f"{self.BasicFunctions[i]}",scale = 2,y = -i*0.08+.36,z = 20,x = -.47)
         
         for i in range(len(self.BasicFunctions)):
-            Parent.children.append(InputField(name = TextToVar(self.BasicFunctions[i],'_'),submit_on=["enter","escape"],parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,enter_active = True,on_submit = Func(self.UpdateItemContent,Obj,Parent)))
-
-            if i > 0:
-                Parent.children[i-1].next_field = Parent.children[i]
-
+            InputField(name = TextToVar(self.BasicFunctions[i],'_'),submit_on=["enter","escape"],parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,enter_active = True,on_submit = Func(self.UpdateItemContent,Obj,Parent))
+            # Parent.children[-1].update = Func(MultiFunctionCaller,Func(setattr,Parent.children[-1],"text",getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))))
 
     def UpdateItemContent(self,Obj,Parent):
         for i in range((len(Parent.children))):
@@ -153,7 +150,7 @@ class SceneEditor(Entity):
                         # print(mouse.hovered_entity.name)
 
                 except AttributeError:
-                    print_on_screen("<red>Choose an item to edit")
+                    print_on_screen("<color:red>Choose an item to edit")
             elif key in ["left arrow","left arrow hold"]:
                 try:
 
@@ -163,7 +160,7 @@ class SceneEditor(Entity):
                     # else:
                     #     self.ToEditEntity.x += self.PosSnapping3d
                 except AttributeError:
-                    print_on_screen("hoose an item to edit",color = color.red)
+                    print_on_screen("<color:red>Choose an item to edit")
             elif key in ["up arrow","up arrow hold"]:
                 try:
                     # if self.ToEditEntity.parent:
@@ -172,7 +169,7 @@ class SceneEditor(Entity):
                     # else:
                     #     self.ToEditEntity.x += self.PosSnapping3d
                 except AttributeError:
-                    print_on_screen("Choose an item to edit",origin=0,color = color.orange)
+                    print_on_screen("<color:red>Choose an item to edit")
             elif key in ["down arrow","down arrow hold"]:
                 try:
 
@@ -182,7 +179,7 @@ class SceneEditor(Entity):
                     # else:
                     #     self.ToEditEntity.x += self.PosSnapping3d
                 except AttributeError:
-                    print_on_screen("<red>Choose an item to edit")
+                    print_on_screen("<color:red>Choose an item to edit")
 
             elif key == "right mouse up" and mouse.hovered_entity in self.WorldItems:
                 # if mouse.hovered_entity in self.WorldItems:
@@ -198,7 +195,6 @@ class SceneEditor(Entity):
                     self.ToEditEntity = None
                 except ValueError:
                     pass
-
 
     def update(self):
         if self.IsEditing:
