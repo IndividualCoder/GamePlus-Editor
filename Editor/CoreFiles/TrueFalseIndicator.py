@@ -8,11 +8,15 @@ sys.path.append(editor_directory)
 from OtherStuff import MultiFunctionCaller
 
 class TrueFalseIndicator(Entity):
-    def __init__(self,DefaultState,StateList,OnClick,**kwargs):
+    def __init__(self,DefaultState,StateList,OnClick = None,**kwargs):
         super().__init__(parent = kwargs["parent"])
         self.position = kwargs["position"]
         self.scale = kwargs["scale"]
-        self.Button = Button(parent = self,text=DefaultState,on_click = Func(MultiFunctionCaller,self.ChangeState,OnClick),font = "VeraMono.ttf")
+        if OnClick is not None:
+            self.Button = Button(parent = self,text=DefaultState,on_click = Func(MultiFunctionCaller,self.ChangeState,OnClick),font = "VeraMono.ttf")
+        else:
+            self.Button = Button(parent = self,text=DefaultState,on_click = Func(MultiFunctionCaller,self.ChangeState),font = "VeraMono.ttf")
+
         self.StateList = StateList
         self.Button.text_entity.scale += (.05,.3,.3)
         self.Button.text_entity.position = (-.5+.05,0)
@@ -27,6 +31,7 @@ class TrueFalseIndicator(Entity):
                 else:
                     self.Button.text = self.StateList[0]  # Wrap around to the first element
                     break
+
         self.Button.text_entity.scale += (.05,.3,.3)
         self.Button.text_entity.position = (-.5+.05,0)
         self.Button.text_entity.origin = (-.5,0)

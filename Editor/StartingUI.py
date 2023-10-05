@@ -1,13 +1,15 @@
 from ursina import *
-from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,OpenBrowser,MultiFunctionCaller,BoolInverter,RecursivePerformer
+from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,OpenBrowser,MultiFunctionCaller,BoolInverter,RecursivePerformer,DeleteProject
 from ursina.prefabs.dropdown_menu import DropdownMenuButton
 from ursina.prefabs.dropdown_menu import SimpleDropdownMenu
 from RecentProjectFinder import GetRecentProjects
 from ProjectLoader import LoadProjectToScene
 from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
+from CoreFiles.ConfigProjectMenu import ConfigProjectManager
+from OpenFile import Openselector
 
 class StartingUI(Entity):
-    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
+    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,FuncToEnableOnOpen,ExportToPyFunc,RemoveProjectNameFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
         super().__init__(parent = camera.ui)
 
         self.ProjectName = ProjectName
@@ -17,6 +19,10 @@ class StartingUI(Entity):
         self.OnProjectStart = OnProjectStart
         self.ShowInstructionFunc = ShowInstructionFunc
         self.SaveNonConfiableData = SaveNonConfiableData
+        self.FuncToEnableOnOpen = FuncToEnableOnOpen
+        self.HasRecentProjectShow = False
+        self.ExportToPyFunc = ExportToPyFunc
+        self.RemoveProjectNameFunc = RemoveProjectNameFunc
         self.ProjectDataName = ["ProjectGraphicsQuality","ProjectLanguage","ProjectNetworkingOnline","CurrentTargatedPlatform","CurrentProjectBase"]
         self.RecentProjectButtonTexts = ["Open project","Config project","Finish project","Delete project"]
         self.OtherOptionsText = ["Official site","View on github","Watch youtube tutorial","Load an exported project","View plugins"]
@@ -29,10 +35,12 @@ class StartingUI(Entity):
         self.UniversalParentEntity = Entity(parent = self)
         self.StartingUIParentEntity = Entity(parent = self.UniversalParentEntity)
         self.RecentProjectsParentEntity = Entity(parent = self.StartingUIParentEntity)
-        self.RecentProjectsScrollerParentEntity = Button(name  = "RecentProjectEntity",parent = self.StartingUIParentEntity,scale = Vec3(1.77792, 0.535418, 1),position = Vec3(-0.889999, -0.232639, 1),color = color.white,visible_self = False,radius=0,origin = (-.5,0,0))
+        self.RecentProjectsScrollerParentEntity = Button(name  = "RecentProjectEntity",parent = self.RecentProjectsParentEntity,scale = Vec3(1.77792, 0.535418, 1),position = Vec3(-0.889999, -0.232639, 1),color = color.white,visible_self = False,radius=0,origin = (-.5,0,0))
         self.CreateNewProjectMenuParentEntity = Entity(parent = self.UniversalParentEntity,enabled = False)
         self.ChangeVarsMenuParentEntity = Entity(parent = self.UniversalParentEntity,enabled = False)
         self.ChangeVarsTextParentEntity = Entity(parent = self.ChangeVarsMenuParentEntity)
+
+        self.ConfigProjectManager = ConfigProjectManager(Parent=self.UniversalParentEntity,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),CancelClick=Func(MultiFunctionCaller,self.EnableStaringUI,self.ShowRecentProjects))
 
         self.RecentProjectsScrollEntity = None
 
@@ -68,7 +76,7 @@ class StartingUI(Entity):
 
         self.TargatedPlatformText = Text(name = "Select project targated platform text",parent = self.CreateNewProjectMenuParentEntity,text="Targated platform",position = (-0.485, 0.105, 0),scale = 1)
         self.TargatedPlatformText.create_background(.03,0)
-        self.TargatedPlatformDropdownMenu =     SimpleDropdownMenu(name = "Dropdown menu",parent = self.CreateNewProjectMenuParentEntity,text = 'Widnows',color = color.blue,highlight_color = color.blue.tint(.2),on_click = Func(self.SetProjectTargatedPlatform,"windows"), buttons=(DropdownMenuButton(name = 'Android',text="Android",color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"android")),DropdownMenuButton('Mac',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"mac")),DropdownMenuButton('ios',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"ios")),DropdownMenuButton('Linux',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"linux"))),click_to_open=True,position = (-.5,0.06),scale = (.25,0.025))
+        self.TargatedPlatformDropdownMenu =     SimpleDropdownMenu(name = "Dropdown menu",parent = self.CreateNewProjectMenuParentEntity,text = 'Windows',color = color.blue,highlight_color = color.blue.tint(.2),on_click = Func(self.SetProjectTargatedPlatform,"windows"), buttons=(DropdownMenuButton(name = 'Android',text="Android",color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"android")),DropdownMenuButton('Mac',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"mac")),DropdownMenuButton('ios',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"ios")),DropdownMenuButton('Linux',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"linux"))),click_to_open=True,position = (-.5,0.06),scale = (.25,0.025))
         self.TargatedPlatformBaseDict = {"windows": self.TargatedPlatformDropdownMenu,"android": self.TargatedPlatformDropdownMenu.buttons[0],"mac": self.TargatedPlatformDropdownMenu.buttons[1],"ios": self.TargatedPlatformDropdownMenu.buttons[2],"linux": self.TargatedPlatformDropdownMenu.buttons[3]}
         self.CurrentTargatedPlatform = self.TargatedPlatformBaseDict["windows"]
 
@@ -246,12 +254,25 @@ class StartingUI(Entity):
         else:
             self.OtherOptionsButton.children[-1].enable()
 
-    def CheckUserQuit(self):
-        if len(self.OtherOptionsButton.children) == 1 or not self.OtherOptionsButton.children[1].enabled:
-            invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,title = "Quit?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
+    def CheckUserQuit(self,ToCheck = "Quit?"):
+        if ToCheck == "Quit?":
+            if len(self.OtherOptionsButton.children) == 1 or not self.OtherOptionsButton.children[1].enabled:
+                invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,title = "Quit?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
+        else:
+            invoke(CustomWindow,ToEnable=self.EnableEverything,ToEnableOnYes = Func(MultiFunctionCaller,Func(DeleteProject,ToCheck,CurrentFolderNameReturner().replace("Editor","Current Games")),Func(self.RemoveProjectNameFunc,ToCheck),self.EnableEverything,self.ShowRecentProjects),OnEnable=self.DisableEverything,title = "Sure?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
 
 
-    def ShowRecentProjects(self,FuncToEnableOnOpen):
+    def ShowRecentProjects(self,FuncToEnableOnOpen = None):
+        if FuncToEnableOnOpen is None:
+            FuncToEnableOnOpen = self.FuncToEnableOnOpen
+
+        if self.HasRecentProjectShow is True:
+            self.RecentProjectsScrollerParentEntity.scale = Vec3(1.77792, 0.535418, 1)
+            RecursivePerformer(self.RecentProjectsScrollerParentEntity.children,destroy,BasicFunc=False)
+            for i in range(len(self.RecentProjectsScrollerParentEntity.scripts)): self.RecentProjectsScrollerParentEntity.scripts.remove(self.RecentProjectsScrollerParentEntity.scripts[i])
+            self.RecentProjectsScrollerParentEntity.scripts = []
+            # self.HasRecentProjectShow = False
+
         self.RecentProjectsText = Text(name = "RecentProjectsText",parent = self.RecentProjectsParentEntity,text = "Recent projects",position = Vec3(-0.879999, 0.025, 0),scale = 1.5)
         self.RecentProjectsLine = Entity(name = "RecentProjectsLine",parent = self.RecentProjectsParentEntity,model = "line",position = Vec3(0, -0.02, 0),scale = Vec3(1.78, 0.85, 1))
         self.TotalRunningProjects = self.LoadRecentProjects()
@@ -260,8 +281,6 @@ class StartingUI(Entity):
             invoke(self.ShowInstructionFunc,"Looks like you are new to this editor. You should first watch tutorial to get a working understanding of the editor",KillAfter = 7,delay = .8)
 
         self.SetRecentProjects(ProjectSettings=self.TotalRunningProjects,FuncToEnableOnOpen=FuncToEnableOnOpen)
-        # print(rece)
-        # print(self.LoadRecentProjects())
 
     def LoadRecentProjects(self,ReturnOrder = None):
         CurrentFolderName = CurrentFolderNameReturner()
@@ -277,13 +296,13 @@ class StartingUI(Entity):
 
         for i,j in enumerate(ProjectSettings):
             self.TopParent = Button(parent = self.RecentProjectsScrollerParentEntity,radius=  0,position = Vec3(0-i*-0.3, 0, 0),scale_x = .3,origin = (-.5,0,0),visible_self = False)
-            Text(parent = self.TopParent,text=j,position = Vec3(.1, 0.366999, 0),scale = Vec3(3, 2.39, 1),always_on_top = True)
+            Text(parent = self.TopParent,text=j,position = Vec3(.05, 0.366999, 0),scale = Vec3(3, 2.39, 1),always_on_top = True)
             Entity(parent = self.TopParent,model = "line",position = Vec3(1, -0.0529997, 0),scale = Vec3(0.899999, 0.2, 0.1),rotation_z = 90,always_on_top = True)
 
-            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.2,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = ProjectSettings[j],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = ProjectSettings[j]))
-            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[1],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.2,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = ProjectSettings[j],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = ProjectSettings[j]))
-            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[2],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.4,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = ProjectSettings[j],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = ProjectSettings[j]))
-            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[3],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.4,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = ProjectSettings[j],FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = ProjectSettings[j]))
+            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.2,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = j,FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = ProjectSettings[j]))
+            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[1],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.2,-1),always_on_top = True,on_click = Func(MultiFunctionCaller,self.StartingUIParentEntity.disable,Func(RecursivePerformer,self.ConfigProjectManager.UniversalParentEntity),Func(self.ConfigProjectManager.Show,j)))
+            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[2],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.4,-1),always_on_top = True,on_click = Func(self.ExportProject,j))
+            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[3],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.4,-1),always_on_top = True,on_click = Func(self.CheckUserQuit,j))
 
             currentPro = ProjectSettings[j]
             for k,l in enumerate(self.ProjectDataName):
@@ -295,6 +314,7 @@ class StartingUI(Entity):
         self.GetRecentProjectsScroll(len(ProjectSettings))
         self.LineTemp.scale_x = len(ProjectSettings)*2
         del self.LineTemp
+        self.HasRecentProjectShow = True
 
     def GetRecentProjectsScroll(self,Len):
         if Len > 3:
@@ -313,12 +333,23 @@ class StartingUI(Entity):
                 for i in range(Len):
                     self.RecentProjectsScrollerParentEntity.scale_x += .533
                     self.RecentProjectsScrollEntity.update_target("min",self.RecentProjectsScrollEntity.min + -.5265)
+
                     for i in range(len(self.RecentProjectsScrollerParentEntity.children)):
                             self.RecentProjectsScrollerParentEntity.children[i].scale_x = .533 / self.RecentProjectsScrollerParentEntity.scale_x
 
                     for i in range(1,len(self.RecentProjectsScrollerParentEntity.children)):
                         # self.RecentProjectsScrollerParentEntity.children[i].x = self.RecentProjectsScrollerParentEntity.children[i-1].x + .01
                         self.RecentProjectsScrollerParentEntity.children[i].x = self.RecentProjectsScrollerParentEntity.children[i-1].x + (self.RecentProjectsScrollerParentEntity.children[i].scale_x) * 1
+
+            # for i in range(1,len(self.RecentProjectsScrollerParentEntity.children)):
+            #     if type(self.RecentProjectsScrollerParentEntity.children[i]).__name__ == "Button":
+            #         if self.RecentProjectsScrollerParentEntity.children[i].text_entity is not None:
+            #             self.RecentProjectsScrollerParentEntity.children[i].text =self.RecentProjectsScrollerParentEntity.children[i].text
+            #             self.RecentProjectsScrollerParentEntity.children[i].text_entity.scale = 1
+
+
+    def ExportProject(self,Name):
+        self.ExportToPyFunc(Openselector(title="Choose folder"),Name,False)
 
     def DisableEverything(self):
         self.UniversalParentEntity.disable()
@@ -390,6 +421,7 @@ class StartingUI(Entity):
         LoadProjectToScene(FileName = FileName,FilePath = FilePath,FuncToEnableOnOpen=FuncToEnableOnOpen)
         self.ProjectName = ProjectName
         self.UniversalParentEntity.disable()
+
 
 if __name__ == "__main__":
     app = Ursina()

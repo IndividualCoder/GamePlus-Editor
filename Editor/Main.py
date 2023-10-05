@@ -40,7 +40,7 @@ class UrsinaEditor(Entity):
         self.Filter = CommonFilters(base.win, base.cam)
 
         self.MemoryCounter = MemoryCounter(enabled=self.ConfiableEditorData["Show memory counter"])
-        self.StartingUi = StartingUI(EditorDataDict=  self.ConfiableEditorData,OnProjectStart=self.StartEdit,ExistingProjectsName=self.NonConfiableEditorData["CurrentProjectNames"],ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,ShowInstructionFunc = self.ShowInstruction)
+        self.StartingUi = StartingUI(EditorDataDict=  self.ConfiableEditorData,OnProjectStart=self.StartEdit,ExistingProjectsName=self.NonConfiableEditorData["CurrentProjectNames"],ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,FuncToEnableOnOpen=self.EnableWorldItemsAndSetProjectName,ShowInstructionFunc = self.ShowInstruction,RemoveProjectNameFunc = self.RemoveProject,ExportToPyFunc = self.ExportProjectToPy)
         # self.StartingUi.ShowRecentProjects()
 
         # self.StartingUi.RecentProjectsScrollerParentEntity.= len(self.StartingUi.TotalRunningProjects)
@@ -97,7 +97,6 @@ class UrsinaEditor(Entity):
 
         self.StartingUi.Setup()
         self.StartingUi.ShowRecentProjects(self.EnableWorldItemsAndSetProjectName)
-
 
 
     def SaveData(self):
@@ -202,19 +201,22 @@ class UrsinaEditor(Entity):
         else:
             self.Filter.delMSAA()
 
-    def ExportProjectToPy(self,Path):
-        self.Save()
-        # self.ToSaveWorldItems = self.SceneEditor.WorldItems
-        # self.ToSaveToImport = self.SceneEditor.ToImport
-        # self.ToSaveProjectSettings = self.StartingUi.ProjectSettings
-        # self.ToSaveProjectName = self.StartingUi.ProjectName
-        Path.replace("\\","/")
-        Path += "/Exported games"
-        print(Path)
+    def ExportProjectToPy(self,Path,ProjectName = None,InProjectEditor = True):
+        if ProjectName is None:
+            ProjectName = self.CurrentProjectEditor.ProjectName
 
-        ProjectExporter(ProjectName = self.CurrentProjectEditor.ProjectName,ProjectPath=f'{FormatForSaving(self.FolderName)}Current Games',ToSavePath=Path)
-        # print(Path.split("/",-1))
-        self.ShowInstruction("Exported successfully")
+        if Path != "":
+            if InProjectEditor:
+                self.Save()
+            Path.replace("\\","/")
+            Path += "/Exported games"
+            print(Path)
+
+            ProjectExporter(ProjectName = ProjectName,ProjectPath=f'{FormatForSaving(self.FolderName)}Current Games',ToSavePath=Path)
+            # print(Path.split("/",-1))
+            self.ShowInstruction("Exported successfully",KillAfter = 6,KillIn=3)
+        else:
+            self.ShowInstruction("Invalid path",KillAfter = 6,KillIn=3,Title = "Error")
 
     def PlayProject(self):
         wp = WindowProperties()
@@ -249,7 +251,9 @@ class UrsinaEditor(Entity):
     def SetProjectName(self,Value: str):
         self.CurrentProjectEditor.ProjectName = Value
 
-
+    def RemoveProject(self,Name):
+        self.NonConfiableEditorData["CurrentProjectNames"].remove(Name)
+        self.SaveData()
 
 if __name__ == "__main__":
     # from panda3d.core import AntialiasAttrib

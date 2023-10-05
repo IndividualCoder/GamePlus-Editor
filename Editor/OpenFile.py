@@ -29,22 +29,22 @@ def SaveFile(FileName: str,Folder: str,Data):
         with open(f"{Folder}/{FileName}","w") as File:
             json.dump(Data,File)
 
-def Openselector(Mode = "Folder") -> str:
-    '''The selector from which you chose you exported file destination when you export your code'''
+def Openselector(Mode = "Folder",title = "Open") -> str:
+    '''The selector from which you choose your exported file destination when you export your code'''
     Root = tkinter.Tk()
     Root.withdraw() # prevents an empty tkinter window from appearing
     Path = None
     if Mode == "Folder":
-        Path = filedialog.askdirectory(title="Open")
+        Path = filedialog.askdirectory(title = title)
     elif Mode == "File":
-        Path = filedialog.askopenfile(title="Open")
+        Path = filedialog.askopenfile(title = title)
 
     Root.destroy()
     del Root
     return Path
 
 if __name__ == "__main__":
-    from OtherStuff import CurrentFolderNameReturner
-    OpenFile("Hello.txt",CurrentFolderNameReturner().replace("Editor","aaa"),{"item 1": [19,True],"item 2": ["shit","helo"]},MakeIfNotFound=True)
-    SaveFile('helo.txt',CurrentFolderNameReturner(),"helo\nmy")
-    print("selected file:",Openselector())
+    # from OtherStuff import CurrentFolderNameReturner
+    # OpenFile("Hello.txt",CurrentFolderNameReturner().replace("Editor","aaa"),{"item 1": [19,True],"item 2": ["shit","helo"]},MakeIfNotFound=True)
+    # SaveFile('helo.txt',CurrentFolderNameReturner(),"helo\nmy")
+    print(f"selected file:{type(Openselector()).__name__}:")
