@@ -1,12 +1,7 @@
 from ursina import *
 from DirectionBox import PointOfViewSelector as DirectionEntity
-# import random
 from OtherStuff import TextToVar,MultiFunctionCaller
 from ursina.color import tint
-# from panda3d.core import AntialiasAttrib
-# import threading
-# from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
-from panda3d.core import SamplerState
 
 class SceneEditor(Entity):
     def __init__(self,enabled,SaveFunction,ShowInstructionFunc,EditorCamera,cam2 = camera,CurrentProjectName = "",**kwargs):
@@ -41,7 +36,7 @@ class SceneEditor(Entity):
         self.ScrollUpdater = self.SideBarTopSlideHandler.add_script(Scrollable(min=-.1,max = .3,scroll_speed = .01))
 
 
-        self.WorldGrid = [Entity(parent=self, model=Grid(100,100), rotation_x=90, scale=distance(camera.position,(0,0,0)), collider=None, color=color.black33),Entity(parent=self, model=Grid(100,100), rotation_x=90, scale=distance(camera.position,(0,0,0))*10, collider=None, color=color.black33)]
+        self.WorldGrid = [Entity(parent=self, model=Grid(200,200,thickness = 2), rotation_x=90, scale=distance(camera.position,(0,0,0))*10, collider=None, color=color.red),Entity(parent=self, model=Grid(100,100,thickness = 3), rotation_x=90, scale=distance(camera.position,(0,0,0))*10, collider=None, color=color.black33),Entity(parent=self, model=Grid(400,400), rotation_x=90, scale=distance(camera.position,(0,0,0))*2, collider=None, color=color.green)]
         self.DirectionEntity = DirectionEntity(cam2.ui,window.top_right- Vec2(.1,.038),self.EditorCamera,camera,enabled = enabled,z = -30,always_on_top = True,render_queue = 1)
 
         self.SpecialEntities = [self.DirectionEntity,self.WorldGrid[0],self.WorldGrid[1]]
@@ -129,6 +124,10 @@ class SceneEditor(Entity):
     def input(self,key):
         # print(key)
         if self.IsEditing:
+            if key == 'p':
+                print(self.WorldGrid[0].enabled)
+                print(self.WorldGrid[1].enabled)
+                print(self.WorldGrid[2].enabled)
             if key == "s" and held_keys["control"] and not held_keys["shift"]:
                 self.SaveEditor()
 
@@ -198,8 +197,40 @@ class SceneEditor(Entity):
 
     def update(self):
         if self.IsEditing:
-            self.WorldGrid[0].scale=distance(camera.position,(0,0,0)) - .4
-        
+            if 1 < distance(camera.position,(0,0,0)):
+                self.distance = distance(camera.position,(0,0,0))
+                if self.distance > 150:
+                    self.distance = 150
+            else:
+                self.distance = 0
+
+            if self.distance > 10:
+                self.WorldGrid[0].color = color.rgba(70,70,70,1000 / self.distance)
+                if int(self.WorldGrid[0].color[3]) == 0 and self.distance < 50: self.WorldGrid[0].enable()
+
+                self.WorldGrid[1].color = color.rgba(50,50,50,self.distance)
+                if int(self.WorldGrid[1].color[3]) == 0: self.WorldGrid[1].enable()
+
+                self.WorldGrid[2].color = color.rgba(0,0,0,200/self.distance)
+                if int(self.WorldGrid[2].color[3]) == 0 and self.distance < 50: self.WorldGrid[2].enable()
+
+            if self.distance < 10:
+                self.WorldGrid[1].color = color.rgba(50,50,50,0)
+                self.WorldGrid[1].disable()
+
+            if self.distance > 50:
+                self.WorldGrid[2].color = color.rgba(0,0,0,0)
+                self.WorldGrid[2].disable()
+                self.WorldGrid[0].color = (70,70,70,0)
+                self.WorldGrid[0].disable()
+
+            # print(self.distance)
+
+            # if self.distance != 0:
+            #     if int(self.WorldGrid[0].color[3]) * 255 == 0: self.WorldGrid[0].disable()
+            #     if int(self.WorldGrid[1].color[3]) * 255 == 0: self.WorldGrid[1].disable()
+            #     if int(self.WorldGrid[2].color[3]) * 255 == 0: self.WorldGrid[2].disable()
+
     def MakeEditorEnvironment(self,cam,color,size):
 
         self.WorldDr = cam.getDisplayRegion(0)

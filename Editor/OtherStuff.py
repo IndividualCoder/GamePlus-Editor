@@ -85,10 +85,10 @@ def DeleteProject(Name,Path):
     '''The name explains it all'''
     shutil.rmtree(f"{Path}/{Name}")
 
-def MultiFunctionCaller(*args):
+def MultiFunctionCaller(*FunctionList):
     '''Call as many function at once as you want. Can use the sequence but it seems like it can be called only once. Message me if it's not the case'''
-    for i in range(len(args)):
-        args[i]()
+    for Function in FunctionList:
+        Function()
 
 def RecursivePerformer(Entity,ToPerform:str = "enable",kwargs: dict = {},BasicFunc = True):
     """Performs a fucntion to an entity and its all children recursively.\n

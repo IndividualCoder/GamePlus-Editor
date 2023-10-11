@@ -3,23 +3,24 @@ from ursina import *
 BaseColorShaderVert = '''
 #version 150
 
-uniform mat4 p3d_ModelViewProjectionMatrix;
+attribute vec3 aPosition;
+attribute vec2 aTexCoord;
 
-in vec4 p3d_Vertex;
+varying vec2 pos;
 
-void main()
-{
-  gl_Position = p3d_ModelViewProjectionMatrix * p3d_Vertex;
+void main(){
+pos = aTexCoord;
+vec4 position = vec4(aPosition, 1.0);
+position.xy = position.xy * 2.0 - 1.0;
+gl_Position = position;
 }
 '''
 
 BaseColorShaderFrag = '''
 #version 150
 
-out vec4 fragColor;
-int a = 12;
-void main() {
-  fragColor = vec4(0, 1, 0, 1);
+void main(){
+gl_FragColor = vec4(1.0);
 }
 '''
   

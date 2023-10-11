@@ -7,7 +7,7 @@ sys.path.append(editor_directory)
 
 from ursina import *
 import json
-from OtherStuff import MultiFunctionCaller
+from OtherStuff import CurrentFolderNameReturner
 from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
 
 class ConfigProjectManager(Entity):
@@ -17,7 +17,7 @@ class ConfigProjectManager(Entity):
         self.ProjectPath = Path
         self.CancelClick = CancelClick
         self.ConfigProjectStateList = [["Low","Medium","High"],["Python","Ursa-visor"],["True","False"],["windows","mac","ios","Linux","android"],["FPC","TPC","TopDown","Platformer","FPCTPC"]]
-        
+
         self.ProjectStateChangerButtons = []
 
         self.UniversalParentEntity = Entity(parent = self,enabled = False)
@@ -25,33 +25,6 @@ class ConfigProjectManager(Entity):
         
         self.CancelButton = Button(parent = self.UniversalParentEntity,name = "cancel button",text = "Cancel",position = Vec3(-0.74, 0.42, 0) , rotation = Vec3(0, 0, 0) , scale = Vec3(0.270001, 0.13, 1),on_click = self.Close)
         self.SaveButton = Button(parent = self.UniversalParentEntity,name = "save buton",text = "Save and exit",position = Vec3(-0.46, 0.42, 0) , rotation = Vec3(0, 0, 0) , scale = Vec3(0.270001, 0.130001, 1),on_click = self.ConfigProjectAsSettings)
-
-        
-
-        Button(scale = (.001,.001),Key=["w","w hold"],on_key_press=Func(self.SetPos,self.CancelButton,"y",.01))
-        Button(scale = (.001,.001),Key=["s","s hold"],on_key_press=Func(self.SetPos,self.CancelButton,"y",-.01))
-        Button(scale = (.001,.001),Key=["a","a hold"],on_key_press=Func(self.SetPos,self.CancelButton,"x",-.01))
-        Button(scale = (.001,.001),Key=["d","d hold"],on_key_press=Func(self.SetPos,self.CancelButton,"x",.01))
-
-        Button(scale = (.001,.001),Key=["up arrow","up arrow hold"],on_key_press=Func(self.SetPos,self.SaveButton,"y",.01))
-        Button(scale = (.001,.001),Key=["down arrow","down arrow hold"],on_key_press=Func(self.SetPos,self.SaveButton,"y",-.01))
-        Button(scale = (.001,.001),Key=["left arrow","left arrow hold"],on_key_press=Func(self.SetPos,self.SaveButton,"x",-.01))
-        Button(scale = (.001,.001),Key=["right arrow","right arrow hold"],on_key_press=Func(self.SetPos,self.SaveButton,"x",.01))
-
-        Button(scale = (.001,.001),Key=["1","1 hold"],on_key_press=Func(self.SetPos,self.CancelButton,"scale_x",.01))
-        Button(scale = (.001,.001),Key=["2","2 hold"],on_key_press=Func(self.SetPos,self.CancelButton,"scale_x",-.01))
-        Button(scale = (.001,.001),Key=["3","3 hold"],on_key_press=Func(self.SetPos,self.CancelButton,"scale_y",.01))
-        Button(scale = (.001,.001),Key=["4","4 hold"],on_key_press=Func(self.SetPos,self.CancelButton,"scale_y",-.01))
-
-        Button(scale = (.001,.001),Key=["5","5 hold"],on_key_press=Func(self.SetPos,self.SaveButton,"scale_x",.01))
-        Button(scale = (.001,.001),Key=["6","6 hold"],on_key_press=Func(self.SetPos,self.SaveButton,"scale_x",-.01))
-        Button(scale = (.001,.001),Key=["7","7 hold"],on_key_press=Func(self.SetPos,self.SaveButton,"scale_y",.01))
-        Button(scale = (.001,.001),Key=["8","8 hold"],on_key_press=Func(self.SetPos,self.SaveButton,"scale_y",-.01))
-    
-        Button(scale = (.001,.001),Key="p",on_key_press=Func(self.ShowPos,self.UniversalParentEntity))
-    
-        Button(scale = (.001,.001),Key="o",on_key_press=Func(self.SetPos,self.CancelButton,"text",""))
-        Button(scale = (.001,.001),Key="o",on_key_press=Func(self.SetPos,self.SaveButton,"text",""))
 
 
 
@@ -69,10 +42,11 @@ class ConfigProjectManager(Entity):
         with open(f"{self.ProjectPath}/{Name}/Game settings.txt","r")  as File:
             self.GameSettings = json.load(File)
             self.ProjectName = Name
-
         for i,j in enumerate(self.GameSettings):
-            self.a = Text(f"{j}:",parent = self.UniversalParentEntity,y = .32-i*.1,x = -.5,scale = 2)
+            self.a = Text(f"{j}:",parent = self.UniversalParentEntity,y = .32-i*.1,x = -.5,scale = 2,z = -1)
             self.ProjectStateChangerButtons.append(TrueFalseIndicator(parent = self.a,DefaultState=str(self.GameSettings[j]),StateList= self.ConfigProjectStateList[i],position = (.5,0,0),scale = (.2,.025,1)))
+        self.a = Text(f"Name: ",parent = self.UniversalParentEntity,y = .32-5*.1,x = -.5,scale = 2,z = -1)
+        self.ProjectStateChangerButtons.append(InputField(parent = self.a,default_value=Name,position = (.5,0,0),scale = (.2,.025,1)))
 
     def ConfigProjectAsSettings(self):
             if hasattr(self,"GameSettings"):
@@ -84,6 +58,10 @@ class ConfigProjectManager(Entity):
                             self.GameSettings[j] = False
                     else:
                         self.GameSettings[j] = self.ProjectStateChangerButtons[i].Button.text
+                if self.ProjectStateChangerButtons[-1].text != self.ProjectName:
+                    os.rename(f"{CurrentFolderNameReturner().replace('Editor','Current Games')}/{self.ProjectName}",f"{CurrentFolderNameReturner().replace('Editor','Current Games')}/{self.ProjectStateChangerButtons[-1].text}")
+                    self.ProjectName  = self.ProjectStateChangerButtons[-1].text
+
                 with open(f'{self.ProjectPath}/{self.ProjectName}/Game settings.txt',"w") as File:
                     json.dump(self.GameSettings,File)
                 self.Close()
@@ -104,5 +82,5 @@ class ConfigProjectManager(Entity):
 if __name__ == "__main__":
     from OtherStuff import CurrentFolderNameReturner
     app = Ursina()
-    pro = ConfigProjectManager(Entity(parent = camera.ui),CurrentFolderNameReturner().replace("Editor","Current games"),Func(print,"hi")).Show("heo")
+    pro = ConfigProjectManager(Entity(parent = camera.ui),CurrentFolderNameReturner().replace("Editor","Current games"),Func(print,"hi")).Show("mn")
     app.run()

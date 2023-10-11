@@ -23,28 +23,7 @@ class InstructionMenu(Entity):
         self.DestroyFunc = DestroyFunc
 
 
-        # self.Temp = Button(Key = "p",on_key_press = Func(self.show,item = self),visible = False,scale = .01)
         self.Background.animate_position(Vec3(0.689, -0.36, -20),.3,curve = out_cubic)
-
-        # Button(Key = ["up arrow","up arrow hold"],on_key_press = Func(self.Up,Item = self.TitleText,toedit = "y",value = .01),visible = False)
-        # Button(Key = ["down arrow","down arrow hold"],on_key_press = Func(self.Up,Item = self.TitleText,toedit = "y",value = -.01),visible = False)
-        # Button(Key = ["right arrow","right arrow hold"],on_key_press = Func(self.Up,Item = self.TitleText,toedit = "x",value = .010),visible = False)
-        # Button(Key = ["left arrow","left arrow hold"],on_key_press = Func(self.Up,Item = self.TitleText,toedit = "x",value = -.01),visible = False)
-
-        # Button(Key = ["1","1 hold"],on_key_press = Func(setattr(self.TitleText,"scale_y",add(getattr(self.TitleText,"scale_y"),.01))),visible = False)
-        # Button(Key = ["2","2 hold"],on_key_press = Func(setattr(self.TitleText,"scale_y",add(getattr(self.TitleText,"scale_y"),.01))),visible = False)
-        # Button(Key = ["3","3 hold"],on_key_press = Func(setattr(self.TitleText,"scale_x",add(getattr(self.TitleText,"scale_x"),.01))),visible = False)
-        # Button(Key = ["4","4 hold"],on_key_press = Func(setattr(self.TitleText,"scale_x",add(getattr(self.TitleText,"scale_x"),.01))),visible = False)
-
-        # Button(Key = ["w","w hold"],on_key_press = Func(self.Up,Item = self.Background,toedit = "y",value = .005),visible = False)
-        # Button(Key = ["s","s hold"],on_key_press = Func(self.Up,Item = self.Background,toedit = "y",value = -.005),visible = False)
-        # Button(Key = ["d","d hold"],on_key_press = Func(self.Up,Item = self.Background,toedit = "x",value = .005),visible = False)
-        # Button(Key = ["a","a hold"],on_key_press = Func(self.Up,Item = self.Background,toedit = "x",value = -.005),visible = False)
-
-        # Button(Key = ["z","z hold"],on_key_press = Func(self.Up,Item = self.CloseButton,toedit = "y",value = .005),visible = False)
-        # Button(Key = ["x","x hold"],on_key_press = Func(self.Up,Item = self.CloseButton,toedit = "y",value = -.005),visible = False)
-        # Button(Key = ["c","c hold"],on_key_press = Func(self.Up,Item = self.CloseButton,toedit = "x",value = .005),visible = False)
-        # Button(Key = ["v","v hold"],on_key_press = Func(self.Up,Item = self.CloseButton,toedit = "x",value = -.005),visible = False)
 
     def show(self,item):
         # item = self.super
@@ -62,11 +41,6 @@ class InstructionMenu(Entity):
         self.TitleText.animate_color(color.clear,sec)
         invoke(self.DestroyFunc,delay = 1)
 
-    def Up(self,Item,toedit,value):
-        setattr(Item,f"{toedit}",add(getattr(Item,f"{toedit}"),value))
-
-def add(a,b):
-    return a+b
 
 if __name__ == "__main__":
     ap = Ursina()

@@ -137,6 +137,9 @@ class UrsinaEditor(Entity):
     def ShowInstruction(self,Str,Color = tint(color.white,-.6),Title = "Info",KillIn = 1,KillAfter = 5,WordWrap = 40):
         self.InstructionList.append(InstructionMenu(ToSay=Str,OnXClick=Func(self.DestroyInstruction,Index = -1),Title=Title,DestroyFunc=Func(self.DestroyInstruction,Index = -1),Color=Color,KillIn =KillIn,killAfter=KillAfter,WordWrap=WordWrap))
 
+    def DestroyInstruction(self,Index = None):
+        destroy(self.InstructionList[Index],delay=.1)
+
     def AddSceneEditor(self):
         self.CurrentProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,SaveFunction= self.Save,ShowInstructionFunc = self.ShowInstruction,ExportToPyFunc=self.ExportProjectToPy,EditorCamera = self.EditorCamera))
         # self.CurrentProjectEditor.CurrentEditor = self.CurrentProjectEditor.CurrentTabs[-1]
@@ -182,11 +185,6 @@ class UrsinaEditor(Entity):
         self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
         self.CurrentProjectEditor.UpdateTabsMenu()
 
-    def DestroyInstruction(self,Index = None):
-        # print("helo")
-        for i in range(len(self.InstructionList)):
-            # self.InstructionList[i].kill(.2)
-            destroy(self.InstructionList[i],delay=.1)
 
     def ConfigEditorAsSettings(self):
         self.MemoryCounter.enabled = self.ConfiableEditorData["Show memory counter"]
@@ -240,6 +238,7 @@ class UrsinaEditor(Entity):
         Button(on_click = Func(print,"hi")).reparentTo(myRender2d)
 
 
+
     def EnableWorldItemsAndSetProjectName(self,WorldItemsList,Project = ""):
         # self.StartingUi.StartProject()
         self.StartEdit()
@@ -251,8 +250,11 @@ class UrsinaEditor(Entity):
     def SetProjectName(self,Value: str):
         self.CurrentProjectEditor.ProjectName = Value
 
-    def RemoveProject(self,Name):
-        self.NonConfiableEditorData["CurrentProjectNames"].remove(Name)
+    def RemoveProject(self,Name,Replace = False):
+        if Replace is False:
+            self.NonConfiableEditorData["CurrentProjectNames"].remove(Name)
+        else:
+            self.NonConfiableEditorData["CurrentProjectNames"]
         self.SaveData()
 
 if __name__ == "__main__":
@@ -267,4 +269,6 @@ if __name__ == "__main__":
     Editor = UrsinaEditor(EditCam := EditorCamera()) # the ':=' operator is called walrus operator. google it!  
     Editor.Setup()
     # render.setAntialias(AntialiasAttrib.MAuto)
+    del Editor.Filter
     app.run()
+
