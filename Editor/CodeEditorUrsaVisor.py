@@ -6,11 +6,12 @@ from OtherStuff import CurrentFolderNameReturner
 
 class CodeEditorUrsaVisor(Entity):
     '''A visual code editor, code by just drag'n droping the code blocks'''
-    def __init__(self,ProjectName,CodeBlocks = [],**kwargs):
+    def __init__(self,ProjectName,EditorDataDict,CodeBlocks = [],**kwargs):
         super().__init__()
         self.CodeBlocks = CodeBlocks
         self.PosSnapping = 0.004
-        self.ScaleSnapping = 100
+        self.ScaleSnapping = 100    
+        self.EditorDataDict = EditorDataDict
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
@@ -115,6 +116,23 @@ class CodeEditorUrsaVisor(Entity):
     def SetUp(self):
         self.FileMenu.SetUp()
         self.AddStencilToBlocks(self.CodeBlockGraph)
+
+        self.ConfigEditorAsSettings(self.EditorDataDict)
+
+    def ConfigEditorAsSettings(self,DataDict):
+        self.SetTooltip(DataDict["Show tooltip"])
+
+    def SetTooltip(self,value):
+        self.ItemToToolTipList = []
+        if value:
+            self.ToolTipList = []
+            for i in range(len(self.ItemToToolTipList)):
+                self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -30,render_queue = 3,always_on_top = True)
+                # self.ItemToToolTipList[i].tool_tip.background.z = -1
+
+        else:
+            for i in range(len(self.ItemToToolTipList)):
+                self.ItemToToolTipList[i].tool_tip = None
 
     def SaveEditor(self):
         print(f"{__file__}:: helo")

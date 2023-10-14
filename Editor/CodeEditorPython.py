@@ -4,8 +4,10 @@ from OtherStuff import CurrentFolderNameReturner
 
 class CodeEditorPython(Entity):
     '''Main code editor, code with writing word by word. Mainly used to code in python but can code in any language'''
-    def __init__(self,ProjectName = None,**kwargs):
+    def __init__(self,EditorDataDict,ProjectName = None,**kwargs):
         super().__init__()
+
+        self.EditorDataDict = EditorDataDict
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
@@ -33,6 +35,23 @@ class CodeEditorPython(Entity):
 
     def SetUp(self):
         self.FileMenu.SetUp()
+
+        self.ConfigEditorAsSettings(self.EditorDataDict)
+
+    def ConfigEditorAsSettings(self,DataDict):
+        self.SetTooltip(DataDict["Show tooltip"])
+
+    def SetTooltip(self,value):
+        self.ItemToToolTipList = []
+        if value:
+            self.ToolTipList = []
+            for i in range(len(self.ItemToToolTipList)):
+                self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -30,render_queue = 3,always_on_top = True)
+                # self.ItemToToolTipList[i].tool_tip.background.z = -1
+
+        else:
+            for i in range(len(self.ItemToToolTipList)):
+                self.ItemToToolTipList[i].tool_tip = None
 
     def SaveEditor(self):
         print(f"{__file__}:: helo")

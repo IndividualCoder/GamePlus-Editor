@@ -2,9 +2,10 @@ from ursina import *
 from DirectionBox import PointOfViewSelector as DirectionEntity
 from OtherStuff import TextToVar,MultiFunctionCaller
 from ursina.color import tint
+from ColorMenu import ColorMenu
 
 class SceneEditor(Entity):
-    def __init__(self,enabled,SaveFunction,ShowInstructionFunc,EditorCamera,cam2 = camera,CurrentProjectName = "",**kwargs):
+    def __init__(self,enabled,SaveFunction,ShowInstructionFunc,EditorCamera,EditorDataDict,cam2 = camera,CurrentProjectName = "",**kwargs):
         super().__init__(kwargs)
 
         self.WorldItems = []
@@ -14,11 +15,12 @@ class SceneEditor(Entity):
         self.ShowInstructionFunc = ShowInstructionFunc
         self.EditorCamera = EditorCamera
         self.IsEditing = True
-
+        self.EditorDataDict = EditorDataDict
 
         self.AddObjectTextList = ["Add static object","Add dynamic object","Add FPC","Add TPC","Add abstraction"]
         self.AddObjectOnClickFuncList = [self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene]
         self.BasicFunctions = ["Position x: ","Position y: ","Position z: ","Rotation x: ","Rotation y: ","Rotation z: ","Scale x: ","Scale y: ","Scale z: ","Color: ","Texture: "]
+        self.SpecialFunctions:list = ["Color: "]
         self.ToEditEntity = None
         self.PosSnapping2d = .01
         self.PosSnapping3d = .7
@@ -69,12 +71,6 @@ class SceneEditor(Entity):
         self.ToEditEntity = self.WorldItems[-1]
 
 
-    def AddFpcInScene(self): print_on_screen(self.AddObjectFpcButton.name)
-    def AddTpcInScene(self): print_on_screen(self.AddObjectTpcButton.name)
-    def AddAbstractionInScene(self): print_on_screen(self.AddObjectAbstractionButton.name)
-
-
-        # Vec3(0, 0.5, 0)
 
     def ShowObjectContent(self,Obj,Parent: Entity):
         self.TempLen = len(Parent.children)
@@ -90,9 +86,16 @@ class SceneEditor(Entity):
 
         for i in range(len(self.BasicFunctions)):
             Text(parent = Parent,text = f"{self.BasicFunctions[i]}",scale = 2,y = -i*0.08+.36,z = 20,x = -.47)
-        
+
         for i in range(len(self.BasicFunctions)):
-            InputField(name = TextToVar(self.BasicFunctions[i],'_'),submit_on=["enter","escape"],parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,enter_active = True,on_submit = Func(self.UpdateItemContent,Obj,Parent))
+            if self.BasicFunctions[i]  in self.SpecialFunctions:
+                j = self.SpecialFunctions.index(self.BasicFunctions[i])
+                if self.SpecialFunctions[j] == "Color: ":
+                    ColorMenu(Obj,(2.5,15),BGPos=(1,1),scale = (.5,.05),parent = Parent,y = -i*0.08+.36,z = -20,x = .1,radius = 1).SetUp()
+
+            else:
+                InputField(name = TextToVar(self.BasicFunctions[i],'_'),submit_on=["enter","escape"],parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,enter_active = True,on_submit = Func(self.UpdateItemContent,Obj,Parent))
+            print(self.BasicFunctions[i])
             # Parent.children[-1].update = Func(MultiFunctionCaller,Func(setattr,Parent.children[-1],"text",getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))))
 
     def UpdateItemContent(self,Obj,Parent):
@@ -261,9 +264,26 @@ class SceneEditor(Entity):
         self.DirectionEntity.top_text.render_queue = 1
         self.DirectionEntity.bottom_text.render_queue = 1
 
+        self.ConfigEditorAsSettings(self.EditorDataDict)
+
     def SaveEditor(self):
         self.Save()
         self.ShowInstructionFunc("Your project is saved :)",Color = tint(color.white,-.6),Title = "Saved!")
+
+    def ConfigEditorAsSettings(self,DataDict):
+        self.SetTooltip(DataDict["Show tooltip"])
+
+    def SetTooltip(self,value):
+        self.ItemToToolTipList = []
+        if value:
+            self.ToolTipList = []
+            for i in range(len(self.ItemToToolTipList)):
+                self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -30,render_queue = 3,always_on_top = True)
+                # self.ItemToToolTipList[i].tool_tip.background.z = -1
+
+        else:
+            for i in range(len(self.ItemToToolTipList)):
+                self.ItemToToolTipList[i].tool_tip = None
 
 if __name__ == "__main__":
     from OtherStuff import *

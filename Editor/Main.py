@@ -141,7 +141,7 @@ class UrsinaEditor(Entity):
         destroy(self.InstructionList[Index],delay=.1)
 
     def AddSceneEditor(self):
-        self.CurrentProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,SaveFunction= self.Save,ShowInstructionFunc = self.ShowInstruction,ExportToPyFunc=self.ExportProjectToPy,EditorCamera = self.EditorCamera))
+        self.CurrentProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,SaveFunction= self.Save,ShowInstructionFunc = self.ShowInstruction,ExportToPyFunc=self.ExportProjectToPy,EditorDataDict=self.ConfiableEditorData,EditorCamera = self.EditorCamera))
         # self.CurrentProjectEditor.CurrentEditor = self.CurrentProjectEditor.CurrentTabs[-1]
         # self.CurrentProjectEditor.CurrentEditor = self.CurrentProjectEditor.CurrentTabs[-1]
 
@@ -169,16 +169,15 @@ class UrsinaEditor(Entity):
 
         self.CurrentProjectEditor.UpdateTabsMenu()
 
-
     def AddPythonCodeEditor(self):
-        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorPython(ProjectName=self.CurrentProjectEditor.ProjectName,enabled=False,ignore = True))
+        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorPython(ProjectName=self.CurrentProjectEditor.ProjectName,enabled=False,EditorDataDict=self.ConfiableEditorData,ignore = True))
 
         self.CurrentProjectEditor.CurrentTabs[-1].name = f"Code Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'CodeEditorPython'])}" 
         self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
         self.CurrentProjectEditor.UpdateTabsMenu()
 
     def AddUrsaVisorEditor(self):
-        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorUrsaVisor(enabled=False,ignore = True,ProjectName=self.CurrentProjectEditor.ProjectName))
+        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorUrsaVisor(enabled=False,ignore = True,ProjectName=self.CurrentProjectEditor.ProjectName,EditorDataDict=self.ConfiableEditorData))
 
         self.CurrentProjectEditor.CurrentTabs[-1].name = f"Ursa Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'CodeEditorUrsaVisor'])}" 
 
@@ -187,9 +186,13 @@ class UrsinaEditor(Entity):
 
 
     def ConfigEditorAsSettings(self):
+        self.StartingUi.ConfigEditorAsSettings(self.ConfiableEditorData)
+        for i in range(len(self.ProjectEditorsList)):
+            for j in range(len(self.ProjectEditorsList[i].CurrentTabs)):
+                self.ProjectEditorsList[i].CurrentTabs[j].ConfigEditorAsSettings(self.ConfiableEditorData)
+
         self.MemoryCounter.enabled = self.ConfiableEditorData["Show memory counter"]
         self.StartingUi.EditorDataDict = self.ConfiableEditorData
-        self.StartingUi.ConfigEditorAsSettings()
         window.fullscreen = self.ConfiableEditorData["Fullscreen"]
         camera.clip_plane_near = self.ConfiableEditorData["Render distance (near)"]
         camera.clip_plane_far = self.ConfiableEditorData["Render distance (far)"]
@@ -258,7 +261,7 @@ class UrsinaEditor(Entity):
         self.SaveData()
 
 if __name__ == "__main__":
-    # from panda3d.core import AntialiasAttrib
+    from panda3d.core import AntialiasAttrib
     
     app = Ursina()
     window.exit_button.disable()
@@ -268,7 +271,7 @@ if __name__ == "__main__":
 
     Editor = UrsinaEditor(EditCam := EditorCamera()) # the ':=' operator is called walrus operator. google it!  
     Editor.Setup()
-    # render.setAntialias(AntialiasAttrib.MAuto)
-    del Editor.Filter
+    render.setAntialias(AntialiasAttrib.MAuto)
+    # del Editor.Filter
     app.run()
 

@@ -259,7 +259,7 @@ class StartingUI(Entity):
             if len(self.OtherOptionsButton.children) == 1 or not self.OtherOptionsButton.children[1].enabled:
                 invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,title = "Quit?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
         else:
-            invoke(CustomWindow,ToEnable=self.EnableEverything,ToEnableOnYes = Func(MultiFunctionCaller,Func(DeleteProject,ToCheck,CurrentFolderNameReturner().replace("Editor","Current Games")),Func(self.RemoveProjectNameFunc,ToCheck),self.EnableEverything,self.ShowRecentProjects),OnEnable=self.DisableEverything,title = "Sure?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
+            invoke(CustomWindow,ToEnable=self.EnableEverything,text = "Are you sure you want to delete this project",ToEnableOnYes = Func(MultiFunctionCaller,Func(DeleteProject,ToCheck,CurrentFolderNameReturner().replace("Editor","Current Games")),Func(self.RemoveProjectNameFunc,ToCheck),self.EnableEverything,self.ShowRecentProjects),OnEnable=self.DisableEverything,title = "Sure?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
 
 
     def ShowRecentProjects(self,FuncToEnableOnOpen = None):
@@ -400,10 +400,10 @@ class StartingUI(Entity):
             self.SaveChangedVarsButton.highlight_button.scale_x -= 0.1
             # self.SaveChangedVarsButton.highlight_button.z = 10
             # self.SaveChangedVarsButton.z  = -20
-            self.ConfigEditorAsSettings()
-        
-    def ConfigEditorAsSettings(self):
-        self.SetTooltip(self.EditorDataDict["Show tooltip"])
+            self.ConfigEditorAsSettings(self.EditorDataDict)
+
+    def ConfigEditorAsSettings(self,DataDict):
+        self.SetTooltip(DataDict["Show tooltip"])
 
     def SetTooltip(self,value):
         self.ItemToToolTipList = [self.CreateNewProjectFpcButton,self.CreateNewProjectTpcButton,self.CreateNewProjectTopDownButton,self.CreateNewProjectPlatformerButton,self.CreateNewProjectFpcAndTpcButton,self.LanguagePythonButton,self.LanguageUrsaVisorButton,self.ProjectNetworkignOnlineButton,self.ProjectNetworkignOfflineButton,self.ProjectGraphicsQualityLowButton,self.ProjectGraphicsQualityMediumButton,self.ProjectGraphicsQualityHighButton,self.SaveChangedVarsButton]
