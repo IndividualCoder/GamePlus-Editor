@@ -257,7 +257,7 @@ class UrsinaEditor(Entity):
         if Replace is False:
             self.NonConfiableEditorData["CurrentProjectNames"].remove(Name)
         else:
-            self.NonConfiableEditorData["CurrentProjectNames"]
+            self.NonConfiableEditorData["CurrentProjectNames"] = Replace
         self.SaveData()
 
 if __name__ == "__main__":
