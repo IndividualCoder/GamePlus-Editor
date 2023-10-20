@@ -15,8 +15,12 @@ from CodeEditorUrsaVisor import CodeEditorUrsaVisor
 import atexit
 from panda3d.core import *
 from direct.filter.CommonFilters import CommonFilters
+from CoreFiles.InstructionList import InstructionList
+import socket
+import subprocess
+# import AFile
 
-
+'''making online version'''
 class UrsinaEditor(Entity):
     def __init__(self,EditorCamera,**kwargs):
         super().__init__()
@@ -24,12 +28,12 @@ class UrsinaEditor(Entity):
         self.AddCurrentSupportedEditors = [self.AddSceneEditor,self.AddPythonCodeEditor,self.AddUrsaVisorEditor]
         self.ProjectEditorsList = []
         self.CurrentProjectEditor: ProjectEditor = None
-
+        self.CurrentDemoGame = []
 
         self.EditorCamera = EditorCamera
         self.NonConfiableEditorDataDefault = {"CurrentProjectNames": []}
         self.NonConfiableEditorData = OpenFile("Non configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.NonConfiableEditorDataDefault,True)
-        self.InstructionList = []
+        self.InstructionList = InstructionList()
 
         self.ConfiableEditorDataDefault = {"Show tooltip":True,"Auto save on exit": False,"Show memory counter": True,"Fullscreen": False,"Anti-aliasing sample": 4,"Render distance (near)": .10,"Render distance (far)": 10000.0,}
         self.ConfiableEditorDataDefaultType = ("bool","bool","bool","bool","int","float","float")
@@ -46,7 +50,7 @@ class UrsinaEditor(Entity):
         # self.StartingUi.RecentProjectsScrollerParentEntity.= len(self.StartingUi.TotalRunningProjects)
 
     def StartEdit(self):
-        self.ProjectEditorsList.append(ProjectEditor(ExportToPyFunc=self.ExportProjectToPy,CurrentTabs=[],EditorCamera=self.EditorCamera,enabled = True,ToAddTabsText=self.CurrentSupportedEditors,ToAddTabsFunc=self.AddCurrentSupportedEditors,PlayFunction=self.PlayProject))
+        self.ProjectEditorsList.append(ProjectEditor(ExportToPyFunc=self.ExportProjectToPy,CurrentTabs=[],EditorCamera=self.EditorCamera,ReadyToHostProjectFunc=self.ReadyToHostProject,HostProjectFunc=self.HostProject,enabled = True,ToAddTabsText=self.CurrentSupportedEditors,ToAddTabsFunc=self.AddCurrentSupportedEditors,PlayFunction=self.PlayProject))
         self.CurrentProjectEditor: ProjectEditor = self.ProjectEditorsList[-1]
         self.CurrentProjectEditor.SetUp()
         self.CurrentProjectEditor.ProjectName = self.StartingUi.ProjectName
@@ -75,9 +79,7 @@ class UrsinaEditor(Entity):
             Editor.SetUp()
 
     def Save(self):
-        # self.WorldItems = self.SceneEditor.WorldItems
-        # self.ToImport = self.SceneEditor.ToImport
-        # print(type(self.WorldItems[0]).__name__)
+
 
         ProjectSaver(ProjectName = self.CurrentProjectEditor.ProjectName,UdFunc = self.CurrentProjectEditor.UDFunc,UdVar=self.CurrentProjectEditor.UDVars,Udsrc=self.CurrentProjectEditor.UDSrc,WindowConfig=self.CurrentProjectEditor.UDWindowConfig,ToImport=list(self.CurrentProjectEditor.ToImport),Items = self.CurrentProjectEditor.CurrentSceneEditor.WorldItems,Path=f'{FormatForSaving(self.FolderName)}Current Games',GameSettings=self.CurrentProjectEditor.ProjectSettings)
 
@@ -85,15 +87,25 @@ class UrsinaEditor(Entity):
             self.NonConfiableEditorData["CurrentProjectNames"].append(self.CurrentProjectEditor.ProjectName)
             self.SaveData()
 
-    def SaveOnExit(self):
+    def OnExit(self):
         if self.ConfiableEditorData["Auto save on exit"] and self.StartingUi.ProjectName:
             self.Save()
+
+        if self.CurrentDemoGame == []:
+            pass
+
+        else:
+            for DemoGame in self.CurrentDemoGame:
+                if DemoGame.poll() is not None:
+                    pass
+                else:
+                    DemoGame.terminate()
 
     def Setup(self):
         # Register the exit_handler function
         self.ConfigEditorAsSettings()
 
-        atexit.register(self.SaveOnExit)
+        atexit.register(self.OnExit)
 
         self.StartingUi.Setup()
         self.StartingUi.ShowRecentProjects(self.EnableWorldItemsAndSetProjectName)
@@ -135,10 +147,14 @@ class UrsinaEditor(Entity):
 
 
     def ShowInstruction(self,Str,Color = tint(color.white,-.6),Title = "Info",KillIn = 1,KillAfter = 5,WordWrap = 40):
-        self.InstructionList.append(InstructionMenu(ToSay=Str,OnXClick=Func(self.DestroyInstruction,Index = -1),Title=Title,DestroyFunc=Func(self.DestroyInstruction,Index = -1),Color=Color,KillIn =KillIn,killAfter=KillAfter,WordWrap=WordWrap))
+        self.InstructionList.append(InstructionMenu(ToSay=Str,Title=Title,Color=Color,KillIn =KillIn,killAfter=KillAfter,WordWrap=WordWrap))
+        self.InstructionList[-1].CloseButton.on_click = Func(self.DestroyInstruction,self.InstructionList[-1])
 
-    def DestroyInstruction(self,Index = None):
-        destroy(self.InstructionList[Index],delay=.1)
+    def DestroyInstruction(self,Instruction):
+        print("destroying")
+        self.Index = self.InstructionList.index(Instruction)
+        destroy(self.InstructionList[self.Index])
+        del self.InstructionList[self.Index]
 
     def AddSceneEditor(self):
         self.CurrentProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,SaveFunction= self.Save,ShowInstructionFunc = self.ShowInstruction,ExportToPyFunc=self.ExportProjectToPy,EditorDataDict=self.ConfiableEditorData,EditorCamera = self.EditorCamera))
@@ -170,7 +186,7 @@ class UrsinaEditor(Entity):
         self.CurrentProjectEditor.UpdateTabsMenu()
 
     def AddPythonCodeEditor(self):
-        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorPython(ProjectName=self.CurrentProjectEditor.ProjectName,enabled=False,EditorDataDict=self.ConfiableEditorData,ignore = True))
+        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorPython(ProjectName=self.CurrentProjectEditor.ProjectName,enabled=False,EditorDataDict=self.ConfiableEditorData,ignore = True,UdSrc=self.CurrentProjectEditor.UDSrc))
 
         self.CurrentProjectEditor.CurrentTabs[-1].name = f"Code Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'CodeEditorPython'])}" 
         self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
@@ -202,7 +218,7 @@ class UrsinaEditor(Entity):
         else:
             self.Filter.delMSAA()
 
-    def ExportProjectToPy(self,Path,ProjectName = None,InProjectEditor = True):
+    def ExportProjectToPy(self,Path,ProjectName = None,InProjectEditor = True,Demo = False):
         if ProjectName is None:
             ProjectName = self.CurrentProjectEditor.ProjectName
 
@@ -213,34 +229,33 @@ class UrsinaEditor(Entity):
             Path += "/Exported games"
             print(Path)
 
-            ProjectExporter(ProjectName = ProjectName,ProjectPath=f'{FormatForSaving(self.FolderName)}Current Games',ToSavePath=Path)
+            ProjectExporter(ProjectName = ProjectName,ProjectPath=f'{FormatForSaving(self.FolderName)}Current Games',ToSavePath=Path,Demo = Demo)
             # print(Path.split("/",-1))
             self.ShowInstruction("Exported successfully",KillAfter = 6,KillIn=3)
         else:
             self.ShowInstruction("Invalid path",KillAfter = 6,KillIn=3,Title = "Error")
 
     def PlayProject(self):
-        wp = WindowProperties()
-        wp.setSize(960, 540)
-        wp.title = self.CurrentProjectEditor.ProjectName
-        win2 = base.openWindow(props=wp, aspectRatio=16/9,name = "hi",keepCamera = True)
-        dr = win2.makeDisplayRegion()
-        dr.sort = 20
+        self.CurrentProjectEditor.SaveProjectButton.on_click()
 
-        myCamera2d = NodePath(Camera('myCam2d'))
-        lens = OrthographicLens()
-        lens.setFilmSize(2, 2)
-        lens.setNearFar(-1000, 1000)
-        myCamera2d.node().setLens(lens)
+        self.ExportProjectToPy(CurrentFolderNameReturner(),self.CurrentProjectEditor.ProjectName,False,Demo = True)
+        self.CurrentDemoGame.append(subprocess.Popen(["python", f"Editor/Exported games/{self.CurrentProjectEditor.ProjectName}/Main.py"]))
 
-        myRender2d = NodePath('myRender2d')
-        myRender2d.setDepthTest(True)
-        myRender2d.setDepthWrite(True)
-        myCamera2d.reparentTo(myRender2d)
-        dr.setCamera(myCamera2d)
-        Button(on_click = Func(print,"hi")).reparentTo(myRender2d)
+    def ReadyToHostProject(self):
+        self.Port = 48513
+        self.Ip = "localhost"
+
+        self.Server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 
 
+        return self.Port,self.Ip
+
+    def HostProject(self,MaxJoin = 0):
+        self.Server.bind((self.Ip,self.Port))
+        if MaxJoin != 0:
+            self.Server.listen(MaxJoin)
+        else:
+            self.Server.listen()
 
     def EnableWorldItemsAndSetProjectName(self,WorldItemsList,Project = ""):
         # self.StartingUi.StartProject()
@@ -261,17 +276,16 @@ class UrsinaEditor(Entity):
         self.SaveData()
 
 if __name__ == "__main__":
-    from panda3d.core import AntialiasAttrib
-    
+   
     app = Ursina()
     window.exit_button.disable()
     window.fps_counter.disable()
 
-    Sky()
-
+    Sky()   
+    
     Editor = UrsinaEditor(EditCam := EditorCamera()) # the ':=' operator is called walrus operator. google it!  
     Editor.Setup()
-    render.setAntialias(AntialiasAttrib.MAuto)
+    # render.setAntialias(AntialiasAttrib.MAuto)
     # del Editor.Filter
     app.run()
-
+    

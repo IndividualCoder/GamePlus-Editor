@@ -4,7 +4,7 @@ from OtherStuff import CurrentFolderNameReturner
 
 class CodeEditorPython(Entity):
     '''Main code editor, code with writing word by word. Mainly used to code in python but can code in any language'''
-    def __init__(self,EditorDataDict,ProjectName = None,**kwargs):
+    def __init__(self,EditorDataDict,ProjectName = None,UdSrc = [],**kwargs):
         super().__init__()
 
         self.EditorDataDict = EditorDataDict
@@ -18,7 +18,7 @@ class CodeEditorPython(Entity):
         self.CodeWriter.line_numbers.render_queue = self.CodeWriter.render_queue
         # self.CodeWriter.line_numbers_background.enable()
 
-        self.FileMenu = FileMenu(ProjectName=ProjectName,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),parent = self.EveryItemMenuParentEntity,queue = 0,z = -10)
+        self.FileMenu = FileMenu(ProjectName=ProjectName,CodeEditorEntity=self.CodeWriter,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),parent = self.EveryItemMenuParentEntity,queue = 0,z = -10,UdSrc = UdSrc)
 
 
     def MakeEditorEnvironment(self,cam,color,size):
@@ -35,7 +35,7 @@ class CodeEditorPython(Entity):
 
     def SetUp(self):
         self.FileMenu.SetUp()
-
+        self.FileMenu.Show()
         self.ConfigEditorAsSettings(self.EditorDataDict)
 
     def ConfigEditorAsSettings(self,DataDict):
@@ -59,10 +59,18 @@ class CodeEditorPython(Entity):
 
 if __name__ == "__main__":
     from ProjectEditor import ProjectEditor
+    from OpenFile import OpenFile
     app = Ursina()
     ed = EditorCamera()
-    project = ProjectEditor(Func(print,"yeah"),CurrentTabs=[],EditorCamera=ed)
-    editor = CodeEditorPython(enabled=True)
+
+    project = ProjectEditor(Func(print,"yeah"),CurrentTabs=[],EditorCamera=ed,PlayFunction=Func(print,"hi"),ReadyToHostProjectFunc=Func(print,"hi"),HostProjectFunc=Func(print,"hi"))
+
+    ConfiableEditorDataDefault = {"Show tooltip":True,"Auto save on exit": False,"Show memory counter": True,"Fullscreen": False,"Anti-aliasing sample": 4,"Render distance (near)": .10,"Render distance (far)": 10000.0,}
+
+    ConfiableEditorData = OpenFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),ConfiableEditorDataDefault,True)
+
+    editor = CodeEditorPython(enabled=True,EditorDataDict=ConfiableEditorData,ProjectName="jh")
+    editor.SetUp()
     # editor.model = "cube"
     Sky()
     left = .001
@@ -70,38 +78,38 @@ if __name__ == "__main__":
     top = .001
     bottom = .001
     editor.MakeEditorEnvironment(application.base.camNode,(125,125,124,0),(0.0019, 0.355, 0.4599 ,0.935))
-    def input(key):
-        global top,bottom,left,right
-        if key in ["w","w hold"] and not held_keys["shift"]:
-            # top += .001
+    # def input(key):
+    #     global top,bottom,left,right
+    #     if key in ["w","w hold"] and not held_keys["shift"]:
+    #         # top += .001
 
-            editor.CodeWriter.y += top
-        elif key in ["s","s hold"] and not held_keys["shift"]:
-            # bottom += .001
-            editor.CodeWriter.y -= top
-        elif key in ["a","a hold"] and not held_keys["shift"]:
-            # left += .001
-            editor.CodeWriter.x -= left
-        elif key in ["d","d hold"] and not held_keys["shift"]:
-            # right += .001
-            editor.CodeWriter.x += left
+    #         editor.CodeWriter.y += top
+    #     elif key in ["s","s hold"] and not held_keys["shift"]:
+    #         # bottom += .001
+    #         editor.CodeWriter.y -= top
+    #     elif key in ["a","a hold"] and not held_keys["shift"]:
+    #         # left += .001
+    #         editor.CodeWriter.x -= left
+    #     elif key in ["d","d hold"] and not held_keys["shift"]:
+    #         # right += .001
+    #         editor.CodeWriter.x += left
 
-        elif key in ["r","r hold"] and not held_keys["shift"]:
-            # left += .001
-            editor.CodeWriter.scale_x += left
-        elif key in ["t","t hold"] and not held_keys["shift"]:
-            # right += .001
-            editor.CodeWriter.scale_y += left
+    #     elif key in ["r","r hold"] and not held_keys["shift"]:
+    #         # left += .001
+    #         editor.CodeWriter.scale_x += left
+    #     elif key in ["t","t hold"] and not held_keys["shift"]:
+    #         # right += .001
+    #         editor.CodeWriter.scale_y += left
 
-        elif key in ["r","r hold"] and held_keys["shift"]:
-            # left += .001
-            editor.CodeWriter.scale_x -= left
-        elif key in ["t","t hold"] and held_keys["shift"]:
-            # right += .001
-            editor.CodeWriter.scale_y -= left
+    #     elif key in ["r","r hold"] and held_keys["shift"]:
+    #         # left += .001
+    #         editor.CodeWriter.scale_x -= left
+    #     elif key in ["t","t hold"] and held_keys["shift"]:
+    #         # right += .001
+    #         editor.CodeWriter.scale_y -= left
 
-        elif key == "p":
-            editor.PrintItemStatTemp(editor.UniversalParentEntity)
+    #     elif key == "p":
+    #         editor.PrintItemStatTemp(editor.UniversalParentEntity)
             
 
     project.CurrentTabs.append(editor)

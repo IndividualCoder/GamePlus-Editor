@@ -146,7 +146,7 @@ def OpenBrowser(url: str):
     webbrowser.open(url)
 
 class CustomWindow():
-    def __init__(self,ToEnable,OnEnable,ToEnableOnYes = Func(application.quit),title = "Quit?",text =  "Are you sure you want to quit?",B1text = "No",B2text = "Yes",B1Key = None,B2Key = None,content = None,CalcAndAddTextLines = True,ToAddHeight = 0):
+    def __init__(self,ToEnable,OnEnable,ToEnableOnYes = Func(application.quit),title = "Quit?",text =  "Are you sure you want to quit?",B1text = "No",B2text = "Yes",B1Key = None,B2Key = None,content = None,CalcAndAddTextLines = True,ToAddHeight = 0,Queue = 0):
         self.ToEnable = ToEnable
         self.OnEnable = OnEnable
         self.ToEnableOnYes = ToEnableOnYes
@@ -154,17 +154,18 @@ class CustomWindow():
             for button in range(len(content)):
                 if hasattr(content[button],"click_to_destroy"):
                     content[button].on_click = self.PlayerNotQuitting
-
-        self.OnEnable()
+        if self.OnEnable is not None:
+            self.OnEnable()
 
 
         self.QuitMenuParentEntity = Entity(parent = camera.ui)
         if content is None:
             self.WindowPanelOfQuit = WindowPanel(parent = self.QuitMenuParentEntity,popup = True,scale = (.7,.08),position = (0,.2,-1),title=title,content = [Text(text  = text,origin = (0,0)),Button(color = color.rgba(255,255,255,125),text  = B1text,highlight_color = color.blue,on_click = self.PlayerNotQuitting,Key = B1Key,on_key_press=self.PlayerNotQuitting),Button(color = color.rgba(255,255,255,125),highlight_color = color.blue,Key = B2Key,on_key_press=self.ToEnableOnQuit,text  = B2text,on_click = self.ToEnableOnQuit)],CalcAndAddTextLines = CalcAndAddTextLines,ToAddHeight = ToAddHeight)
             self.DarkColorWindowPanel = Button(parent=self.QuitMenuParentEntity, z=1, scale=(999, 999), color=color.black66, highlight_color=color.black66, pressed_color=color.black66)
+
         if content is not None:
-            self.WindowPanelOfQuit = WindowPanel(parent = self.QuitMenuParentEntity,popup = True,scale = (.7,.08),position = (0,.3,-30),title=title,content = content,CalcAndAddTextLines = CalcAndAddTextLines,ToAddHeight = ToAddHeight,render_queue = 100)
-            self.DarkColorWindowPanel = Button(parent=self.QuitMenuParentEntity, z=-29, scale=(999, 999), color=color.rgba(0,0,0,0), highlight_color=color.rgba(0,0,0,0), pressed_color=color.rgba(0,0,0,0),render_queue = 99)
+            self.WindowPanelOfQuit = WindowPanel(parent = self.QuitMenuParentEntity,popup = True,scale = (.7,.08),position = (0,.3,-203),title=title,content = content,CalcAndAddTextLines = CalcAndAddTextLines,ToAddHeight = ToAddHeight,render_queue = Queue)
+            self.DarkColorWindowPanel = Button(parent=self.QuitMenuParentEntity, scale=(999, 999), color=color.rgba(0,0,0,0), highlight_color=color.rgba(0,0,0,0), pressed_color=color.rgba(0,0,0,0),position = (0,0,-202),always_on_top = True)
 
     def PlayerNotQuitting(self):
         self.ToEnable()

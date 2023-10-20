@@ -5,9 +5,10 @@ from OtherStuff import CustomWindow,MultiFunctionCaller,RecursivePerformer
 from SceneEditor import SceneEditor
 from OpenFile import Openselector
 from ursina import SimpleButtonList
+from Netwroking.HostProjectMenu import HostProjectMenu
 
 class ProjectEditor(Entity):
-    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,PlayFunction,ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
+    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,PlayFunction,ReadyToHostProjectFunc,HostProjectFunc,ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
         super().__init__(kwargs)
         self.UDVars = [] #User defined vars (like bye = 2 or helo = 3)
         self.UDFunc = [] #User defined func (any function)
@@ -19,6 +20,8 @@ class ProjectEditor(Entity):
         self.CurrentEditor = None
         self.CurrentSceneEditor:SceneEditor = None
 
+        self.ReadyToHostProjectFunc = ReadyToHostProjectFunc
+        self.HostProjectFunc = HostProjectFunc
         self.ExportToPyFunc = ExportToPyFunc
         self.CurrentTabs = CurrentTabs
         self.EditorCamera = EditorCamera
@@ -42,11 +45,12 @@ class ProjectEditor(Entity):
 
         self.AddEditorToPrjectButton = Button(parent = self.TabsForegroundParentEntity,text = "+",on_click = self.ShowToAddTabsMenu,render_queue = self.TabsForegroundParentEntity.render_queue,always_on_top = True,radius=.1)
         self.ButtonDict = {}
-        self.AddEditorToPrjectButtonList = SimpleButtonList(self.ButtonDict,scale_x = 20,scale_y = 40,parent  = self.AddEditorToPrjectButton,color = color.red,render_queue = 4,always_on_top = True,enabled = False)
+        self.AddEditorToPrjectButtonList = SimpleButtonList(self.ButtonDict,scale_x = 20,scale_y = 40,parent  = self.AddEditorToPrjectButton,color = color.red,render_queue = 2,always_on_top = True,enabled = False)
+
         self.AddEditorToPrjectButtonList.Background.z = 100
         self.AddEditorToPrjectButtonList.Background.on_click = Func(MultiFunctionCaller,self.AddEditorToPrjectButtonList.disable,self.AddEditorToPrjectButtonList.Background.disable)
         self.AddEditorToPrjectButtonList.Background.Key = "escape"
-        self.AddEditorToPrjectButtonList.Background.render_queue = 3
+        self.AddEditorToPrjectButtonList.Background.render_queue = 1
 
 
         for i in range(len(self.ToAddTabsText)):
@@ -54,14 +58,14 @@ class ProjectEditor(Entity):
 
         self.AddEditorToPrjectButtonList.button_dict = self.ButtonDict
 
-        self.SaveProjectButton = Button(parent = self.TopButtonsParentEntity,text="Save",color = color.blue,radius  = 0,position =(-0.437, 0, -25),scale = (1/11,0.7),always_on_top = True) #Vec3(0.179, 0.0385, 1)
-        self.FinishProjectButton = Button(parent = self.TopButtonsParentEntity,text="Finish",color = color.blue,radius  = 0,position =(-0.337, 0, -25),scale = (1/11,0.7),on_click = self.FinishProject,always_on_top = True) #Vec3(0.179, 0.0385, 1)
-        self.PlayProjectButton = Button(parent = self.TopButtonsParentEntity,text="Play",color = color.blue,radius  = 0,position =(-0.237, 0, -25),scale = (1/11,0.7),always_on_top = True,on_click = PlayFunction) #Vec3(0.179, 0.0385, 1)
+
+        self.SaveProjectButton = Button(parent = self.TopButtonsParentEntity,text="Save",color = color.blue,radius  = 0,position =(-0.447, 0, -25),scale = (0.06,0.7)) #Vec3(0.179, 0.0385, 1)
+        self.FinishProjectButton = Button(parent = self.TopButtonsParentEntity,text="Finish",color = color.blue,radius  = 0,position =(-0.377, 0, -25),scale = (0.06,0.7),on_click = self.FinishProject) #Vec3(0.179, 0.0385, 1)
+        self.PlayProjectButton = Button(parent = self.TopButtonsParentEntity,text="Play",color = color.blue,radius  = 0,position =(-0.307, 0, -25),scale = (0.06,0.7),on_click = PlayFunction) #Vec3(0.179, 0.0385, 1)
+        self.HostProjectButton = Button(parent = self.TopButtonsParentEntity,text="Host",color = color.blue,radius  = 0,position =(-0.237, 0, -25),scale = (0.06,0.7))# on_click = self.AskToHostProject
+        self.HomeButton = Button(parent = self.TopButtonsParentEntity,text="Home",color = color.blue,radius  = 0,position =(-0.167, 0, -25),scale = (0.06,0.7)) #Vec3(0.179, 0.0385, 1)
 
 
-        #  = self.ProjectTabsScrollEntity.add_script(Scrollable())
-
-        # self.AddTabsMenuButtons()
 
     def updateVal(self):
         if len(self.ProjectTabsScrollEntity.children) == 4:
@@ -102,7 +106,9 @@ class ProjectEditor(Entity):
 
     def ShowCustomWindow(self,ToEnable,OnEnable,Title = "Info",CalcAndAddTextLines  = True,ToAddHeight = 0,Content = None):
         self.CurrentCustomWindow = CustomWindow(ToEnable=ToEnable,title = Title,OnEnable=OnEnable,
-                CalcAndAddTextLines = CalcAndAddTextLines,ToAddHeight = ToAddHeight,content = Content)
+                CalcAndAddTextLines = CalcAndAddTextLines,ToAddHeight = ToAddHeight,content = Content,Queue = 4)
+
+        self.CurrentCustomWindow.WindowPanelOfQuit.text_entity.render_queue = 5
 
 
     def ShowTabMenu(self):
@@ -214,11 +220,15 @@ class ProjectEditor(Entity):
         self.AddEditorToPrjectButtonList.enable()
         self.AddEditorToPrjectButtonList.Background.enable()
 
+    def AskToHostProject(self):
+        self._TempIp,self._TempPort = self.ReadyToHostProjectFunc()
+        self.ProjectHostMenu = HostProjectMenu(Queue=3,CancelClick=None,ToDoOnInit=None,Ip=self._TempIp,Port=self._TempPort,ToDoOnHost=self.HostProjectFunc)
+
 
     def DestroyCurrentWindow(self):
         self.CurrentCustomWindow.PlayerNotQuitting()
         # print("hi")
-
+        
     def SetUp(self):
         self.AddEditorToPrjectButton.position = Vec3(0.476, 0, -23)
         self.AddEditorToPrjectButton.scale = Vec3(0.0299989, 0.369998, 1)

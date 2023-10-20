@@ -3,7 +3,7 @@ import os
 import json
 # from ProjectSavingEncoder import ProjectSavingEncoder
 
-def ProjectExporter(ProjectName,ProjectPath,ToSavePath):
+def ProjectExporter(ProjectName,ProjectPath,ToSavePath,Demo = False):
     #Loading the items
     if not os.path.exists(f"{ToSavePath}/{ProjectName}"):
         os.makedirs(f"{ToSavePath}/{ProjectName}")
@@ -46,8 +46,10 @@ def ProjectExporter(ProjectName,ProjectPath,ToSavePath):
     for item in WorldItems:
         name = re.search(r"name='([^']*)'", item['args']).group(1)
         FinalFile += f'{Indent}self.{name} = {item["cls"] + item["args"]}\n'
-
-    FinalFile += "if __name__ == '__main__':\n    app = Ursina()\n    Sky()\n    Game()\n    render.setAntialias(AntialiasAttrib.MAuto)\n    EditorCamera()\n    app.run()"
+    if not Demo:
+        FinalFile += "if __name__ == '__main__':\n    app = Ursina()\n    Sky()\n    Game()\n    render.setAntialias(AntialiasAttrib.MAuto)\n    EditorCamera()\n    app.run()"
+    else:
+        FinalFile += "if __name__ == '__main__':\n    app = Ursina()\n    window.borderless = False\n    window.size = (960,540)\n    window.exit_button.disable()\n    Sky()\n    Game()\n    render.setAntialias(AntialiasAttrib.MAuto)\n    EditorCamera()\n    app.run()"
 
     # print(FinalFile)
     with open(f"{ToSavePath}/{ProjectName}/Main.py","w") as File:

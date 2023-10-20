@@ -3,7 +3,7 @@ from CoreFiles.BlueLink import BlueLink
 from OtherStuff import RecursivePerformer
 
 class ColorMenu(Button):
-    '''Not done yet ;)'''
+    '''Choose color by sliding sliders instead of putting random int. alpha channel not working correctly yet!'''
     def __init__(self,EntityToColor,BGScale,BGPos = (0,0,0),WordLimit = 20,**kwargs):
         super().__init__()
         self.WordLimit = WordLimit

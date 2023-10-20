@@ -8,6 +8,7 @@ def OpenFile(FileName: str,Folder: str,Default: None = None,MakeIfNotFound = Fal
     try:
         with open(f"{Folder}/{FileName}","r") as File:
             return json.load(File)
+
     except FileNotFoundError:
         if not MakeIfNotFound:
             return Default

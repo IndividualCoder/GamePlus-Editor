@@ -26,6 +26,7 @@ class TrueFalseIndicator(Entity):
         self.Button.text_entity.origin = (-.5,0)
 
         self.StateGenertor = self.GeneratorOfText(StateList)
+        self.ChangeState() # get the default state
 
     def GeneratorOfText(self,List):
         while True:

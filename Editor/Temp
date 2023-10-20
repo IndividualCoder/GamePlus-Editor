@@ -1,0 +1,7 @@
+    def ShowPosTemp(self,Entity):
+        print(f"{__file__}:: Name: {Entity.name}, position =  {Entity.position},rotation = {Entity.rotation},scale = {Entity.scale} ")
+
+
+
+    def SetUpProperty(self,Entity,val,ToSubOrAdd):
+        setattr(Entity,val,getattr(Entity,val) + ToSubOrAdd)

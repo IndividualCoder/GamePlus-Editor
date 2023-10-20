@@ -7,6 +7,7 @@ from ProjectLoader import LoadProjectToScene
 from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
 from CoreFiles.ConfigProjectMenu import ConfigProjectManager
 from OpenFile import Openselector
+from Netwroking.JoinProjectMenu import JoinProjectMenu
 
 class StartingUI(Entity):
     def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,FuncToEnableOnOpen,ExportToPyFunc,RemoveProjectNameFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
@@ -24,10 +25,11 @@ class StartingUI(Entity):
         self.ExportToPyFunc = ExportToPyFunc
         self.RemoveProjectNameFunc = RemoveProjectNameFunc
         self.ProjectDataName = ["ProjectGraphicsQuality","ProjectLanguage","ProjectNetworkingOnline","CurrentTargatedPlatform","CurrentProjectBase"]
-        self.RecentProjectButtonTexts = ["Open project","Config project","Finish project","Delete project"]
-        self.OtherOptionsText = ["Official site","View on github","Watch youtube tutorial","Load an exported project","View plugins"]
-        self.OtherOptionsFunc = [Func(print_on_screen,"Site not done yet!",position = (0,.1),color = color.blue,duration =2),Func(OpenBrowser,"https://github.com/IndividualCoder/UrsinaEditor"),Func(print_on_screen,"No tutorials yet (•_•)",position = (0,.1),color = color.blue,duration =2),Func(print_on_screen,"Even the logic is not built yet ＞︿＜",position = (0,.1),color = color.blue,duration =2),Func(print_on_screen,"No plugins yet!",position = (0,.1),color = color.blue,duration =2)]
-        # self.RecentProjectButttonFunctions = [self.open]
+        self.RecentProjectButtonTexts = ("Open project","Config project","Finish project","Delete project")
+        self.OtherOptionsText = ["Official site","View on github","Watch youtube tutorial","Load an exported project","View plugins","Join project"]
+        self.OtherOptionsFunc = [Func(print_on_screen,"Site not done yet!",position = (0,.1),color = color.blue,duration =2),Func(OpenBrowser,"https://github.com/IndividualCoder/UrsinaEditor"),Func(print_on_screen,"No tutorials yet (•_•)",position = (0,.1),color = color.blue,duration =2),Func(print_on_screen,"Even the logic is not built yet :/",position = (0,.1),color = color.blue,duration =2),Func(print_on_screen,"No plugins yet!",position = (0,.1),color = color.blue,duration =2),Func(JoinProjectMenu,self.EnableStaringUI,self.DisableStartingUI)]
+
+
         self.ChangeConfigDataToDefaultTypeFunc = ChangeConfigDataToDefaultTypeFunc
         self.OpenedProjects = OpenedProjects
 
@@ -76,7 +78,7 @@ class StartingUI(Entity):
 
         self.TargatedPlatformText = Text(name = "Select project targated platform text",parent = self.CreateNewProjectMenuParentEntity,text="Targated platform",position = (-0.485, 0.105, 0),scale = 1)
         self.TargatedPlatformText.create_background(.03,0)
-        self.TargatedPlatformDropdownMenu =     SimpleDropdownMenu(name = "Dropdown menu",parent = self.CreateNewProjectMenuParentEntity,text = 'Windows',color = color.blue,highlight_color = color.blue.tint(.2),on_click = Func(self.SetProjectTargatedPlatform,"windows"), buttons=(DropdownMenuButton(name = 'Android',text="Android",color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"android")),DropdownMenuButton('Mac',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"mac")),DropdownMenuButton('ios',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"ios")),DropdownMenuButton('Linux',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"linux"))),click_to_open=True,position = (-.5,0.06),scale = (.25,0.025))
+        self.TargatedPlatformDropdownMenu =     SimpleDropdownMenu(name = "Dropdown menu",parent = self.CreateNewProjectMenuParentEntity,text = 'Windows',color = color.black66,highlight_color = color.blue.tint(.2),on_click = Func(self.SetProjectTargatedPlatform,"windows"), buttons=(DropdownMenuButton(name = 'Android',text="Android",color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"android")),DropdownMenuButton('Mac',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"mac")),DropdownMenuButton('ios',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"ios")),DropdownMenuButton('Linux',color = color.green,highlight_color = color.green.tint(-.2),on_click = Func(self.SetProjectTargatedPlatform,"linux"))),click_to_open=True,position = (-.5,0.06),scale = (.25,0.025))
         self.TargatedPlatformBaseDict = {"windows": self.TargatedPlatformDropdownMenu,"android": self.TargatedPlatformDropdownMenu.buttons[0],"mac": self.TargatedPlatformDropdownMenu.buttons[1],"ios": self.TargatedPlatformDropdownMenu.buttons[2],"linux": self.TargatedPlatformDropdownMenu.buttons[3]}
         self.CurrentTargatedPlatform = self.TargatedPlatformBaseDict["windows"]
 
@@ -239,7 +241,6 @@ class StartingUI(Entity):
     def ShowOtherOptionsFunc(self):
         # print(len(self.OtherOptionsButton.children))
         if len(self.OtherOptionsButton.children) ==1:
-            print_on_screen("Esc to escape!",queue=2,duration=4)
             self.TempButtonListDict = {}
             self.OtherOptionsButton.children.append(ButtonList(self.TempButtonListDict,button_height = 1.4,parent = self.OtherOptionsButton,render_queue = 2,z = -100,scale_x = 2,scale_y = 4,always_on_top = True))
             self.TempButtonListDict = {self.OtherOptionsText[i]: Func(MultiFunctionCaller,self.OtherOptionsButton.children[-1].disable,self.OtherOptionsFunc[i]) for i in range(len(self.OtherOptionsText))}

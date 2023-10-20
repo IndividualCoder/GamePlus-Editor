@@ -29,6 +29,7 @@ class SceneEditor(Entity):
         self.SideBarTopParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 10),scale = Vec3(0.43, 0.56, 2),color = color.gray)
         self.AddObjectMenuParentEntity = Entity(parent = self.UniversalParentEntity,model = None,enabled = enabled,position = Vec3(0.38, -0.35, 2),scale = Vec3(1.69, 0.1, 1),color = color.dark_gray,origin_y = 1)
         self.SideBarBottomParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -200),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1))
+
         self.SideBarTopSlideHandler = Button(parent = self.SideBarTopParentEntity,model = "cube",radius=0,visible_self = False,z = -200)
 
 
@@ -69,7 +70,6 @@ class SceneEditor(Entity):
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
-
 
 
     def ShowObjectContent(self,Obj,Parent: Entity):
@@ -278,7 +278,7 @@ class SceneEditor(Entity):
         if value:
             self.ToolTipList = []
             for i in range(len(self.ItemToToolTipList)):
-                self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -30,render_queue = 3,always_on_top = True)
+                self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -30,render_queue = 2,always_on_top = True)
                 # self.ItemToToolTipList[i].tool_tip.background.z = -1
 
         else:
