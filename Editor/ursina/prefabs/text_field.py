@@ -672,14 +672,10 @@ class TextField(Entity):
 
     def select_all(self):
         lines = self.text.split('\n')
-        lines = self.text.splitlines()
-        # print('|||||||||', len(lines), len(self.text.splitlines()), self.text.splitlines(), lines)
         if lines:
-            self.selection = [(0,0), (len(lines[-1]), len(lines) - 1)]
-            print(self.selection)
+            self.selection = [Vec2(0,0), Vec2(len(lines[-1]), len(lines) - 1)]
 
         self.draw_selection()
-
 
     def draw_selection(self):
         [destroy(c) for c in self.selection_parent.children]
@@ -725,6 +721,12 @@ class TextField(Entity):
         if l.startswith('class ') and not l.endswith(':'):
             add_text(':')
         if l.startswith('def ') and not l.endswith(':'):
+            add_text(':')
+        if l.startswith('if ') and not l.endswith(':'):
+            add_text(':')
+        if l.startswith('elif ') and not l.endswith(':'):
+            add_text(':')
+        if l.startswith('else ') and not l.endswith(':'):
             add_text(':')
 
         add_text('\n')
