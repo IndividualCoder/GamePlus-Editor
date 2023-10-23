@@ -1,13 +1,16 @@
 from ursina import *
 from FileSystem.FileMenu import FileMenu
 from OtherStuff import CurrentFolderNameReturner
+from ursina.color import tint
 
 class CodeEditorPython(Entity):
     '''Main code editor, code with writing word by word. Mainly used to code in python but can code in any language'''
-    def __init__(self,EditorDataDict,ProjectName = None,UdSrc = [],**kwargs):
+    def __init__(self,EditorDataDict,ShowInstructionFunc,SaveFunction,ProjectName = None,UdSrc = [],**kwargs):
         super().__init__()
 
         self.EditorDataDict = EditorDataDict
+        self.Save = SaveFunction
+        self.ShowInstructionFunc = ShowInstructionFunc
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
@@ -18,7 +21,7 @@ class CodeEditorPython(Entity):
         self.CodeWriter.line_numbers.render_queue = self.CodeWriter.render_queue
         # self.CodeWriter.line_numbers_background.enable()
 
-        self.FileMenu = FileMenu(ProjectName=ProjectName,CodeEditorEntity=self.CodeWriter,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),parent = self.EveryItemMenuParentEntity,queue = 0,z = -10,UdSrc = UdSrc)
+        self.FileMenu = FileMenu(ProjectName=ProjectName,CodeEditorEntity=self.CodeWriter,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),parent = self.EveryItemMenuParentEntity,queue = 0,z = -10,UdSrc = UdSrc,ShowInstructionFunc = ShowInstructionFunc)
 
 
     def MakeEditorEnvironment(self,cam,color,size):
@@ -54,7 +57,8 @@ class CodeEditorPython(Entity):
                 self.ItemToToolTipList[i].tool_tip = None
 
     def SaveEditor(self):
-        print(f"{__file__}:: helo")
+        self.Save()
+        self.ShowInstructionFunc("Your project is saved :)",Color = tint(color.white,-.6),Title = "Saved!")
         
 
 if __name__ == "__main__":

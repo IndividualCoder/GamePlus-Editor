@@ -10,7 +10,7 @@ from OpenFile import Openselector
 from Netwroking.JoinProjectMenu import JoinProjectMenu
 
 class StartingUI(Entity):
-    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,FuncToEnableOnOpen,ExportToPyFunc,RemoveProjectNameFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
+    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,RecentProjectsOrder,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,FuncToEnableOnOpen,ExportToPyFunc,RemoveProjectNameFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
         super().__init__(parent = camera.ui)
 
         self.ProjectName = ProjectName
@@ -24,6 +24,7 @@ class StartingUI(Entity):
         self.HasRecentProjectShow = False
         self.ExportToPyFunc = ExportToPyFunc
         self.RemoveProjectNameFunc = RemoveProjectNameFunc
+        self.OrderOfRecentProjects: list = RecentProjectsOrder
         self.ProjectDataName = ["ProjectGraphicsQuality","ProjectLanguage","ProjectNetworkingOnline","CurrentTargatedPlatform","CurrentProjectBase"]
         self.RecentProjectButtonTexts = ("Open project","Config project","Finish project","Delete project")
         self.OtherOptionsText = ["Official site","View on github","Watch youtube tutorial","Load an exported project","View plugins","Join project"]
@@ -183,6 +184,7 @@ class StartingUI(Entity):
 
             self.CreateNewProjectMenuParentEntity.disable()
             # self.ExistingProjectsName.append(self.ProjectTitleButton.text)
+            self.OrderOfRecentProjects.insert(0,self.ProjectTitleButton.text)
             self.SaveNonConfiableData()
             self.SetProjectName()
             self.OnProjectStart()
@@ -293,27 +295,30 @@ class StartingUI(Entity):
         # print(CurrentFolderName)
         return GetRecentProjects(CurrentFolderName,order=ReturnOrder)
 
-    def SetRecentProjects(self,ProjectSettings,FuncToEnableOnOpen):
+    def SetRecentProjects(self,ProjectSettings: dict,FuncToEnableOnOpen):
 
-        for i,j in enumerate(ProjectSettings):
+        self.NewData = dict(sorted(ProjectSettings.items(), key=lambda item: self.OrderOfRecentProjects.index(item[0])))
+
+        print(self.NewData)
+        for i,j in enumerate(self.NewData):
             self.TopParent = Button(parent = self.RecentProjectsScrollerParentEntity,radius=  0,position = Vec3(0-i*-0.3, 0, 0),scale_x = .3,origin = (-.5,0,0),visible_self = False)
             Text(parent = self.TopParent,text=j,position = Vec3(.05, 0.366999, 0),scale = Vec3(3, 2.39, 1),always_on_top = True)
             Entity(parent = self.TopParent,model = "line",position = Vec3(1, -0.0529997, 0),scale = Vec3(0.899999, 0.2, 0.1),rotation_z = 90,always_on_top = True)
 
-            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.2,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = j,FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = ProjectSettings[j]))
+            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.2,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = j,FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = j))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[1],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.2,-1),always_on_top = True,on_click = Func(MultiFunctionCaller,self.StartingUIParentEntity.disable,Func(RecursivePerformer,self.ConfigProjectManager.UniversalParentEntity),Func(self.ConfigProjectManager.Show,j)))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[2],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.4,-1),always_on_top = True,on_click = Func(self.ExportProject,j))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[3],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.4,-1),always_on_top = True,on_click = Func(self.CheckUserQuit,j))
 
-            currentPro = ProjectSettings[j]
+            currentPro = self.NewData[j]
             for k,l in enumerate(self.ProjectDataName):
                 Text(parent = self.TopParent,text=f"{PrepareForRecentProjects(self.ProjectDataName[k])}: {currentPro[l]}",position = Vec3(.1, 0.27-k*.07, 0),scale = Vec3(2, 2.19, 1),always_on_top = True)
 
 
 
-        self.LineTemp = Entity(parent = self.RecentProjectsScrollerParentEntity,model = "line",position = Vec3(0, 0.298, 0),scale_x = len(ProjectSettings)*2)
-        self.GetRecentProjectsScroll(len(ProjectSettings))
-        self.LineTemp.scale_x = len(ProjectSettings)*2
+        self.LineTemp = Entity(parent = self.RecentProjectsScrollerParentEntity,model = "line",position = Vec3(0, 0.298, 0),scale_x = len(self.NewData)*2)
+        self.GetRecentProjectsScroll(len(self.NewData))
+        self.LineTemp.scale_x = len(self.NewData)*2
         del self.LineTemp
         self.HasRecentProjectShow = True
 
@@ -422,7 +427,9 @@ class StartingUI(Entity):
         LoadProjectToScene(FileName = FileName,FilePath = FilePath,FuncToEnableOnOpen=FuncToEnableOnOpen)
         self.ProjectName = ProjectName
         self.UniversalParentEntity.disable()
-
+        self._TempSavedItemOfRecentProject = self.OrderOfRecentProjects.pop(self.OrderOfRecentProjects.index(ProjectName))
+        self.OrderOfRecentProjects.insert(0,_TempSavedItemOfRecentProject)
+        self.SaveNonConfiableData()
 
 if __name__ == "__main__":
     app = Ursina()

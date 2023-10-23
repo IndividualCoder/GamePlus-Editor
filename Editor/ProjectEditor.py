@@ -7,6 +7,8 @@ from OpenFile import Openselector
 from ursina import SimpleButtonList
 from Netwroking.HostProjectMenu import HostProjectMenu
 
+
+
 class ProjectEditor(Entity):
     def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,PlayFunction,ReadyToHostProjectFunc,HostProjectFunc,ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
         super().__init__(kwargs)

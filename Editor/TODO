@@ -7,9 +7,9 @@
 
 4: Script adding feature.
 
-5: Config project menu working. __Done__
+5: Online
 
-6: Export project and delete project menu working. __Done__
+6: Terminal
 
 7: Working scene editor gizmo and obj property changing dynamically.
 
@@ -24,5 +24,3 @@
 12: Exe export.
 
 13: Starter content.
-
-14: Online
