@@ -24,7 +24,8 @@ class DirectionalLight(Light):
     def __init__(self, shadows=True, **kwargs):
         super().__init__()
         self._light = PandaDirectionalLight('directional_light')
-        render.setLight(self.attachNewNode(self._light))
+        self._light_np = self.attachNewNode(self._light)
+        render.setLight(self._light_np)
         self.shadow_map_resolution = Vec2(1024, 1024)
 
         for key, value in kwargs.items():
@@ -97,6 +98,6 @@ if __name__ == '__main__':
     Entity(model='cube', y=1, shader=lit_with_shadows_shader)
     pivot = Entity()
     DirectionalLight(parent=pivot, y=2, z=3, shadows=True)
-
+    AmbientLight().setColor(.2,.2,.2,1)
 
     app.run()
