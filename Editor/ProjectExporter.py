@@ -59,5 +59,5 @@ def ProjectExporter(ProjectName,ProjectPath,ToSavePath,Demo = False):
 if __name__ == "__main__":
     from OtherStuff import CurrentFolderNameReturner
     
-    ProjectExporter("w",CurrentFolderNameReturner().replace("Editor","Current Games"),ToSavePath=CurrentFolderNameReturner().replace("Editor","FInal"))
+    ProjectExporter("w",f"{CurrentFolderNameReturner()}/Current Games",ToSavePath=CurrentFolderNameReturner().replace("Editor","FInal"))
 

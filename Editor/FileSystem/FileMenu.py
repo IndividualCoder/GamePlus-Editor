@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
     app = Ursina()
     from OtherStuff import CurrentFolderNameReturner
-    a = FileMenu("jh",CurrentFolderNameReturner().replace("Editor","Current Games"),Entity())
+    a = FileMenu("jh",f"{CurrentFolderNameReturner()}Current Games",Entity())
     a.SetUp()
     a.Show()
 

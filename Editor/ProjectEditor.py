@@ -260,7 +260,7 @@ class ProjectEditor(Entity):
     def ProjectName(self,Value):
         self._ProjectName = Value
         self.EditingProjectText.text = Value
-        self.UDSrc = OpenFile(f"{self._ProjectName}/User defined src.txt",CurrentFolderNameReturner().replace("Editor","Current Games"),[])
+        self.UDSrc = OpenFile(f"{self._ProjectName}/User defined src.txt",f"{CurrentFolderNameReturner()}/Current Games",[])
         return
 
 if __name__ == "__main__":

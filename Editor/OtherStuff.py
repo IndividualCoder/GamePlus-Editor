@@ -70,10 +70,9 @@ def PrepareForRecentProjects(String: str):
 
 
 def FormatForSaving(string: str):
-    '''Formats a given by first removing all backslashs and then removing the Editor from the str, Usually used to format the str to save'''
+    '''Formats a given by first removing all backslashs, Usually used to format the str to save'''
     string = string.replace("\\","/")
     string = string.replace("\\\\","/")
-    string = string.replace("Editor","")
     return string
 
 

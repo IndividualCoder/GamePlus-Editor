@@ -21,7 +21,7 @@ class CodeEditorPython(Entity):
         self.CodeWriter.line_numbers.render_queue = self.CodeWriter.render_queue
         # self.CodeWriter.line_numbers_background.enable()
 
-        self.FileMenu = FileMenu(ProjectName=ProjectName,CodeEditorEntity=self.CodeWriter,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),parent = self.EveryItemMenuParentEntity,queue = 0,z = -10,UdSrc = UdSrc,ShowInstructionFunc = ShowInstructionFunc,OnFileAdded = OnFileAdded)
+        self.FileMenu = FileMenu(ProjectName=ProjectName,CodeEditorEntity=self.CodeWriter,Path=f"{CurrentFolderNameReturner()}/Current Games",parent = self.EveryItemMenuParentEntity,queue = 0,z = -10,UdSrc = UdSrc,ShowInstructionFunc = ShowInstructionFunc,OnFileAdded = OnFileAdded)
 
 
     def MakeEditorEnvironment(self,cam,color,size):
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     ConfiableEditorDataDefault = {"Show tooltip":True,"Auto save on exit": False,"Show memory counter": True,"Fullscreen": False,"Anti-aliasing sample": 4,"Render distance (near)": .10,"Render distance (far)": 10000.0,}
 
-    ConfiableEditorData = OpenFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),ConfiableEditorDataDefault,True)
+    ConfiableEditorData = OpenFile("Configable editor data.txt",f"{CurrentFolderNameReturner()}/Editor data",ConfiableEditorDataDefault,True)
 
     editor = CodeEditorPython(enabled=True,EditorDataDict=ConfiableEditorData,ProjectName="jh")
     editor.SetUp()

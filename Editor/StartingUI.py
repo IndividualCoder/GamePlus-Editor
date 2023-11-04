@@ -43,7 +43,7 @@ class StartingUI(Entity):
         self.ChangeVarsMenuParentEntity = Entity(parent = self.UniversalParentEntity,enabled = False)
         self.ChangeVarsTextParentEntity = Entity(parent = self.ChangeVarsMenuParentEntity)
 
-        self.ConfigProjectManager = ConfigProjectManager(Parent=self.UniversalParentEntity,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),CancelClick=Func(MultiFunctionCaller,self.EnableStaringUI,self.ShowRecentProjects),ToSaveDataFunc = self.RemoveProjectNameFunc)
+        self.ConfigProjectManager = ConfigProjectManager(Parent=self.UniversalParentEntity,Path=f"{CurrentFolderNameReturner()}/Current Games",CancelClick=Func(MultiFunctionCaller,self.EnableStaringUI,self.ShowRecentProjects),ToSaveDataFunc = self.RemoveProjectNameFunc)
 
         self.RecentProjectsScrollEntity = None
 
@@ -262,7 +262,7 @@ class StartingUI(Entity):
             if len(self.OtherOptionsButton.children) == 1 or not self.OtherOptionsButton.children[1].enabled:
                 invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,title = "Quit?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
         else:
-            invoke(CustomWindow,ToEnable=self.EnableEverything,text = "Are you sure you want to delete this project",ToEnableOnYes = Func(MultiFunctionCaller,Func(DeleteProject,ToCheck,CurrentFolderNameReturner().replace("Editor","Current Games")),Func(self.RemoveProjectNameFunc,ToCheck),self.EnableEverything,self.ShowRecentProjects),OnEnable=self.DisableEverything,title = "Sure?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
+            invoke(CustomWindow,ToEnable=self.EnableEverything,text = "Are you sure you want to delete this project",ToEnableOnYes = Func(MultiFunctionCaller,Func(DeleteProject,ToCheck,f"{CurrentFolderNameReturner()}/Current Games",Func(self.RemoveProjectNameFunc,ToCheck),self.EnableEverything,self.ShowRecentProjects),OnEnable=self.DisableEverything,title = "Sure?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1))
 
 
     def ShowRecentProjects(self,FuncToEnableOnOpen = None):
@@ -289,8 +289,7 @@ class StartingUI(Entity):
         CurrentFolderName = CurrentFolderNameReturner()
         # print("mine",CurrentFolderName)
         CurrentFolderName = CurrentFolderName.replace("\\","/")
-        CurrentFolderName = CurrentFolderName.replace("Editor","Current Games")
-        # print("mine : ",Pathh)
+        CurrentFolderName = CurrentFolderName + "Current Games"
 
         # print(CurrentFolderName)
         return GetRecentProjects(CurrentFolderName,order=ReturnOrder)
@@ -305,7 +304,7 @@ class StartingUI(Entity):
             Entity(parent = self.TopParent,model = "line",position = Vec3(1, -0.0529997, 0),scale = Vec3(0.899999, 0.2, 0.1),rotation_z = 90,always_on_top = True)
             self.ConfigProjectManager.CurrentProjectName = j
 
-            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.2,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = j,FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = j))
+            Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.2,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = j,FilePath = f"{CurrentFolderNameReturner()}/Current Games",FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = j))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[1],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.2,-1),always_on_top = True,on_click = Func(MultiFunctionCaller,self.StartingUIParentEntity.disable,Func(RecursivePerformer,self.ConfigProjectManager.UniversalParentEntity),Func(self.ConfigProjectManager.Show,j)))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[2],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.4,-1),always_on_top = True,on_click = Func(self.ExportProject,j))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[3],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.4,-1),always_on_top = True,on_click = Func(self.CheckUserQuit,j))

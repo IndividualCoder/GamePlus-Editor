@@ -25,7 +25,7 @@
 
 # if __name__ == "__main__":
 #     app = Ursina()
-#     LoadProjectToScene("a","C:/Users/Lenovo/Mombie challenge edtion/ursina editor/Current Games",l:=[])
+#     LoadProjectToScene("a","Current Games",l:=[])
 
 #     print(l)
 #     app.run()
@@ -53,7 +53,7 @@ def LoadProjectToScene(FileName: str, FilePath: str, FuncToEnableOnOpen):
 if __name__ == "__main__":
     app = Ursina()
     l = []
-    LoadProjectToScene("a","C:/Users/Lenovo/Mombie challenge edtion/ursina editor/Current Games", l)
+    # LoadProjectToScene("a","ursina editor/Current Games", l)
 
     # print(l)
     app.run()

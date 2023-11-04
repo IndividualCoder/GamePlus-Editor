@@ -33,12 +33,12 @@ class UrsinaEditor(Entity):
 
         self.EditorCamera = EditorCamera
         self.NonConfiableEditorDataDefault = {"CurrentProjectNames": [],"RecentEdits": []}
-        self.NonConfiableEditorData = OpenFile("Non configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.NonConfiableEditorDataDefault,True)
+        self.NonConfiableEditorData = OpenFile("Non configable editor data.txt",f"{CurrentFolderNameReturner()}/Editor data",self.NonConfiableEditorDataDefault,True)
         self.InstructionList = InstructionList()
 
         self.ConfiableEditorDataDefault = {"Show tooltip":True,"Auto save on exit": False,"Show memory counter": True,"Fullscreen": False,"Anti-aliasing sample": 4,"Render distance (near)": .10,"Render distance (far)": 10000.0,}
         self.ConfiableEditorDataDefaultType = ("bool","bool","bool","bool","int","float","float")
-        self.ConfiableEditorData = OpenFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.ConfiableEditorDataDefault,True)
+        self.ConfiableEditorData = OpenFile("Configable editor data.txt",f"{CurrentFolderNameReturner()}/Editor data",self.ConfiableEditorDataDefault,True)
         self.FolderName = os.path.dirname(os.path.abspath(__file__))
         self.ProjectSettings = None
         self.Filter = CommonFilters(base.win, base.cam)
@@ -75,7 +75,7 @@ class UrsinaEditor(Entity):
             Editor.SetUp()
 
     def Save(self):
-        ProjectSaver(ProjectName = self.CurrentProjectEditor.ProjectName,UdFunc = self.CurrentProjectEditor.UDFunc,UdVar=self.CurrentProjectEditor.UDVars,Udsrc=self.CurrentProjectEditor.UDSrc,WindowConfig=self.CurrentProjectEditor.UDWindowConfig,ToImport=list(self.CurrentProjectEditor.ToImport),Items = self.CurrentProjectEditor.CurrentSceneEditor.WorldItems,Path=f'{FormatForSaving(self.FolderName)}Current Games',GameSettings=self.CurrentProjectEditor.ProjectSettings)
+        ProjectSaver(ProjectName = self.CurrentProjectEditor.ProjectName,UdFunc = self.CurrentProjectEditor.UDFunc,UdVar=self.CurrentProjectEditor.UDVars,Udsrc=self.CurrentProjectEditor.UDSrc,WindowConfig=self.CurrentProjectEditor.UDWindowConfig,ToImport=list(self.CurrentProjectEditor.ToImport),Items = self.CurrentProjectEditor.CurrentSceneEditor.WorldItems,Path=f'{self.FolderName}/Current Games',GameSettings=self.CurrentProjectEditor.ProjectSettings)
 
         if not self.CurrentProjectEditor.ProjectName in self.NonConfiableEditorData["CurrentProjectNames"]:
             self.NonConfiableEditorData["CurrentProjectNames"].append(self.CurrentProjectEditor.ProjectName)
@@ -106,8 +106,8 @@ class UrsinaEditor(Entity):
 
     def SaveData(self):
         # print("saveing")
-        SaveFile("Non configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.NonConfiableEditorData)
-        SaveFile("Configable editor data.txt",CurrentFolderNameReturner().replace("Editor","Editor data"),self.ConfiableEditorData)
+        SaveFile("Non configable editor data.txt",f"{CurrentFolderNameReturner()}/Editor data",self.NonConfiableEditorData)
+        SaveFile("Configable editor data.txt",f"{CurrentFolderNameReturner()}/Editor data",self.ConfiableEditorData)
 
     def ChangeConfigDataToDefaultType(self,Data: dict):
         try:
@@ -239,8 +239,8 @@ class UrsinaEditor(Entity):
             Path += "/Exported games"
             # print(Path)
 
-            ProjectExporter(ProjectName = ProjectName,ProjectPath=f'{FormatForSaving(self.FolderName)}Current Games',ToSavePath=Path,Demo = Demo)
-            # print(Path.split("/",-1))
+            ProjectExporter(ProjectName = ProjectName,ProjectPath=f'{self.FolderName}/Current Games',ToSavePath=Path,Demo = Demo)
+
             self.ShowInstruction("Exported successfully",KillAfter = 6,KillIn=3)
         else:
             self.ShowInstruction("Invalid path",KillAfter = 6,KillIn=3,Title = "Error")

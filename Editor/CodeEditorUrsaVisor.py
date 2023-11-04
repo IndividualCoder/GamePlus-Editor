@@ -23,7 +23,7 @@ class CodeEditorUrsaVisor(Entity):
 
         self.PosText = Text(parent = self.UniversalParentEntity,name  = "Texte",text = f"({round(self.CodeBlockGraph.x,2)},{round(self.CodeBlockGraph.y,2)})", position = Vec3(0.874992, 0.480997, -20),rotation = Vec3(0, 0, 0),scale = Vec3(1, 1, 1),always_on_top = True,origin = (.5,.5))
 
-        self.FileMenu = FileMenu(ProjectName=ProjectName,Path=CurrentFolderNameReturner().replace("Editor","Current games"),parent = self.CodeBlocksMenuParentEntity)
+        self.FileMenu = FileMenu(ProjectName=ProjectName,Path=f"{CurrentFolderNameReturner()}/Current Games",parent = self.CodeBlocksMenuParentEntity)
 
         self.CodeBlockGraph.texture_scale = (10000,10000)
         self.constantOneStencil = StencilAttrib.make(1, StencilAttrib.SCFAlways, StencilAttrib.SOZero, StencilAttrib.SOReplace, StencilAttrib.SOReplace, 1, 0, 1)

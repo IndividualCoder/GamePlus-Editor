@@ -50,7 +50,7 @@ class ConfigProjectManager(Entity):
                     else:
                         self.GameSettings[j] = self.ProjectStateChangerButtons[i].Button.text
                 if self.ProjectStateChangerButtons[-1].text != self.ProjectName:
-                    os.rename(f"{CurrentFolderNameReturner().replace('Editor','Current Games')}/{self.ProjectName}",f"{CurrentFolderNameReturner().replace('Editor','Current Games')}/{self.ProjectStateChangerButtons[-1].text}")
+                    os.rename(f"{CurrentFolderNameReturner()}/'Current Games'/{self.ProjectName}",f"{CurrentFolderNameReturner()}/Current Games/{self.ProjectStateChangerButtons[-1].text}")
                     self.ProjectName  = self.ProjectStateChangerButtons[-1].text
 
                 with open(f'{self.ProjectPath}/{self.ProjectName}/Game settings.txt',"w") as File:
@@ -76,5 +76,5 @@ class ConfigProjectManager(Entity):
 if __name__ == "__main__":
     from OtherStuff import CurrentFolderNameReturner
     app = Ursina()
-    pro = ConfigProjectManager(Entity(parent = camera.ui),CurrentFolderNameReturner().replace("Editor","Current games"),Func(print,"hi")).Show("mn")
+    pro = ConfigProjectManager(Entity(parent = camera.ui),f"{CurrentFolderNameReturner()}/Current Games",Func(print,"hi")).Show("mn")
     app.run()

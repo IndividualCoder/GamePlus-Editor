@@ -50,6 +50,6 @@ class JoinProjectMenu(Entity):
 if __name__ == "__main__":
     from OtherStuff import CurrentFolderNameReturner
     app = Ursina()
-    pro = JoinProjectMenu(Entity(parent = camera.ui),CurrentFolderNameReturner().replace("Editor","Current games"),Func(print,"hi"))
+    pro = JoinProjectMenu(Entity(parent = camera.ui),f"{CurrentFolderNameReturner()}/Current Games",Func(print,"hi"))
     Sky()
     app.run()
