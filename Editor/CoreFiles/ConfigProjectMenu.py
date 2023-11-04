@@ -12,11 +12,13 @@ from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
 
 class ConfigProjectManager(Entity):
     '''Not done yet ;)'''
-    def __init__(self,Parent,Path,CancelClick):
+    def __init__(self,Parent,Path,CancelClick,ToSaveDataFunc = Func(print,"hi")):
         super().__init__(parent = Parent)
         self.ProjectPath = Path
         self.CancelClick = CancelClick
         self.ConfigProjectStateList = [["Low","Medium","High"],["Python","Ursa-visor"],["True","False"],["windows","mac","ios","Linux","android"],["FPC","TPC","TopDown","Platformer","FPCTPC"]]
+        self.ToSaveDataFunc = ToSaveDataFunc
+        self.CurrentProjectName: str = None
 
         self.ProjectStateChangerButtons = []
 
@@ -27,17 +29,6 @@ class ConfigProjectManager(Entity):
         self.SaveButton = Button(parent = self.UniversalParentEntity,name = "save buton",text = "Save and exit",position = Vec3(-0.46, 0.42, 0) , rotation = Vec3(0, 0, 0) , scale = Vec3(0.270001, 0.130001, 1),on_click = self.ConfigProjectAsSettings)
 
 
-
-    def ShowPos(self,item):
-        for i in range(len(item.children)):
-            print(f'Name: {item.children[i].name} , position = {item.children[i].position} , rotation = {item.children[i].rotation} , scale = {item.children[i].scale}')
-            if item.children[i].children != []:
-                self.ShowPos(item.children[i])
-
-
-    def SetPos(self,Entity,Axis,Val):
-        setattr(Entity,Axis,getattr(Entity,Axis) + Val)
-
     def Show(self,Name):
         with open(f"{self.ProjectPath}/{Name}/Game settings.txt","r")  as File:
             self.GameSettings = json.load(File)
@@ -45,8 +36,8 @@ class ConfigProjectManager(Entity):
         for i,j in enumerate(self.GameSettings):
             self.a = Text(f"{j}:",parent = self.UniversalParentEntity,y = .32-i*.1,x = -.5,scale = 2,z = -1)
             self.ProjectStateChangerButtons.append(TrueFalseIndicator(parent = self.a,DefaultState=str(self.GameSettings[j]),StateList= self.ConfigProjectStateList[i],position = (.5,0,0),scale = (.2,.025,1)))
-        self.a = Text(f"Name: ",parent = self.UniversalParentEntity,y = .32-5*.1,x = -.5,scale = 2,z = -1)
-        self.ProjectStateChangerButtons.append(InputField(parent = self.a,default_value=Name,position = (.5,0,0),scale = (.2,.025,1)))
+        self.a = Text(f"Name: ",parent = self.UniversalParentEntity,y = .32-5*.1,x = -.5,scale = 2,z = -1,enabled = False)
+        self.ProjectStateChangerButtons.append(InputField(parent = self.a,default_value=Name,position = (.5,0,0),scale = (.2,.025,1),active = False,enabled = False))
 
     def ConfigProjectAsSettings(self):
             if hasattr(self,"GameSettings"):
@@ -64,6 +55,9 @@ class ConfigProjectManager(Entity):
 
                 with open(f'{self.ProjectPath}/{self.ProjectName}/Game settings.txt',"w") as File:
                     json.dump(self.GameSettings,File)
+                print(self.CurrentProjectName)
+                self.ToSaveDataFunc(Name = self.CurrentProjectName,Replace = self.ProjectName)
+
                 self.Close()
 
     def Close(self):

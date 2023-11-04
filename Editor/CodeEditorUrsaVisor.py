@@ -1,7 +1,7 @@
 from ursina import *
 from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
 from FileSystem.FileMenu import FileMenu
-import math
+
 from OtherStuff import CurrentFolderNameReturner
 
 class CodeEditorUrsaVisor(Entity):

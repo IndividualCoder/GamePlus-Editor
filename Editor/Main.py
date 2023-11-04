@@ -17,7 +17,8 @@ from direct.filter.CommonFilters import CommonFilters
 from CoreFiles.InstructionList import InstructionList
 import socket
 import subprocess
-
+import threading
+from CoreFiles.Terminal import Terminal
 
 '''making online version'''
 class UrsinaEditor(Entity):
@@ -28,6 +29,7 @@ class UrsinaEditor(Entity):
         self.ProjectEditorsList = []
         self.CurrentProjectEditor: ProjectEditor = None
         self.CurrentDemoGame = []
+        self.CurrentTerminals = []
 
         self.EditorCamera = EditorCamera
         self.NonConfiableEditorDataDefault = {"CurrentProjectNames": [],"RecentEdits": []}
@@ -43,12 +45,10 @@ class UrsinaEditor(Entity):
 
         self.MemoryCounter = MemoryCounter(enabled=self.ConfiableEditorData["Show memory counter"])
         self.StartingUi = StartingUI(EditorDataDict=  self.ConfiableEditorData,OnProjectStart=self.StartEdit,ExistingProjectsName=self.NonConfiableEditorData["CurrentProjectNames"],ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,FuncToEnableOnOpen=self.EnableWorldItemsAndSetProjectName,ShowInstructionFunc = self.ShowInstruction,RemoveProjectNameFunc = self.RemoveProject,ExportToPyFunc = self.ExportProjectToPy,RecentProjectsOrder=self.NonConfiableEditorData["RecentEdits"])
-        # self.StartingUi.ShowRecentProjects()
 
-        # self.StartingUi.RecentProjectsScrollerParentEntity.= len(self.StartingUi.TotalRunningProjects)
 
     def StartEdit(self):
-        self.ProjectEditorsList.append(ProjectEditor(ExportToPyFunc=self.ExportProjectToPy,CurrentTabs=[],EditorCamera=self.EditorCamera,ReadyToHostProjectFunc=self.ReadyToHostProject,HostProjectFunc=self.HostProject,enabled = True,ToAddTabsText=self.CurrentSupportedEditors,ToAddTabsFunc=self.AddCurrentSupportedEditors,PlayFunction=self.PlayProject))
+        self.ProjectEditorsList.append(ProjectEditor(ExportToPyFunc=self.ExportProjectToPy,CurrentTabs=[],ShowInstructionFunc=self.ShowInstruction,EditorCamera=self.EditorCamera,ReadyToHostProjectFunc=self.ReadyToHostProject,HostProjectFunc=self.HostProject,enabled = True,ToAddTabsText=self.CurrentSupportedEditors,ToAddTabsFunc=self.AddCurrentSupportedEditors,PlayFunction=self.PlayProject))
         self.CurrentProjectEditor: ProjectEditor = self.ProjectEditorsList[-1]
         self.CurrentProjectEditor.SetUp()
         self.CurrentProjectEditor.ProjectName = self.StartingUi.ProjectName
@@ -64,8 +64,6 @@ class UrsinaEditor(Entity):
         self.CurrentProjectEditor.CurrentSceneEditor.enable()
         self.CurrentProjectEditor.CurrentSceneEditor.UniversalParentEntity.enable()
         RecursivePerformer(self.CurrentProjectEditor.CurrentSceneEditor.UniversalParentEntity)
-        # self.Editor.Tempa.enable()
-        # self.Editor.ignore = False
 
 
     def SetupEditor(self,Editor):
@@ -105,7 +103,6 @@ class UrsinaEditor(Entity):
 
         self.StartingUi.Setup()
         self.StartingUi.ShowRecentProjects(self.EnableWorldItemsAndSetProjectName)
-
 
     def SaveData(self):
         # print("saveing")
@@ -147,15 +144,30 @@ class UrsinaEditor(Entity):
         self.InstructionList[-1].CloseButton.on_click = Func(self.DestroyInstruction,self.InstructionList[-1])
 
     def DestroyInstruction(self,Instruction):
-        print("destroying")
         self.Index = self.InstructionList.index(Instruction)
         destroy(self.InstructionList[self.Index])
         del self.InstructionList[self.Index]
 
+    def AddTextToTerminal(self,text):
+        for i in self.CurrentTerminals:
+            i.AddTextToTerminal(text)
+
     def AddSceneEditor(self):
-        self.CurrentProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,SaveFunction= self.Save,ShowInstructionFunc = self.ShowInstruction,ExportToPyFunc=self.ExportProjectToPy,EditorDataDict=self.ConfiableEditorData,EditorCamera = self.EditorCamera))
-        # self.CurrentProjectEditor.CurrentEditor = self.CurrentProjectEditor.CurrentTabs[-1]
-        # self.CurrentProjectEditor.CurrentEditor = self.CurrentProjectEditor.CurrentTabs[-1]
+
+        def AddTerminal(ParnetEntity):
+            TempTerminal = Terminal(self.AddTextToTerminal,parent = ParnetEntity)
+            self.CurrentTerminals.append(TempTerminal)
+
+            TempTerminal.Bg.scale_x = 1.35
+            TempTerminal.Bg.origin = (.5,0,0)
+            TempTerminal.UniversalParentEntity.origin = (.5,0,0)
+            TempTerminal.UniversalParentEntity.position =  Vec3(0.887, -0.3, 2)
+            TempTerminal.Bg.scale =  Vec3(1.35, 0.2, 1)
+            TempTerminal.SetUp()
+
+
+        self.CurrentProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,SaveFunction= self.Save,AddTerminalFunc = Func(print,"hi"),ShowInstructionFunc = self.ShowInstruction,ExportToPyFunc=self.ExportProjectToPy,EditorDataDict=self.ConfiableEditorData,EditorCamera = self.EditorCamera))
+        self.CurrentProjectEditor.CurrentTabs[-1].AddTerminal = Func(AddTerminal,self.CurrentProjectEditor.CurrentTabs[-1].UniversalParentEntity)
 
         self.CurrentProjectEditor.CurrentTabs[-1].name = f"Scene Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'SceneEditor'])}"
         self.CurrentProjectEditor.CurrentTabs[-1].GetPosTemp()
@@ -167,6 +179,8 @@ class UrsinaEditor(Entity):
             self.CurrentProjectEditor.CurrentTabs[-1].disable()
             self.CurrentProjectEditor.CurrentTabs[-1].UniversalParentEntity.disable()
             RecursivePerformer(self.CurrentProjectEditor.CurrentTabs[-1].SpecialEntities,"disable")
+
+
 
         else:
             self.CurrentProjectEditor.CurrentSceneEditor:SceneEditor = self.CurrentProjectEditor.CurrentTabs[-1]
@@ -182,7 +196,7 @@ class UrsinaEditor(Entity):
         self.CurrentProjectEditor.UpdateTabsMenu()
 
     def AddPythonCodeEditor(self):
-        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorPython(ProjectName=self.CurrentProjectEditor.ProjectName,SaveFunction= self.Save,enabled=False,EditorDataDict=self.ConfiableEditorData,ignore = True,UdSrc=self.CurrentProjectEditor.UDSrc,ShowInstructionFunc = self.ShowInstruction))
+        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorPython(ProjectName=self.CurrentProjectEditor.ProjectName,SaveFunction= self.Save,enabled=False,EditorDataDict=self.ConfiableEditorData,ignore = True,UdSrc=self.CurrentProjectEditor.UDSrc,OnFileAdded = self.CurrentProjectEditor.OnFileAdded,ShowInstructionFunc = self.ShowInstruction))
 
         self.CurrentProjectEditor.CurrentTabs[-1].name = f"Code Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'CodeEditorPython'])}" 
         self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
@@ -233,10 +247,17 @@ class UrsinaEditor(Entity):
 
     def PlayProject(self):
         self.CurrentProjectEditor.SaveProjectButton.on_click()
+        def PlayProjectThread():
+            self.ExportProjectToPy(CurrentFolderNameReturner(),self.CurrentProjectEditor.ProjectName,False,Demo = True)
+            self.CurrentDemoGame.append(subprocess.Popen(["python", f"{CurrentFolderNameReturner()}/Exported games/{self.CurrentProjectEditor.ProjectName}/Main.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE))
+            self._output, self._err = self.CurrentDemoGame[-1].communicate()
+            if self.CurrentDemoGame[-1].returncode  != 0:
+                self.ShowInstruction(f"The game encounterd an error, see terminal for the error")
+                print("Standard output: ",self._output)
+                print("Standard error: ",self._err)
 
-        self.ExportProjectToPy(CurrentFolderNameReturner(),self.CurrentProjectEditor.ProjectName,False,Demo = True)
-        self.CurrentDemoGame.append(subprocess.Popen(["python", f"{CurrentFolderNameReturner()}/Exported games/{self.CurrentProjectEditor.ProjectName}/Main.py"]))
-        
+        threading.Thread(target =  PlayProjectThread).start()        
+
     def ReadyToHostProject(self):
         self.Port = 48513
         self.Ip = "localhost"
@@ -265,20 +286,27 @@ class UrsinaEditor(Entity):
         self.CurrentProjectEditor.ProjectName = Value
 
     def RemoveProject(self,Name,Replace = False):
+        self.NonConfiableEditorData["CurrentProjectNames"]: list = []
+        self.Tempa = []
+        self.NonConfiableEditorData["RecentEdits"]: list = []
         if Replace is False:
             self.NonConfiableEditorData["CurrentProjectNames"].remove(Name)
             self.NonConfiableEditorData["RecentEdits"].remove(Name)
 
         else:
-            self.NonConfiableEditorData["CurrentProjectNames"] = Replace
-            self.NonConfiableEditorData["RecentEdits"] = Replace
+            if Name not in self.NonConfiableEditorData["CurrentProjectNames"]:
+                self.NonConfiableEditorData["CurrentProjectNames"][self.NonConfiableEditorData["CurrentProjectNames"].index(Name)] = Replace  
+                self.NonConfiableEditorData["RecentEdits"][self.NonConfiableEditorData["RecentEdits"].index(Name)] = Replace  
 
         self.SaveData()
 
+
 if __name__ == "__main__":
+
     app = Ursina()
     window.exit_button.disable()
     window.fps_counter.disable()
+    application.development_mode = False
     window.cog_button.disable()
 
     # window.vsync = False

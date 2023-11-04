@@ -49,7 +49,7 @@ def ProjectExporter(ProjectName,ProjectPath,ToSavePath,Demo = False):
     if not Demo:
         FinalFile += "if __name__ == '__main__':\n    app = Ursina()\n    application.development_mode = False\n    Sky()\n    Game()\n    render.setAntialias(AntialiasAttrib.MAuto)\n    EditorCamera()\n    app.run()"
     else:
-        FinalFile += "if __name__ == '__main__':\n    app = Ursina()\n    application.development_mode = False\n    window.borderless = False\n    window.size = (960,540)\n    window.exit_button.disable()\n    Sky()\n    Game()\n    render.setAntialias(AntialiasAttrib.MAuto)\n    EditorCamera()\n    app.run()"
+        FinalFile += "if __name__ == '__main__':\n    app = Ursina()\n    window.center_on_screen()\n    application.development_mode = False\n    window.borderless = False\n    window.size = (960,540)\n    window.exit_button.disable()\n    Sky()\n    Game()\n    render.setAntialias(AntialiasAttrib.MAuto)\n    EditorCamera()\n    app.run()"
 
     with open(f"{ToSavePath}/{ProjectName}/Main.py","w") as File:
         File.write(FinalFile)

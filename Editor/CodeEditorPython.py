@@ -5,7 +5,7 @@ from ursina.color import tint
 
 class CodeEditorPython(Entity):
     '''Main code editor, code with writing word by word. Mainly used to code in python but can code in any language'''
-    def __init__(self,EditorDataDict,ShowInstructionFunc,SaveFunction,ProjectName = None,UdSrc = [],**kwargs):
+    def __init__(self,EditorDataDict,ShowInstructionFunc,SaveFunction,OnFileAdded,ProjectName = None,UdSrc = [],**kwargs):
         super().__init__()
 
         self.EditorDataDict = EditorDataDict
@@ -21,7 +21,7 @@ class CodeEditorPython(Entity):
         self.CodeWriter.line_numbers.render_queue = self.CodeWriter.render_queue
         # self.CodeWriter.line_numbers_background.enable()
 
-        self.FileMenu = FileMenu(ProjectName=ProjectName,CodeEditorEntity=self.CodeWriter,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),parent = self.EveryItemMenuParentEntity,queue = 0,z = -10,UdSrc = UdSrc,ShowInstructionFunc = ShowInstructionFunc)
+        self.FileMenu = FileMenu(ProjectName=ProjectName,CodeEditorEntity=self.CodeWriter,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),parent = self.EveryItemMenuParentEntity,queue = 0,z = -10,UdSrc = UdSrc,ShowInstructionFunc = ShowInstructionFunc,OnFileAdded = OnFileAdded)
 
 
     def MakeEditorEnvironment(self,cam,color,size):
@@ -57,9 +57,9 @@ class CodeEditorPython(Entity):
                 self.ItemToToolTipList[i].tool_tip = None
 
     def SaveEditor(self):
+        self.FileMenu.SaveCurrentFile()
         self.Save()
-        self.ShowInstructionFunc("Your project is saved :)",Color = tint(color.white,-.6),Title = "Saved!")
-        
+
 
 if __name__ == "__main__":
     from ProjectEditor import ProjectEditor

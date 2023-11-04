@@ -5,14 +5,13 @@ from ursina.color import tint
 from ColorMenu import ColorMenu
 
 class SceneEditor(Entity):
-    def __init__(self,enabled,SaveFunction,ShowInstructionFunc,EditorCamera,EditorDataDict,cam2 = camera,CurrentProjectName = "",**kwargs):
+    def __init__(self,enabled,SaveFunction,AddTerminalFunc,EditorCamera,EditorDataDict,cam2 = camera,CurrentProjectName = "",**kwargs):
         super().__init__(kwargs)
 
         self.WorldItems = []
         self.Save = SaveFunction
-        # self.ToImport  = ToImport
+        self.AddTerminal = AddTerminalFunc
         self.CurrentProjectName = CurrentProjectName
-        self.ShowInstructionFunc = ShowInstructionFunc
         self.EditorCamera = EditorCamera
         self.IsEditing = True
         self.EditorDataDict = EditorDataDict
@@ -28,7 +27,7 @@ class SceneEditor(Entity):
         self.UniversalParentEntity = Entity(parent = cam2.ui,enabled = False)
         self.SideBarTopParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 10),scale = Vec3(0.43, 0.56, 2),color = color.gray)
         self.AddObjectMenuParentEntity = Entity(parent = self.UniversalParentEntity,model = None,enabled = enabled,position = Vec3(0.38, -0.35, 2),scale = Vec3(1.69, 0.1, 1),color = color.dark_gray,origin_y = 1)
-        self.SideBarBottomParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -200),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1))
+        self.SideBarBottomParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -200),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1),collider = "mesh")
 
         self.SideBarTopSlideHandler = Button(parent = self.SideBarTopParentEntity,model = "cube",radius=0,visible_self = False,z = -200)
 
@@ -39,7 +38,7 @@ class SceneEditor(Entity):
         self.ScrollUpdater = self.SideBarTopSlideHandler.add_script(Scrollable(min=-.1,max = .3,scroll_speed = .01))
 
 
-        self.WorldGrid = [Entity(parent=self, model=Grid(200,200,thickness = 2), rotation_x=90, scale=distance(camera.position,(0,0,0))*10, collider=None, color=color.red),Entity(parent=self, model=Grid(100,100,thickness = 3), rotation_x=90, scale=distance(camera.position,(0,0,0))*10, collider=None, color=color.black33),Entity(parent=self, model=Grid(400,400), rotation_x=90, scale=distance(camera.position,(0,0,0))*2, collider=None, color=color.green)]
+        self.WorldGrid = [Entity(parent=self, model=Grid(200,200,thickness = 2), rotation_x=90, scale=Vec3(200, 200, 200), collider=None, color=color.red),Entity(parent=self, model=Grid(100,100,thickness = 3), rotation_x=90, scale=Vec3(200, 200, 200), collider=None, color=color.black33),Entity(parent=self, model=Grid(400,400), rotation_x=90, scale=Vec3(40, 40, 40), collider=None, color=color.green)]
         self.DirectionEntity = DirectionEntity(cam2.ui,window.top_right- Vec2(.1,.038),self.EditorCamera,camera,enabled = enabled,z = -30,always_on_top = True,render_queue = 1)
 
         self.SpecialEntities = [self.DirectionEntity,self.WorldGrid[0],self.WorldGrid[1]]
@@ -66,7 +65,7 @@ class SceneEditor(Entity):
             self.UpdateScroller()
 
     def AddEntityInScene(self):
-        self.WorldItems.append(Entity(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",collider = "mesh",collision = True,hovered = True,color = color.white))
+        self.WorldItems.append(Entity(name = f"item_{len(self.WorldItems)}",parent = scene,model = "cube",texture = "white_cube",collider = "mesh",collision = True,color = color.white))
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
@@ -74,7 +73,6 @@ class SceneEditor(Entity):
 
     def ShowObjectContent(self,Obj,Parent: Entity):
         self.TempLen = len(Parent.children)
-        # print(self.TempLen)
         for i in range(self.TempLen-1,-1,-1):
             destroy(Parent.children[i])
         del self.TempLen
@@ -95,7 +93,6 @@ class SceneEditor(Entity):
 
             else:
                 InputField(name = TextToVar(self.BasicFunctions[i],'_'),submit_on=["enter","escape"],parent = Parent,default_value = f"{getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))}",y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,enter_active = True,on_submit = Func(self.UpdateItemContent,Obj,Parent))
-            print(self.BasicFunctions[i])
             # Parent.children[-1].update = Func(MultiFunctionCaller,Func(setattr,Parent.children[-1],"text",getattr(Obj,TextToVar(self.BasicFunctions[i],'_'))))
 
     def UpdateItemContent(self,Obj,Parent):
@@ -126,106 +123,92 @@ class SceneEditor(Entity):
 
     def input(self,key):
         # print(key)
-        if self.IsEditing:
-            if key == 'p':
-                print(self.WorldGrid[0].enabled)
-                print(self.WorldGrid[1].enabled)
-                print(self.WorldGrid[2].enabled)
-            if key == "s" and held_keys["control"] and not held_keys["shift"]:
-                self.SaveEditor()
+        if not self.IsEditing:
+            return
 
-            elif key in ["left mouse","left mouse down"]:
-                if mouse.hovered_entity in self.WorldItems:
-                    if mouse.hovered_entity == self.ToEditEntity:
-                        return
+        elif key == "`":
+            self.TerminalIndex = [i for i in self.UniversalParentEntity.children if i.name == "Terminal"]
 
-                    self.ToEditEntity =  mouse.hovered_entity
-                    self.ShowObjectContent(self.ToEditEntity,self.SideBarTopSlideHandler)
+            if self.TerminalIndex == []:
+                self.AddTerminal()
+                self.TerminalIndex = [i for i in self.UniversalParentEntity.children if i.name == "Terminal"]
 
-            elif key in ["right arrow","right arrow hold"]:
-                try:
-                    # if self.ToEditEntity.parent:
-                    self.ToEditEntity.x += self.PosSnapping2d
-                    print(mouse.hovered_entity.name)
-                    # else:
-                    #     self.ToEditEntity.x += self.PosSnapping3d
-                        # print(mouse.hovered_entity.name)
+            else:
+                self.TerminalIndex[0].Toogle()
 
-                except AttributeError:
-                    print_on_screen("<color:red>Choose an item to edit")
-            elif key in ["left arrow","left arrow hold"]:
-                try:
+        elif key in ["left mouse"]:
+            if mouse.hovered_entity in self.WorldItems:
+                if mouse.hovered_entity == self.ToEditEntity:
+                    return
 
-                    # if self.ToEditEntity.parent:
-                    self.ToEditEntity.x -= self.PosSnapping2d
-                    print(mouse.hovered_entity.name)
-                    # else:
-                    #     self.ToEditEntity.x += self.PosSnapping3d
-                except AttributeError:
-                    print_on_screen("<color:red>Choose an item to edit")
-            elif key in ["up arrow","up arrow hold"]:
-                try:
-                    # if self.ToEditEntity.parent:
-                    self.ToEditEntity.y += self.PosSnapping2d
-                    print(mouse.hovered_entity.name)
-                    # else:
-                    #     self.ToEditEntity.x += self.PosSnapping3d
-                except AttributeError:
-                    print_on_screen("<color:red>Choose an item to edit")
-            elif key in ["down arrow","down arrow hold"]:
-                try:
+                self.ToEditEntity =  mouse.hovered_entity
+                self.ShowObjectContent(self.ToEditEntity,self.SideBarTopSlideHandler)
 
-                    # if self.ToEditEntity.parent:
-                    self.ToEditEntity.y -= self.PosSnapping2d
-                    # print(mouse.hovered_entity.name)
-                    # else:
-                    #     self.ToEditEntity.x += self.PosSnapping3d
-                except AttributeError:
-                    print_on_screen("<color:red>Choose an item to edit")
+        elif key in ["right arrow","right arrow hold"]:
+            try:
+                self.ToEditEntity.x += self.PosSnapping2d
 
-            elif key == "right mouse up" and mouse.hovered_entity in self.WorldItems:
-                # if mouse.hovered_entity in self.WorldItems:
-                    # mouse.hovered_entity
-                    self.ToEditEntity = mouse.hovered_entity
-                    # print(self.ToEditEntity)
+            except AttributeError:
+                print_on_screen("<color:red>Choose an item to edit")
+        elif key in ["left arrow","left arrow hold"]:
+            try:
 
-            elif key == "delete up":
-                try:
-                    index = self.WorldItems.index(self.ToEditEntity)
-                    destroy(self.ToEditEntity)
-                    del self.WorldItems[index]
-                    self.ToEditEntity = None
-                except ValueError:
-                    pass
+                self.ToEditEntity.x -= self.PosSnapping2d
+            except AttributeError:
+                print_on_screen("<color:red>Choose an item to edit")
+        elif key in ["up arrow","up arrow hold"]:
+            try:
+                self.ToEditEntity.y += self.PosSnapping2d
+            except AttributeError:
+                print_on_screen("<color:red>Choose an item to edit")
+        elif key in ["down arrow","down arrow hold"]:
+            try:
+                self.ToEditEntity.y -= self.PosSnapping2d
+            except AttributeError:
+                print_on_screen("<color:red>Choose an item to edit")
+
+        elif key == "right mouse up" and mouse.hovered_entity in self.WorldItems:
+                self.ToEditEntity = mouse.hovered_entity
+
+        elif key == "delete up":
+            try:
+                index = self.WorldItems.index(self.ToEditEntity)
+                destroy(self.ToEditEntity)
+                del self.WorldItems[index]
+                self.ToEditEntity = None
+            except ValueError:
+                pass
 
     def update(self):
-        if self.IsEditing:
-            if 1 < distance(camera.position,(0,0,0)):
-                self.distance = distance(camera.position,(0,0,0))
-                if self.distance > 150:
-                    self.distance = 150
-            else:
-                self.distance = 0
+        if not self.IsEditing:
+            return
 
-            if self.distance > 10:
-                self.WorldGrid[0].color = color.rgba(70,70,70,1000 / self.distance)
-                if int(self.WorldGrid[0].color[3]) == 0 and self.distance < 50: self.WorldGrid[0].enable()
+        if 1 < distance(camera.position,(0,0,0)):
+            self.distance = distance(camera.position,(0,0,0))
+            if self.distance > 150:
+                self.distance = 150
+        else:
+            self.distance = 0
 
-                self.WorldGrid[1].color = color.rgba(50,50,50,self.distance)
-                if int(self.WorldGrid[1].color[3]) == 0: self.WorldGrid[1].enable()
+        if self.distance > 10:
+            self.WorldGrid[0].color = color.rgba(70,70,70,1000 / self.distance)
+            if int(self.WorldGrid[0].color[3]) == 0 and self.distance < 50: self.WorldGrid[0].enable()
 
-                self.WorldGrid[2].color = color.rgba(0,0,0,200/self.distance)
-                if int(self.WorldGrid[2].color[3]) == 0 and self.distance < 50: self.WorldGrid[2].enable()
+            self.WorldGrid[1].color = color.rgba(50,50,50,self.distance)
+            if int(self.WorldGrid[1].color[3]) == 0: self.WorldGrid[1].enable()
 
-            if self.distance < 10:
-                self.WorldGrid[1].color = color.rgba(50,50,50,0)
-                self.WorldGrid[1].disable()
+            self.WorldGrid[2].color = color.rgba(0,0,0,200/self.distance)
+            if int(self.WorldGrid[2].color[3]) == 0 and self.distance < 50: self.WorldGrid[2].enable()
 
-            if self.distance > 50:
-                self.WorldGrid[2].color = color.rgba(0,0,0,0)
-                self.WorldGrid[2].disable()
-                self.WorldGrid[0].color = (70,70,70,0)
-                self.WorldGrid[0].disable()
+        if self.distance < 10:
+            self.WorldGrid[1].color = color.rgba(50,50,50,0)
+            self.WorldGrid[1].disable()
+
+        if self.distance > 50:
+            self.WorldGrid[2].color = color.rgba(0,0,0,0)
+            self.WorldGrid[2].disable()
+            self.WorldGrid[0].color = (70,70,70,0)
+            self.WorldGrid[0].disable()
 
             # print(self.distance)
 
@@ -268,7 +251,6 @@ class SceneEditor(Entity):
 
     def SaveEditor(self):
         self.Save()
-        self.ShowInstructionFunc("Your project is saved :)",Color = tint(color.white,-.6),Title = "Saved!")
 
     def ConfigEditorAsSettings(self,DataDict):
         self.SetTooltip(DataDict["Show tooltip"])
@@ -300,7 +282,7 @@ if __name__ == "__main__":
     # cam2 = Camera()
 
     editor = EditorCamera()
-    scene_editor = SceneEditor(editor_camera=editor,enabled=True,WorldItems=[],ToImport=set(),EditorCamera=editor,SaveFunction=Func(print,"hele"),ShowInstructionFunc=Func(print,"hele"))
+    scene_editor = SceneEditor(editor_camera=editor,enabled=True,WorldItems=[],ToImport=set(),EditorCamera=editor,SaveFunction=Func(print,"hele"),ShowInstructionFunc=Func(print,"hele"),EditorDataDict={"Hell": 1})
     scene_editor.UniversalParentEntity.enabled = True
     scene_editor.GetPosTemp()
     Sky()
@@ -310,7 +292,7 @@ if __name__ == "__main__":
     # print(window.screen_resolution)
     print(application.base.camNode.getDisplayRegion(0))
     '''0.2399, .999, 0.1009, 0.938'''
-    # scene_editor.MakeEditorEnvironment(application.base.camNode,(255,255,255,0),(0.2399, 1, 0.1009, 0.938))
+    scene_editor.MakeEditorEnvironment(application.base.camNode,(255,255,255,0),(0.2399, 1, 0.1009, 0.938))
 
     def input(key):
         if key == "l":

@@ -1,16 +1,16 @@
 from ursina import *
 from ursina import invoke
 from ursina.color import tint
-from OtherStuff import CustomWindow,MultiFunctionCaller,RecursivePerformer
+from OtherStuff import CustomWindow,MultiFunctionCaller,RecursivePerformer,CurrentFolderNameReturner
 from SceneEditor import SceneEditor
-from OpenFile import Openselector
+from OpenFile import Openselector,OpenFile
 from ursina import SimpleButtonList
 from Netwroking.HostProjectMenu import HostProjectMenu
 
 
 
 class ProjectEditor(Entity):
-    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,PlayFunction,ReadyToHostProjectFunc,HostProjectFunc,ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
+    def __init__(self,ExportToPyFunc,CurrentTabs,EditorCamera,PlayFunction,ShowInstructionFunc,ReadyToHostProjectFunc,HostProjectFunc,ProjectSettings = {"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},ToAddTabsText = [],ToAddTabsFunc = [],cam = camera,enabled = True,**kwargs):
         super().__init__(kwargs)
         self.UDVars = [] #User defined vars (like bye = 2 or helo = 3)
         self.UDFunc = [] #User defined func (any function)
@@ -21,6 +21,7 @@ class ProjectEditor(Entity):
         self.ProjectSettings = ProjectSettings
         self.CurrentEditor = None
         self.CurrentSceneEditor:SceneEditor = None
+        self.ShowInstructionFunc = ShowInstructionFunc
 
         self.ReadyToHostProjectFunc = ReadyToHostProjectFunc
         self.HostProjectFunc = HostProjectFunc
@@ -61,7 +62,7 @@ class ProjectEditor(Entity):
         self.AddEditorToPrjectButtonList.button_dict = self.ButtonDict
 
 
-        self.SaveProjectButton = Button(parent = self.TopButtonsParentEntity,text="Save",color = color.blue,radius  = 0,position =(-0.447, 0, -25),scale = (0.06,0.7)) #Vec3(0.179, 0.0385, 1)
+        self.SaveProjectButton = Button(parent = self.TopButtonsParentEntity,text="Save",color = color.blue,radius  = 0,position =(-0.447, 0, -25),scale = (0.06,0.7),on_click = self.SaveAllEditors,Key = "s",partKey="control") #Vec3(0.179, 0.0385, 1)
         self.FinishProjectButton = Button(parent = self.TopButtonsParentEntity,text="Finish",color = color.blue,radius  = 0,position =(-0.377, 0, -25),scale = (0.06,0.7),on_click = self.FinishProject) #Vec3(0.179, 0.0385, 1)
         self.PlayProjectButton = Button(parent = self.TopButtonsParentEntity,text="Play",color = color.blue,radius  = 0,position =(-0.307, 0, -25),scale = (0.06,0.7),on_click = PlayFunction) #Vec3(0.179, 0.0385, 1)
         self.HostProjectButton = Button(parent = self.TopButtonsParentEntity,text="Host",color = color.blue,radius  = 0,position =(-0.237, 0, -25),scale = (0.06,0.7))# on_click = self.AskToHostProject
@@ -128,6 +129,10 @@ class ProjectEditor(Entity):
         # a = ",".join([str(self.CurrentTabs[i].name) for i in range(len(self.CurrentTabs))])
         # print(",".join([str(self.CurrentTabs[i].name.replace("_"," ").capitalize()) for i in range(len(self.CurrentTabs))]))
 
+    def SaveAllEditors(self):
+        for i in self.CurrentTabs:
+            i.SaveEditor()
+        self.ShowInstructionFunc("Your project is saved :)",Color = tint(color.white,-.6),Title = "Saved!")
 
     def JumpTabs(self,ToJump):
         if self.CurrentTabs[ToJump] == self.CurrentEditor and len(self.CurrentTabs) > 1:
@@ -135,7 +140,6 @@ class ProjectEditor(Entity):
 
 
         self.CurrentEditor.UniversalParentEntity.disable()
-        self.SaveProjectButton.on_click = self.CurrentTabs[ToJump].SaveEditor
         self.CurrentEditor.disable()
         self.CurrentEditor.ignore = True
 
@@ -164,7 +168,6 @@ class ProjectEditor(Entity):
         def DisableInputFields(Entity):
             if isinstance(Entity, (InputField,TextField)):
                 Entity.active = False
-                print(f"{__file__}:  dis")
             return
         RecursivePerformer(self.CurrentEditor.UniversalParentEntity,ToPerform=DisableInputFields,BasicFunc=False)
 
@@ -226,6 +229,10 @@ class ProjectEditor(Entity):
         self._TempIp,self._TempPort = self.ReadyToHostProjectFunc()
         self.ProjectHostMenu = HostProjectMenu(Queue=3,CancelClick=None,ToDoOnInit=None,Ip=self._TempIp,Port=self._TempPort,ToDoOnHost=self.HostProjectFunc)
 
+    def OnFileAdded(self):
+        for i in self.CurrentTabs:
+            if type(i).__name__ in ["CodeEditorPython"]:
+                i.FileMenu.ReCheckCodeFiles()
 
     def DestroyCurrentWindow(self):
         self.CurrentCustomWindow.PlayerNotQuitting()
@@ -253,6 +260,7 @@ class ProjectEditor(Entity):
     def ProjectName(self,Value):
         self._ProjectName = Value
         self.EditingProjectText.text = Value
+        self.UDSrc = OpenFile(f"{self._ProjectName}/User defined src.txt",CurrentFolderNameReturner().replace("Editor","Current Games"),[])
         return
 
 if __name__ == "__main__":
@@ -265,75 +273,4 @@ if __name__ == "__main__":
     # editor.AddTabsMenuButtons()
     top,left = 0.001,0.001
     editor.SetUp()
-    # def input(key):
-    #     if key == "-":
-    #         editor.UpdateTabsMenu()
-
-    toedit = editor.AddEditorToPrjectButton
-    # print(editor.CurrentTabs)
-
-
-    # def input(key):
-    #     global top,bottom,left,right,toedit
-    #     if key == "-":
-    #         editor.UpdateTabsMenu()
-    #     if key in ["w","w hold"] and not held_keys["shift"]:
-    #         # top += .001
-
-    #         toedit.y += top
-    #     elif key in ["s","s hold"] and not held_keys["shift"]:
-    #         # bottom += .001
-    #         toedit.y -= top
-    #     elif key in ["a","a hold"] and not held_keys["shift"]:
-    #         # left += .001
-    #         toedit.x -= left
-    #     elif key in ["d","d hold"] and not held_keys["shift"]:
-    #         # right += .001
-    #         toedit.x += left
-
-    #     elif key in ["r","r hold"] and not held_keys["shift"]:
-    #         # left += .001
-    #         toedit.scale_x += left
-    #         toedit.collider = toedit.collider
-    #     elif key in ["t","t hold"] and not held_keys["shift"]:
-    #         # right += .001
-    #         toedit.scale_y += left
-    #         toedit.collider = toedit.collider
-
-    #     elif key in ["r","r hold"] and held_keys["shift"]:
-    #         # left += .001
-    #         toedit.scale_x -= left
-    #         toedit.collider = toedit.collider
-    #     elif key in ["t","t hold"] and held_keys["shift"]:
-    #         # right += .001
-    #         toedit.scale_y -= left
-    #         toedit.collider = toedit.collider
-
-    #     elif key == "up arrow":
-    #         left += 0.001
-    #         top += 0.001
-    #     elif key == "down arrow":
-    #         left -= 0.001
-    #         top -= 0.001
-
-    #     # elif key == "o":
-    #     #     if toedit == editor.TempButton1 :
-    #     #         toedit = editor.TempButton2
-    #     #     elif toedit == editor.TempButton2 :
-    #     #         toedit = editor.TempButton1
-
-    #     elif key == "p":
-    #         # dis = 0
-    #         # ray = raycast(origin=editor.TempButton1.position,direction=editor.TempButton2.position,traverse_target=editor.TempButton2,debug=True)
-    #         # if ray.hit:
-    #         # print(ray.hit)
-    #         # print(dis)
-    #         editor.PrintItemStatTemp(editor.UniversalParentEntity)
-
-    # def update():
-    #     if held_keys["1"]:
-    #         editor.TabsMenuParentEntity.radius += 0.001
-    #     if held_keys["2"]:
-    #         editor.TabsMenuParentEntity.radius -= 0.001
-
     app.run()

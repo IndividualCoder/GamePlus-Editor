@@ -43,7 +43,7 @@ class StartingUI(Entity):
         self.ChangeVarsMenuParentEntity = Entity(parent = self.UniversalParentEntity,enabled = False)
         self.ChangeVarsTextParentEntity = Entity(parent = self.ChangeVarsMenuParentEntity)
 
-        self.ConfigProjectManager = ConfigProjectManager(Parent=self.UniversalParentEntity,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),CancelClick=Func(MultiFunctionCaller,self.EnableStaringUI,self.ShowRecentProjects))
+        self.ConfigProjectManager = ConfigProjectManager(Parent=self.UniversalParentEntity,Path=CurrentFolderNameReturner().replace("Editor","Current Games"),CancelClick=Func(MultiFunctionCaller,self.EnableStaringUI,self.ShowRecentProjects),ToSaveDataFunc = self.RemoveProjectNameFunc)
 
         self.RecentProjectsScrollEntity = None
 
@@ -299,17 +299,16 @@ class StartingUI(Entity):
 
         self.NewData = dict(sorted(ProjectSettings.items(), key=lambda item: self.OrderOfRecentProjects.index(item[0])))
 
-        print(self.NewData)
         for i,j in enumerate(self.NewData):
             self.TopParent = Button(parent = self.RecentProjectsScrollerParentEntity,radius=  0,position = Vec3(0-i*-0.3, 0, 0),scale_x = .3,origin = (-.5,0,0),visible_self = False)
             Text(parent = self.TopParent,text=j,position = Vec3(.05, 0.366999, 0),scale = Vec3(3, 2.39, 1),always_on_top = True)
             Entity(parent = self.TopParent,model = "line",position = Vec3(1, -0.0529997, 0),scale = Vec3(0.899999, 0.2, 0.1),rotation_z = 90,always_on_top = True)
+            self.ConfigProjectManager.CurrentProjectName = j
 
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[0],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.2,-1),always_on_top = True,on_click = Func(self.OpenProject,FileName = j,FilePath = CurrentFolderNameReturner().replace("Editor","Current Games"),FuncToEnableOnOpen = FuncToEnableOnOpen,ProjectName = j))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[1],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.2,-1),always_on_top = True,on_click = Func(MultiFunctionCaller,self.StartingUIParentEntity.disable,Func(RecursivePerformer,self.ConfigProjectManager.UniversalParentEntity),Func(self.ConfigProjectManager.Show,j)))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[2],color = color.blue,scale = Vec3(0.4,.16,1),position = (.25,-.4,-1),always_on_top = True,on_click = Func(self.ExportProject,j))
             Button(parent = self.TopParent,radius=.15,text= self.RecentProjectButtonTexts[3],color = color.blue,scale = Vec3(0.4,.16,1),position = (.75,-.4,-1),always_on_top = True,on_click = Func(self.CheckUserQuit,j))
-
             currentPro = self.NewData[j]
             for k,l in enumerate(self.ProjectDataName):
                 Text(parent = self.TopParent,text=f"{PrepareForRecentProjects(self.ProjectDataName[k])}: {currentPro[l]}",position = Vec3(.1, 0.27-k*.07, 0),scale = Vec3(2, 2.19, 1),always_on_top = True)
@@ -428,8 +427,9 @@ class StartingUI(Entity):
         self.ProjectName = ProjectName
         self.UniversalParentEntity.disable()
         self._TempSavedItemOfRecentProject = self.OrderOfRecentProjects.pop(self.OrderOfRecentProjects.index(ProjectName))
-        self.OrderOfRecentProjects.insert(0,_TempSavedItemOfRecentProject)
+        self.OrderOfRecentProjects.insert(0,self._TempSavedItemOfRecentProject)
         self.SaveNonConfiableData()
+
 
 if __name__ == "__main__":
     app = Ursina()
