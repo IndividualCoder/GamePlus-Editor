@@ -1,4 +1,4 @@
-# UrsinaEditor is a gui editor for ursina engine.
+# GamePlus editor is a gui editor for ursina engine.
 It is the single-developer version. 
 
 
