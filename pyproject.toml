@@ -10,13 +10,23 @@ authors = [
 ]
 description = "A gui game maker written in python"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.6"
 classifiers=[
     "Programming Language :: Python :: 3",
-    "License :: MIT",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
     "Operating System :: OS Independent",
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/"
 "Bug Tracker" = "https://github.com/"
+
+[options]
+install_requires = [
+    "panda3d>=1.10.10",
+    "panda3d-gltf>=0.9",
+    "Pillow>=8.2.0",
+    "pyperclip>=1.8.2",
+    "screeninfo>=0.6.7",
+    "psutil>=5.8.0",
+]
