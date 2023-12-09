@@ -3,6 +3,7 @@ from setuptools import find_packages, setup
 setup(
     name='GamePlusEditor',
     description='A gui game maker written in python',
+    long_description = "Uses ursina engine as a base"
     version='0.0.1',
     url='https://github.com/IndividualCoder/GamePlus-Editor',
     author='Prince',
