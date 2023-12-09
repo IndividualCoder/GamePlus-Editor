@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{GamePlusEditor}"
+version = "0.0.1"
+authors = [
+  { name="{Prince}" },
+]
+description = "{'A gui game maker written in python'}"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers=[
+    "Programming Language :: Python :: 3",
+    "License :: MIT",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/"
+"Bug Tracker" = "https://github.com/"
