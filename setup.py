@@ -1,10 +1,13 @@
 from setuptools import find_packages, setup
 
+with open("README.md", encoding="UTF-8") as f:
+    long_desc = f.read()
+
 setup(
     name='GamePlusEditor',
     description='A gui game maker written in python',
-    long_description = 'Uses ursina engine as a base',
-    long_description_content_type = `text/x-rst`,
+    long_description=long_desc,
+    long_description_content_type="text/markdown",
 
     version='0.0.1',
     url='https://github.com/IndividualCoder/GamePlus-Editor',
