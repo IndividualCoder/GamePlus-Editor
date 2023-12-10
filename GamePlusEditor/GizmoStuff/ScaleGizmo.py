@@ -1,6 +1,6 @@
 # from BaseGizmo import BaseGizmoClass
-from ursina import *
-from GizmoStuff.GizmoUpdater import NewDraggable
+from GamePlusEditor.ursina import *
+from GamePlusEditor.GizmoStuff.GizmoUpdater import NewDraggable
 
 class ScaleGizmo(Entity):
     def __init__(self, Entity, Snapping = 0, **kwargs):

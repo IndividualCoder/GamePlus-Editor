@@ -1,11 +1,11 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 import sys
 import os
 
 # Make the main to 'Editor' so we can access the files of the 'Editor' folder
 editor_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
 sys.path.append(editor_directory)
-from OtherStuff import MultiFunctionCaller
+from GamePlusEditor.OtherStuff import MultiFunctionCaller
 
 class TrueFalseIndicator(Entity):
     '''Not really a true false indicator but a button you can click and its text will change as given.\n

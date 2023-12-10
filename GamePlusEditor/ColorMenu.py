@@ -1,6 +1,6 @@
 from ursina import *
-from CoreFiles.BlueLink import BlueLink
-from OtherStuff import RecursivePerformer
+from GamePlusEditor.CoreFiles.BlueLink import BlueLink
+from GamePlusEditor.OtherStuff import RecursivePerformer
 
 class ColorMenu(Button):
     '''Choose color by sliding sliders instead of putting random int. alpha channel not working correctly yet!'''

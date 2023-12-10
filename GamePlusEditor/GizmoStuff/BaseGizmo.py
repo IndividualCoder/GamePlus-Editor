@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 class BaseGizmoClass(Entity):
     def __init__(self,OnDragged,Entity,Snapping,DraggingProperty: str,**kwargs):

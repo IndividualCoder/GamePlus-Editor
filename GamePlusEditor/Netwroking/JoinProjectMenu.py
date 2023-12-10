@@ -5,9 +5,9 @@ import os
 editor_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
 sys.path.append(editor_directory)
 
-from ursina import *
-from OtherStuff import CurrentFolderNameReturner,RecursivePerformer
-from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
+from GamePlusEditor.ursina import *
+from GamePlusEditor.OtherStuff import CurrentFolderNameReturner,RecursivePerformer
+from GamePlusEditor.CoreFiles.TrueFalseIndicator import TrueFalseIndicator
 
 
 class JoinProjectMenu(Entity):

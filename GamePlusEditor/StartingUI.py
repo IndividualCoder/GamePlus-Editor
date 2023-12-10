@@ -1,13 +1,13 @@
-from ursina import *
-from OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,OpenBrowser,MultiFunctionCaller,BoolInverter,RecursivePerformer,DeleteProject
-from ursina.prefabs.dropdown_menu import DropdownMenuButton
-from ursina.prefabs.dropdown_menu import SimpleDropdownMenu
-from RecentProjectFinder import GetRecentProjects
-from ProjectLoader import LoadProjectToScene
-from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
-from CoreFiles.ConfigProjectMenu import ConfigProjectManager
-from OpenFile import Openselector
-from Netwroking.JoinProjectMenu import JoinProjectMenu
+from GamePlusEditor.ursina import *
+from GamePlusEditor.OtherStuff import CustomWindow,ReplaceValue,PrepareForRecentProjects,CurrentFolderNameReturner,OpenBrowser,MultiFunctionCaller,BoolInverter,RecursivePerformer,DeleteProject
+from GamePlusEditor.ursina.prefabs.dropdown_menu import DropdownMenuButton
+from GamePlusEditor.ursina.prefabs.dropdown_menu import SimpleDropdownMenu
+from GamePlusEditor.RecentProjectFinder import GetRecentProjects
+from GamePlusEditor.ProjectLoader import LoadProjectToScene
+from GamePlusEditor.CoreFiles.TrueFalseIndicator import TrueFalseIndicator
+from GamePlusEditor.CoreFiles.ConfigProjectMenu import ConfigProjectManager
+from GamePlusEditor.OpenFile import Openselector
+from GamePlusEditor.Netwroking.JoinProjectMenu import JoinProjectMenu
 
 class StartingUI(Entity):
     def __init__(self,EditorDataDictConfigable,EditorDataDictNonConfigable,RegiveDataDictFunc,RetakeDataDictFunc,OnProjectStart,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,FuncToEnableOnOpen,ExportToPyFunc,RemoveProjectNameFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):

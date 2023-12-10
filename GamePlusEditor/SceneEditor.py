@@ -1,10 +1,11 @@
-from ursina import *
-from DirectionBox import PointOfViewSelector as DirectionEntity
-from OtherStuff import TextToVar,MultiFunctionCaller
-from ursina.color import tint
-from ColorMenu import ColorMenu
-from GizmoStuff.GizmoManager import GizmoManager
-from ursina.prefabs.text_field  import TextField
+from GamePlusEditor.ursina import *
+from GamePlusEditor.DirectionBox import PointOfViewSelector as DirectionEntity
+from GamePlusEditor.OtherStuff import TextToVar,MultiFunctionCaller
+from GamePlusEditor.ursina.color import tint
+from GamePlusEditor.ColorMenu import ColorMenu
+from GamePlusEditor.GizmoStuff.GizmoManager import GizmoManager
+from GamePlusEditor.ursina.prefabs.text_field  import TextField
+
 class SceneEditor(Entity):
     def __init__(self,enabled,SaveFunction,AddTerminalFunc,EditorCamera,EditorDataDict,ShowInstructionFunc,cam2 = camera,CurrentProjectName = "",**kwargs):
         super().__init__(kwargs)

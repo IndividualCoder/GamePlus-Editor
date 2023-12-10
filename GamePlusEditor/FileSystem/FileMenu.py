@@ -1,11 +1,11 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 import sys
 import os
 
 # Make the main to 'Editor' so we can access the files of the 'Editor' folder
 editor_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
 sys.path.append(editor_directory)
-from OtherStuff import RecursivePerformer,ReplaceValue
+from GamePlusEditor.OtherStuff import RecursivePerformer,ReplaceValue
 
 class FileMenu(Entity):
     '''Used by CodeEditorPython that Operates file system and data saving into it'''
@@ -153,7 +153,7 @@ class FileMenu(Entity):
 if __name__ == "__main__":
 
     app = Ursina()
-    from OtherStuff import CurrentFolderNameReturner
+    from GamePlusEditor.OtherStuff import CurrentFolderNameReturner
     a = FileMenu("jh",f"{CurrentFolderNameReturner()}Current Games",Entity())
     a.SetUp()
     a.Show()

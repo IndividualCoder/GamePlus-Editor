@@ -1,6 +1,6 @@
-from ursina import *
-from ursina.color import tint
-from ursina.curve import out_cubic
+from GamePlusEditor.ursina import *
+from GamePlusEditor.ursina.color import tint
+from GamePlusEditor.ursina.curve import out_cubic
 
 
 class InstructionMenu(Entity):

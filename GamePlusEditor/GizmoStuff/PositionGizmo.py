@@ -1,6 +1,6 @@
 # from BaseGizmo import BaseGizmoClass
-from ursina import *
-from OtherStuff import MultiFunctionCaller
+from GamePlusEditor.ursina import *
+from GamePlusEditor.OtherStuff import MultiFunctionCaller
 
 class PositionGizmo(Entity):
     def __init__(self, Entity, Snapping,OnDrag, **kwargs):

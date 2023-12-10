@@ -5,9 +5,9 @@ import os
 editor_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
 sys.path.append(editor_directory)
 
-from ursina import *
+from GamePlusEditor.ursina import *
 
-from OtherStuff import MultiFunctionCaller,RecursivePerformer,CustomWindow
+from GamePlusEditor.OtherStuff import MultiFunctionCaller,RecursivePerformer,CustomWindow
 
 
 
@@ -39,7 +39,7 @@ class HostProjectMenu(Entity):
 
 
 if __name__ == "__main__":
-    from OtherStuff import CurrentFolderNameReturner
+    from GamePlusEditor.OtherStuff import CurrentFolderNameReturner
     app = Ursina()
     pro = HostProjectMenu(Entity(parent = camera.ui),Func(print,"hi"),"localhost",100,Func(print,"Hi"))
     Sky()

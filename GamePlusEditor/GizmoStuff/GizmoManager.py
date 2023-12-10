@@ -1,7 +1,7 @@
-from ursina import *
-from GizmoStuff.PositionGizmo import PositionGizmo
-from GizmoStuff.ScaleGizmo import ScaleGizmo
-from GizmoStuff.RotationGizmo import RotationGizmo
+from GamePlusEditor.ursina import *
+from GamePlusEditor.GizmoStuff.PositionGizmo import PositionGizmo
+from GamePlusEditor.GizmoStuff.ScaleGizmo import ScaleGizmo
+from GamePlusEditor.GizmoStuff.RotationGizmo import RotationGizmo
 
 class GizmoManager(Entity):
     def __init__(self):

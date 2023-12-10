@@ -42,7 +42,7 @@
 
 #     app.run()
 
-from ursina import *
+from GamePlusEditor.ursina import *
 
 class NewDraggable(Button):
 

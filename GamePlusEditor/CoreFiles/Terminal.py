@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 import sys
 from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
 

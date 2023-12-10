@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 import sys
 import os
 from panda3d.core import WindowProperties

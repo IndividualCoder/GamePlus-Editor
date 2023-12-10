@@ -5,10 +5,10 @@ import os
 editor_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
 sys.path.append(editor_directory)
 
-from ursina import *
+from GamePlusEditor.ursina import *
 import json
-from OtherStuff import CurrentFolderNameReturner
-from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
+from GamePlusEditor.OtherStuff import CurrentFolderNameReturner
+from GamePlusEditor.CoreFiles.TrueFalseIndicator import TrueFalseIndicator
 
 class ConfigProjectManager(Entity):
     '''Manages a simple menu shown when you configure your project'''

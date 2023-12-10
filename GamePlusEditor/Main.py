@@ -1,23 +1,23 @@
-from ursina import *
-from StartingUI import StartingUI
-from SceneEditor  import SceneEditor
-from ProjectSaver import ProjectSaver
-from OtherStuff import CurrentFolderNameReturner,RecursivePerformer
+from GamePlusEditor.ursina import *
+from GamePlusEditor.StartingUI import StartingUI
+from GamePlusEditor.SceneEditor  import SceneEditor
+from GamePlusEditor.ProjectSaver import ProjectSaver
+from GamePlusEditor.OtherStuff import CurrentFolderNameReturner,RecursivePerformer
 import os
-from OpenFile import OpenFile,SaveFile
-from ursina.prefabs.memory_counter import MemoryCounter
-from CoreFiles.InstructionMenu import InstructionMenu
-from ursina.color import tint
-from ProjectExporter import ProjectExporter
-from ProjectEditor import ProjectEditor
-from CodeEditorPython import CodeEditorPython
-from CodeEditorUrsaVisor import CodeEditorUrsaVisor
+from GamePlusEditor.OpenFile import OpenFile,SaveFile
+from GamePlusEditor.ursina.prefabs.memory_counter import MemoryCounter
+from GamePlusEditor.CoreFiles.InstructionMenu import InstructionMenu
+from GamePlusEditor.ursina.color import tint
+from GamePlusEditor.ProjectExporter import ProjectExporter
+from GamePlusEditor.ProjectEditor import ProjectEditor
+from GamePlusEditor.CodeEditorPython import CodeEditorPython
+from GamePlusEditor.CodeEditorUrsaVisor import CodeEditorUrsaVisor
 import atexit
 from direct.filter.CommonFilters import CommonFilters
-from CoreFiles.InstructionList import InstructionList
+from GamePlusEditor.CoreFiles.InstructionList import InstructionList
 import socket
 import subprocess
-from CoreFiles.Terminal import Terminal
+from GamePlusEditor.CoreFiles.Terminal import Terminal
 
 class UrsinaEditor(Entity):
     def __init__(self,EditorCamera,**kwargs):
