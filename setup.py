@@ -9,7 +9,7 @@ setup(
     long_description=long_desc,
     long_description_content_type="text/markdown",
 
-    version='0.0.3',
+    version='0.0.4',
     url='https://github.com/IndividualCoder/GamePlus-Editor',
     author='Prince',
     author_email='IndividualCoder@gmail.com',
