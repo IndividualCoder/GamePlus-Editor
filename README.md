@@ -31,3 +31,6 @@ now make a .py file and run it with the following code:
     ```from GamePlusEditor import RunEditor;
     RunEditor()```
 it is as simple as this :)
+
+# Contribute
+Contributions to this project are welcome. If you have ideas for improving the editor, additional features, or bug fixes, please submit pull requests or open issues to discuss potential changes.
