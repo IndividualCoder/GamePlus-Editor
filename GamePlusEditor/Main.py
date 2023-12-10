@@ -2,7 +2,7 @@ from ursina import *
 from StartingUI import StartingUI
 from SceneEditor  import SceneEditor
 from ProjectSaver import ProjectSaver
-from OtherStuff import FormatForSaving,CurrentFolderNameReturner,RecursivePerformer
+from OtherStuff import CurrentFolderNameReturner,RecursivePerformer
 import os
 from OpenFile import OpenFile,SaveFile
 from ursina.prefabs.memory_counter import MemoryCounter
@@ -17,10 +17,8 @@ from direct.filter.CommonFilters import CommonFilters
 from CoreFiles.InstructionList import InstructionList
 import socket
 import subprocess
-import threading
 from CoreFiles.Terminal import Terminal
 
-'''making online version'''
 class UrsinaEditor(Entity):
     def __init__(self,EditorCamera,**kwargs):
         super().__init__()
@@ -28,7 +26,6 @@ class UrsinaEditor(Entity):
         self.AddCurrentSupportedEditors = [self.AddSceneEditor,self.AddPythonCodeEditor,self.AddUrsaVisorEditor]
         self.ProjectEditorsList = []
         self.CurrentProjectEditor: ProjectEditor = None
-        self.CurrentDemoGame = []
         self.CurrentTerminals = []
 
         self.EditorCamera = EditorCamera
@@ -44,7 +41,7 @@ class UrsinaEditor(Entity):
         self.Filter = CommonFilters(base.win, base.cam)
 
         self.MemoryCounter = MemoryCounter(enabled=self.ConfiableEditorData["Show memory counter"])
-        self.StartingUi = StartingUI(EditorDataDict=  self.ConfiableEditorData,OnProjectStart=self.StartEdit,ExistingProjectsName=self.NonConfiableEditorData["CurrentProjectNames"],ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,FuncToEnableOnOpen=self.EnableWorldItemsAndSetProjectName,ShowInstructionFunc = self.ShowInstruction,RemoveProjectNameFunc = self.RemoveProject,ExportToPyFunc = self.ExportProjectToPy,RecentProjectsOrder=self.NonConfiableEditorData["RecentEdits"])
+        self.StartingUi = StartingUI(EditorDataDictConfigable=  self.ConfiableEditorData,RegiveDataDictFunc = self.RetakeDataDict,RetakeDataDictFunc=self.RegiveDataDict,EditorDataDictNonConfigable = self.NonConfiableEditorData,OnProjectStart=self.StartEdit,ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,FuncToEnableOnOpen=self.EnableWorldItemsAndSetProjectName,ShowInstructionFunc = self.ShowInstruction,RemoveProjectNameFunc = self.RemoveProject,ExportToPyFunc = self.ExportProjectToPy)
 
 
     def StartEdit(self):
@@ -84,17 +81,6 @@ class UrsinaEditor(Entity):
     def OnExit(self):
         if self.ConfiableEditorData["Auto save on exit"] and self.StartingUi.ProjectName:
             self.Save()
-
-        if self.CurrentDemoGame == []:
-            pass
-
-        else:
-            for DemoGame in self.CurrentDemoGame:
-                if DemoGame.poll() is not None:
-                    pass
-                else:
-                    DemoGame.terminate()
-
     def Setup(self):
         # Register the exit_handler function
         self.ConfigEditorAsSettings()
@@ -104,7 +90,7 @@ class UrsinaEditor(Entity):
         self.StartingUi.Setup()
         self.StartingUi.ShowRecentProjects(self.EnableWorldItemsAndSetProjectName)
 
-    def SaveData(self):
+    def  SaveData(self):
         # print("saveing")
         SaveFile("Non configable editor data.txt",f"{CurrentFolderNameReturner()}/Editor data",self.NonConfiableEditorData)
         SaveFile("Configable editor data.txt",f"{CurrentFolderNameReturner()}/Editor data",self.ConfiableEditorData)
@@ -203,7 +189,7 @@ class UrsinaEditor(Entity):
         self.CurrentProjectEditor.UpdateTabsMenu()
 
     def AddUrsaVisorEditor(self):
-        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorUrsaVisor(enabled=False,ignore = True,SaveFunction= self.Save,ProjectName=self.CurrentProjectEditor.ProjectName,EditorDataDict=self.ConfiableEditorData))
+        self.CurrentProjectEditor.CurrentTabs.append(CodeEditorUrsaVisor(enabled=False,ignore = True,SaveFunction= self.Save,EditorDataDict=self.ConfiableEditorData))
 
         self.CurrentProjectEditor.CurrentTabs[-1].name = f"Ursa Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'CodeEditorUrsaVisor'])}" 
 
@@ -247,16 +233,11 @@ class UrsinaEditor(Entity):
 
     def PlayProject(self):
         self.CurrentProjectEditor.SaveProjectButton.on_click()
-        def PlayProjectThread():
-            self.ExportProjectToPy(CurrentFolderNameReturner(),self.CurrentProjectEditor.ProjectName,False,Demo = True)
-            self.CurrentDemoGame.append(subprocess.Popen(["python", f"{CurrentFolderNameReturner()}/Exported games/{self.CurrentProjectEditor.ProjectName}/Main.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE))
-            self._output, self._err = self.CurrentDemoGame[-1].communicate()
-            if self.CurrentDemoGame[-1].returncode  != 0:
-                self.ShowInstruction(f"The game encounterd an error, see terminal for the error")
-                print("Standard output: ",self._output)
-                print("Standard error: ",self._err)
-
-        threading.Thread(target =  PlayProjectThread).start()        
+        self.ExportProjectToPy(CurrentFolderNameReturner(),self.CurrentProjectEditor.ProjectName,False,Demo = True)
+        Sp = subprocess.Popen(["python", f"{CurrentFolderNameReturner()}/Exported games/{self.CurrentProjectEditor.ProjectName}/Main.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self._output, self._err = Sp.communicate()
+        if Sp.returncode  != 0:
+            self.ShowInstruction(f"The game encounterd an error\nOutput:{self._output} \nErr: {self._err}")
 
     def ReadyToHostProject(self):
         self.Port = 48513
@@ -286,37 +267,36 @@ class UrsinaEditor(Entity):
         self.CurrentProjectEditor.ProjectName = Value
 
     def RemoveProject(self,Name,Replace = False):
-        self.NonConfiableEditorData["CurrentProjectNames"]: list = []
-        self.Tempa = []
-        self.NonConfiableEditorData["RecentEdits"]: list = []
         if Replace is False:
             self.NonConfiableEditorData["CurrentProjectNames"].remove(Name)
             self.NonConfiableEditorData["RecentEdits"].remove(Name)
 
         else:
-            if Name not in self.NonConfiableEditorData["CurrentProjectNames"]:
+            if Replace not in self.NonConfiableEditorData["CurrentProjectNames"]:
                 self.NonConfiableEditorData["CurrentProjectNames"][self.NonConfiableEditorData["CurrentProjectNames"].index(Name)] = Replace  
                 self.NonConfiableEditorData["RecentEdits"][self.NonConfiableEditorData["RecentEdits"].index(Name)] = Replace  
 
         self.SaveData()
 
+    def RegiveDataDict(self):
+        return self.ConfiableEditorData,self.NonConfiableEditorData
 
-if __name__ == "__main__":
+    def RetakeDataDict(self,ConfigableEditorData,NonConfigableEditorData):
+        self.ConfiableEditorData = ConfigableEditorData
+        self.NonConfiableEditorData = NonConfigableEditorData
 
+def BaseRunner():
     app = Ursina()
     window.exit_button.disable()
     window.fps_counter.disable()
     application.development_mode = False
     window.cog_button.disable()
 
-    # window.vsync = False
-    # application.development_mode = False
-
     Sky()
-    
+
     Editor = UrsinaEditor(EditCam := EditorCamera()) # the ':=' operator is called walrus operator. google it!  
     Editor.Setup()
-    # render.setAntialias(AntialiasAttrib.MAuto)
-    # del Editor.Filter
     app.run()
-    
+
+if __name__ == "__main__":
+    BaseRunner()    

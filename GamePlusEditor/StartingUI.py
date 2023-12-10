@@ -10,13 +10,12 @@ from OpenFile import Openselector
 from Netwroking.JoinProjectMenu import JoinProjectMenu
 
 class StartingUI(Entity):
-    def __init__(self,EditorDataDict,OnProjectStart,ExistingProjectsName,ProjectName,RecentProjectsOrder,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,FuncToEnableOnOpen,ExportToPyFunc,RemoveProjectNameFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
+    def __init__(self,EditorDataDictConfigable,EditorDataDictNonConfigable,RegiveDataDictFunc,RetakeDataDictFunc,OnProjectStart,ProjectName,SaveNonConfiableData,ShowInstructionFunc,ChangeConfigDataToDefaultTypeFunc,FuncToEnableOnOpen,ExportToPyFunc,RemoveProjectNameFunc,ProjectSettings={"ProjectGraphicsQuality": "Low","ProjectLanguage": "Python","ProjectNetworkingOnline": False,"CurrentTargatedPlatform": "windows","CurrentProjectBase": "FPC"},OpenedProjects = []):
         super().__init__(parent = camera.ui)
 
         self.ProjectName = ProjectName
         self.ProjectSettings = ProjectSettings
-        self.ExistingProjectsName = ExistingProjectsName
-        self.EditorDataDict = EditorDataDict
+        self.EditorDataDictConfigable = EditorDataDictConfigable
         self.OnProjectStart = OnProjectStart
         self.ShowInstructionFunc = ShowInstructionFunc
         self.SaveNonConfiableData = SaveNonConfiableData
@@ -24,7 +23,10 @@ class StartingUI(Entity):
         self.HasRecentProjectShow = False
         self.ExportToPyFunc = ExportToPyFunc
         self.RemoveProjectNameFunc = RemoveProjectNameFunc
-        self.OrderOfRecentProjects: list = RecentProjectsOrder
+        self.RetakeDataDict = RetakeDataDictFunc
+        self.RegiveDataDictFunc = RegiveDataDictFunc
+        # self.OrderOfRecentProjects: list = RecentProjectsOrder
+        self.EditorDataDictNonConfigable = EditorDataDictNonConfigable
         self.ProjectDataName = ["ProjectGraphicsQuality","ProjectLanguage","ProjectNetworkingOnline","CurrentTargatedPlatform","CurrentProjectBase"]
         self.RecentProjectButtonTexts = ("Open project","Config project","Finish project","Delete project")
         self.OtherOptionsText = ["Official site","View on github","Watch youtube tutorial","Load an exported project","View plugins","Join project"]
@@ -43,7 +45,7 @@ class StartingUI(Entity):
         self.ChangeVarsMenuParentEntity = Entity(parent = self.UniversalParentEntity,enabled = False)
         self.ChangeVarsTextParentEntity = Entity(parent = self.ChangeVarsMenuParentEntity)
 
-        self.ConfigProjectManager = ConfigProjectManager(Parent=self.UniversalParentEntity,Path=f"{CurrentFolderNameReturner()}/Current Games",CancelClick=Func(MultiFunctionCaller,self.EnableStaringUI,self.ShowRecentProjects),ToSaveDataFunc = self.RemoveProjectNameFunc)
+        self.ConfigProjectManager = ConfigProjectManager(Parent=self.UniversalParentEntity,Path=f"{CurrentFolderNameReturner()}/Current Games",CancelClick=Func(MultiFunctionCaller,self.EnableStaringUI,self.ShowRecentProjects),ToSaveDataFunc = self.RenameProject)
 
         self.RecentProjectsScrollEntity = None
 
@@ -55,10 +57,10 @@ class StartingUI(Entity):
         self.BackgroundOfRecentProjects = Entity(parent = self.RecentProjectsParentEntity,model = "cube",color = color.gray,scale = Vec3(1.77792, 0.535418, 0),position = Vec3(0, -0.232639, 0))
 
         self.LineOnTop = Entity(name = "LineOnTop",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = 5,position = Vec3(0, 0.405, -10),color = color.gray,z = -10)
-        self.LineBetweenTypeAndInputFieldLine = Entity(name = "LineBetweenTypeAndInputFieldLine",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = len(list(self.EditorDataDict)),rotation_z = 90,position = Vec3(0.03, 0, -10),color = color.gray,z = -10)
-        self.LineBetweenInputFieldAndDescriptionLine = Entity(name = "LineBetweenInputFieldAndDescriptionLine",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = len(list(self.EditorDataDict)),rotation_z = 90,position = Vec3(0.375, 0, -10),color = color.gray,z = -10)
+        self.LineBetweenTypeAndInputFieldLine = Entity(name = "LineBetweenTypeAndInputFieldLine",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = len(list(self.EditorDataDictConfigable)),rotation_z = 90,position = Vec3(0.03, 0, -10),color = color.gray,z = -10)
+        self.LineBetweenInputFieldAndDescriptionLine = Entity(name = "LineBetweenInputFieldAndDescriptionLine",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = len(list(self.EditorDataDictConfigable)),rotation_z = 90,position = Vec3(0.375, 0, -10),color = color.gray,z = -10)
         self.GoBackOfChangeVarsMenuButton = Button(name = "Go Back Of Change Vars Menu Button",parent = self.ChangeVarsMenuParentEntity,text="Done",Key="escape",on_click = Sequence(Func(self.DestroyChangeVarsMenuButtons),Func(self.ChangeVarsMenuParentEntity.disable),Func(self.EnableStaringUI)),radius=0,scale = Vec3(0.280001, 0.0800007, 1),position = Vec3(-0.744999, 0.455, 0))
-        self.LineBetweenNameAndTypeLine = Entity(name = "LineBetweenNameAndTypeLine",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = len(list(self.EditorDataDict)),rotation_z = 90,position = (-.38,0),color = color.gray,z = -10)
+        self.LineBetweenNameAndTypeLine = Entity(name = "LineBetweenNameAndTypeLine",parent = self.ChangeVarsMenuParentEntity,model = "line",scale = len(list(self.EditorDataDictConfigable)),rotation_z = 90,position = (-.38,0),color = color.gray,z = -10)
         self.BackgroundOfChangeVarsMenu = Entity(parent = self.ChangeVarsMenuParentEntity,model = "cube",color = color.rgba(0,0,0,200),scale = Vec3(10,10, 0),position = Vec3(0, 0, 0))
         self.SaveChangedVarsButton = Button(parent = self.ChangeVarsMenuParentEntity,text="Save",radius=0,hover_highlight=True,hover_highlight_size=1,highlight_color = color.light_blue,model = "cube",color = color.light_blue,scale = Vec3(0.22, 0.14, 1),position = Vec3(-0.02, -0.34, -20),on_click = self.SaveNonConfiableData,Key = "s",partKey="control")
 
@@ -107,6 +109,12 @@ class StartingUI(Entity):
         self.EnableGraphicsQualityButtons()
         invoke(self.ProjectTitleButton.MakeActive,delay = .1)
 
+    def RenameProject(self,Name,Replace = False):
+        if Replace is False:
+            self.RemoveProjectNameFunc(Name)
+            return
+        self.RemoveProjectNameFunc(Name,Replace)
+        self.EditorDataDictConfigable,self.EditorDataDictNonConfigable = self.RetakeDataDict()
 
     def CreateNewProject(self,NewProjectBase):
         if not self.ProjectTitleButton.active:
@@ -177,39 +185,37 @@ class StartingUI(Entity):
                 self.ShowInstructionFunc("Enter your project's name!\nIt is compulsory.",Title = 'No name?',WordWrap = 50)
                 return
 
-            elif self.ProjectTitleButton.text in self.ExistingProjectsName:
+            elif self.ProjectTitleButton.text in self.EditorDataDictNonConfigable["CurrentProjectNames"]:
                     # print_on_screen("You already have a project with this name.\nChoose a new one",color = color.red,origin = (0,0),duration=3,position = (.5,-.1),scale = 1.2)
                 self.ShowInstructionFunc("You already have a project with this name.\nChoose a new one",Title = "Error")
                 return
 
             self.CreateNewProjectMenuParentEntity.disable()
-            # self.ExistingProjectsName.append(self.ProjectTitleButton.text)
-            self.OrderOfRecentProjects.insert(0,self.ProjectTitleButton.text)
-            self.SaveNonConfiableData()
+            self.EditorDataDictNonConfigable["RecentEdits"].insert(0,self.ProjectTitleButton.text)
             self.SetProjectName()
             self.OnProjectStart()
 
     def ChangeVarsMenu(self):
         self.ChangeVarsTextParentEntity.enable()
         self.DisableStartingUI()
-        for i in range(len(list(self.EditorDataDict))*2):
+        for i in range(len(list(self.EditorDataDictConfigable))*2):
             if i % 2 == 0:
-                self.ChangeVarsTextParentEntity.children.append(Text(name = f"Change var children_{i}",text=list(self.EditorDataDict)[int(i/2)],parent  = self.ChangeVarsTextParentEntity,position = (-.87,.39-i/2*0.07,-10),scale = 1.75)) 
+                self.ChangeVarsTextParentEntity.children.append(Text(name = f"Change var children_{i}",text=list(self.EditorDataDictConfigable)[int(i/2)],parent  = self.ChangeVarsTextParentEntity,position = (-.87,.39-i/2*0.07,-10),scale = 1.75)) 
             else:
                 self.ChangeVarsTextParentEntity.children.append(Entity(name = f"Line_{i}",parent = self.ChangeVarsTextParentEntity,model = "line",scale = 2,position = (0,.37-i/2*0.07),color = color.gray,z = -10)) 
  
         # self.TypeVarList = [type(sublist).__name__ for sublist in self.EditorDataDict.values()]
 
-        for i in range(len([type(sublist).__name__ for sublist in self.EditorDataDict.values()])):
-            self.ChangeVarsTextParentEntity.children.append(Text(name = f"change var type {i}",parent=self.ChangeVarsTextParentEntity,text=([type(sublist).__name__ for sublist in self.EditorDataDict.values()][i]),position = Vec3(-0.37, 0.39-i*0.07, -10),scale = 1.75))
+        for i in range(len([type(sublist).__name__ for sublist in self.EditorDataDictConfigable.values()])):
+            self.ChangeVarsTextParentEntity.children.append(Text(name = f"change var type {i}",parent=self.ChangeVarsTextParentEntity,text=([type(sublist).__name__ for sublist in self.EditorDataDictConfigable.values()][i]),position = Vec3(-0.37, 0.39-i*0.07, -10),scale = 1.75))
 
         # self.ValueVarList = [sublist for sublist in self.EditorDataDict.values()]
   
-        for i in range(len([sublist for sublist in self.EditorDataDict.values()])):
-            if str([sublist for sublist in self.EditorDataDict.values()][i]) in ["True","False"]:
-                self.ChangeVarsTextParentEntity.children.append(TrueFalseIndicator(str([sublist for sublist in self.EditorDataDict.values()][i]),[str([sublist for sublist in self.EditorDataDict.values()][i]),str(BoolInverter([sublist for sublist in self.EditorDataDict.values()][i]))],OnClick=self.OnEditorVarsChanged,position = Vec3(0.2, 0.37-i*0.07, -10),scale = Vec3(0.32, 0.05, 1),parent = self.ChangeVarsTextParentEntity,name = i))
-            elif type([sublist for sublist in self.EditorDataDict.values()][i]).__name__ in ["int","float"]:
-                self.ChangeVarsTextParentEntity.children.append(InputField(name = i,parent = self.ChangeVarsTextParentEntity,character_limit = 16,default_value=str([sublist for sublist in self.EditorDataDict.values()][i]),position = Vec3(0.2, 0.37-i*0.07, -10),scale = Vec3(0.32, 0.05, 1),active = False,escape_active=True,submit_on="enter",on_submit = Func(self.OnEditorVarsChanged),limit_content_to = "1234567890."))
+        for i in range(len([sublist for sublist in self.EditorDataDictConfigable.values()])):
+            if str([sublist for sublist in self.EditorDataDictConfigable.values()][i]) in ("True","False"):
+                self.ChangeVarsTextParentEntity.children.append(TrueFalseIndicator(["True","False"],OnClick=self.OnEditorVarsChanged,position = Vec3(0.2, 0.37-i*0.07, -10),scale = Vec3(0.32, 0.05, 1),parent = self.ChangeVarsTextParentEntity,name = i,DefaultState=str([sublist for sublist in self.EditorDataDictConfigable.values()][i])))
+            elif type([sublist for sublist in self.EditorDataDictConfigable.values()][i]).__name__ in ("int","float"):
+                self.ChangeVarsTextParentEntity.children.append(InputField(name = i,parent = self.ChangeVarsTextParentEntity,character_limit = 16,default_value=str([sublist for sublist in self.EditorDataDictConfigable.values()][i]),position = Vec3(0.2, 0.37-i*0.07, -10),scale = Vec3(0.32, 0.05, 1),active = False,escape_active=True,submit_on="enter",on_submit = Func(self.OnEditorVarsChanged),limit_content_to = "1234567890."))
 
         self.EnableChangeVarsMenuButtons()
 
@@ -224,10 +230,10 @@ class StartingUI(Entity):
                 self.DataToPut.append(self.ChangeVarsTextParentEntity.children[i].Button.text)
                 # print(self.ChangeVarsTextParentEntity.children[i].Button.text)
 
-        self.EditorDataDict = dict(zip(list(self.EditorDataDict),self.DataToPut))
+        self.EditorDataDictConfigable = dict(zip(list(self.EditorDataDictConfigable),self.DataToPut))
         # print(f"{__file__} :: {self.EditorDataDict}")
 
-        self.ChangeConfigDataToDefaultTypeFunc(self.EditorDataDict)
+        self.ChangeConfigDataToDefaultTypeFunc(self.EditorDataDictConfigable)
 
 
     def DestroyChangeVarsMenuButtons(self):
@@ -262,7 +268,7 @@ class StartingUI(Entity):
             if len(self.OtherOptionsButton.children) == 1 or not self.OtherOptionsButton.children[1].enabled:
                 invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,title = "Quit?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
         else:
-            invoke(CustomWindow,ToEnable=self.EnableEverything,text = "Are you sure you want to delete this project",ToEnableOnYes = Func(MultiFunctionCaller,Func(DeleteProject,ToCheck,f"{CurrentFolderNameReturner()}/Current Games",Func(self.RemoveProjectNameFunc,ToCheck),self.EnableEverything,self.ShowRecentProjects),OnEnable=self.DisableEverything,title = "Sure?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1))
+            invoke(CustomWindow,ToEnable=self.EnableEverything,OnEnable=self.DisableEverything,text = "Are you sure you want to delete this project",ToEnableOnYes = Func(MultiFunctionCaller,Func(DeleteProject,ToCheck,f"{CurrentFolderNameReturner()}/Current Games"),Func(self.RemoveProjectNameFunc,ToCheck),self.EnableEverything,self.ShowRecentProjects),title = "Sure?",B1Key=["1" ,"escape"],B2Key=["2","enter"],delay = .1)
 
 
     def ShowRecentProjects(self,FuncToEnableOnOpen = None):
@@ -289,14 +295,14 @@ class StartingUI(Entity):
         CurrentFolderName = CurrentFolderNameReturner()
         # print("mine",CurrentFolderName)
         CurrentFolderName = CurrentFolderName.replace("\\","/")
-        CurrentFolderName = CurrentFolderName + "Current Games"
+        CurrentFolderName = CurrentFolderName + "/Current Games"
 
         # print(CurrentFolderName)
         return GetRecentProjects(CurrentFolderName,order=ReturnOrder)
 
     def SetRecentProjects(self,ProjectSettings: dict,FuncToEnableOnOpen):
 
-        self.NewData = dict(sorted(ProjectSettings.items(), key=lambda item: self.OrderOfRecentProjects.index(item[0])))
+        self.NewData = dict(sorted(ProjectSettings.items(), key=lambda item: self.EditorDataDictNonConfigable["RecentEdits"].index(item[0])))
 
         for i,j in enumerate(self.NewData):
             self.TopParent = Button(parent = self.RecentProjectsScrollerParentEntity,radius=  0,position = Vec3(0-i*-0.3, 0, 0),scale_x = .3,origin = (-.5,0,0),visible_self = False)
@@ -404,7 +410,7 @@ class StartingUI(Entity):
             self.SaveChangedVarsButton.highlight_button.scale_x -= 0.1
             # self.SaveChangedVarsButton.highlight_button.z = 10
             # self.SaveChangedVarsButton.z  = -20
-            self.ConfigEditorAsSettings(self.EditorDataDict)
+            self.ConfigEditorAsSettings(self.EditorDataDictConfigable)
 
     def ConfigEditorAsSettings(self,DataDict):
         self.SetTooltip(DataDict["Show tooltip"])
@@ -412,7 +418,7 @@ class StartingUI(Entity):
     def SetTooltip(self,value):
         self.ItemToToolTipList = [self.CreateNewProjectFpcButton,self.CreateNewProjectTpcButton,self.CreateNewProjectTopDownButton,self.CreateNewProjectPlatformerButton,self.CreateNewProjectFpcAndTpcButton,self.LanguagePythonButton,self.LanguageUrsaVisorButton,self.ProjectNetworkignOnlineButton,self.ProjectNetworkignOfflineButton,self.ProjectGraphicsQualityLowButton,self.ProjectGraphicsQualityMediumButton,self.ProjectGraphicsQualityHighButton,self.SaveChangedVarsButton]
         if value:
-            self.ToolTipList = ["First person games like valorant, cod etc","Third person games like pubg, gta etc","Camera is stuck at one place but not in 2d, this category is also called '2.5d games',like clash of clans, clash royale etc","2d game where camera is stuck at one place in 2d","Both TPC and FPC","If enabled,the little amount to code you will have to write will be in python","If enabled,the little amount to code you will have to write will be in ursa-visor, a gui coding language like blueprint but for ursina editor","Your game will be online","Your game will be offline","Graphics quality of your game will be low,you will be able to add lights but not too much and shadows will not be that 'real'","Graphics quality of your game will be medium, you will be able to add unlimited lights but lights will not be that 'real'","The best graphics quality be can provide","Will save the changed values in a file and apply them next time you open the editor"]
+            self.ToolTipList = ["First person games like valorant, cod etc","Third person games like pubg, gta etc","Camera is stuck at one place but not in 2d, this category is also called '2.5d games',like clash of clans, clash royale etc","2d game where camera is stuck at one place in 2d","Both TPC and FPC","If enabled,the little amount to code you will have to write will be in python","If enabled,the little amount to code you will have to write will be in ursa-visor, a gui coding language like blueprint but for GamePlus editor","Your game will be online","Your game will be offline","Graphics quality of your game will be low,you will be able to add lights but not too much and shadows will not be that 'real'","Graphics quality of your game will be medium, you will be able to add unlimited lights but lights will not be that 'real'","The best graphics quality be can provide","Will save the changed values in a file and apply them next time you open the editor"]
             for i in range(len(self.ItemToToolTipList)):
                 self.ItemToToolTipList[i].tool_tip = Tooltip(self.ToolTipList[i],z = -30,render_queue = 3,always_on_top = True)
                 # self.ItemToToolTipList[i].tool_tip.background.z = -1
@@ -425,10 +431,10 @@ class StartingUI(Entity):
         LoadProjectToScene(FileName = FileName,FilePath = FilePath,FuncToEnableOnOpen=FuncToEnableOnOpen)
         self.ProjectName = ProjectName
         self.UniversalParentEntity.disable()
-        self._TempSavedItemOfRecentProject = self.OrderOfRecentProjects.pop(self.OrderOfRecentProjects.index(ProjectName))
-        self.OrderOfRecentProjects.insert(0,self._TempSavedItemOfRecentProject)
+        self._TempSavedItemOfRecentProject = self.EditorDataDictNonConfigable["RecentEdits"].pop(self.EditorDataDictNonConfigable["RecentEdits"].index(ProjectName))
+        self.EditorDataDictNonConfigable["RecentEdits"].insert(0,self._TempSavedItemOfRecentProject)
+        self.RegiveDataDictFunc(self.EditorDataDictConfigable,self.EditorDataDictNonConfigable)
         self.SaveNonConfiableData()
-
 
 if __name__ == "__main__":
     app = Ursina()
@@ -438,7 +444,7 @@ if __name__ == "__main__":
     MemoryCounter()
     # window.fullscreen  = True
     from OtherStuff import ScaleTransformer
-    Ui = StartingUI(EditorDataDict={"Show tooltip":True,"Coordinates": 0},OnProjectStart=Func(print,"started"),ExistingProjectsName=["pro"],ProjectName="PRoejcts1qe1234",SaveNonConfiableData=Func(print,"hi"),ShowInstructionFunc=Func(print_on_screen,"hi"),ChangeConfigDataToDefaultTypeFunc=Func(print_on_screen,"f"))
+    Ui = StartingUI(EditorDataDictConfigable={"Show tooltip":True,"Coordinates": 0},OnProjectStart=Func(print,"started"),ProjectName="PRoejcts1qe1234",SaveNonConfiableData=Func(print,"hi"),ShowInstructionFunc=Func(print_on_screen,"hi"),ChangeConfigDataToDefaultTypeFunc=Func(print_on_screen,"f"))
     Sky()
     Ui.Setup()
     def input(key):

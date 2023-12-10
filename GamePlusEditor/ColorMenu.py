@@ -16,8 +16,6 @@ class ColorMenu(Button):
 
         self.EntityNameText = Text(parent = self.ColorMenuBG,position =  Vec3(-0.49, 0.49, -2),rotation = Vec3(0, 0, 0),scale = Vec3(2, 2, 1))
 
-        self.CloseColorMenuButton = Button(name = "Close Button",parent = self.ColorMenuBG,position =  Vec3(0.47, 0.47, 0),rotation = Vec3(0, 0, 0),scale = Vec3(0.045, 0.045, 1),text="X",color = color.clear,on_click = self.DisableColorMenu)
-        self.CloseColorMenuButton.text_entity.scale = 2
 
         self.SliderR = Slider(name = "slider r",parent = self.ColorMenuBG,min  = 0,max=255,default=self.EntityToColor.color[0]*255,dynamic=True,text="Red",position =  Vec3(-0.3, 0.35, -2),rotation = Vec3(0, 0, 0),scale = Vec3(1.5, 1.5, 1.5),on_value_changed = self.UpdatePreview)
         self.SliderG = Slider(name = "slider g",parent = self.ColorMenuBG,min  = 0,max=255,default=self.EntityToColor.color[1]*255,dynamic=True,text="Green",position =  Vec3(-0.3, 0.26, -2),rotation = Vec3(0, 0, 0),scale = Vec3(1.5, 1.5, 1.5),on_value_changed = self.UpdatePreview)
@@ -30,6 +28,8 @@ class ColorMenu(Button):
         self.CancelColorButton = Button(name = "cancel button",parent = self.ColorMenuBG,color = color.tint(color.blue),text="Cancel",  position =  Vec3(-0.25, -0.33, -2),rotation = Vec3(0, 0, 0),scale = Vec3(0.420001, 0.220001, 1),on_click = self.CancelColor)
         self.SaveColorButton = Button(name = "save button",parent = self.ColorMenuBG,color = color.tint(color.blue),text="Save", position =  Vec3(0.25, -0.33, -2),rotation = Vec3(0, 0, 0),scale = Vec3(0.420001, 0.220001, 1),on_click = self.SaveColor)
 
+        self.CloseColorMenuButton = Button(name = "Close Button",parent = self.ColorMenuBG,position =  Vec3(0.47, 0.47, 0),rotation = Vec3(0, 0, 0),scale = Vec3(0.045, 0.045, 1),text="X",color = color.clear,on_click = self.CancelColorButton.on_click)
+        self.CloseColorMenuButton.text_entity.scale = 2
         self.on_click = Func(RecursivePerformer,self.ColorMenuBG)
 
         for key,value in kwargs.items():
@@ -41,6 +41,11 @@ class ColorMenu(Button):
     def DisableColorMenu(self):
         self.ColorMenuBG.disable()
 
+    def ExtractName(self):
+        return "color"
+    
+    def ExtractData(self,OwnSelf):
+        return color.rgba(self.SliderR.value,self.SliderG.value,self.SliderB.value,self.SliderA.value)
 
     def UpdatePreview(self):
         self.ColorPreviewEntity.color = color.rgba(self.SliderR.value,self.SliderG.value,self.SliderB.value,self.SliderA.value)

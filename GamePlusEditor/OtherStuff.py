@@ -47,15 +47,10 @@ def TextToVar(Str: str,ReplaceChar: str = "_"):
     NewStr = Str.lower()
     NewStr = NewStr.replace(" ",ReplaceChar)
     NewStr = NewStr.replace(":","")
-
+    NewStr = NewStr.replace("render/","") # just for parent 
     if NewStr.endswith(ReplaceChar):
         NewStr = NewStr[0:-1]
-    # print(len(NewStr))
-    # TempLen = len(NewStr)
-    # for i in range(TempLen):
-    #     NewStr += NewStr[i].lower()
-
-    # del TempLen
+    NewStr = NewStr.replace("position_", "")
     return NewStr
 
 def PrepareForRecentProjects(String: str):
@@ -84,10 +79,11 @@ def DeleteProject(Name,Path):
     '''The name explains it all'''
     shutil.rmtree(f"{Path}/{Name}")
 
-def MultiFunctionCaller(*FunctionList):
+def MultiFunctionCaller(*FunctionList,ToReturn = None):
     '''Call as many function at once as you want. Can use the sequence but it seems like it can be called only once. Message me if it's not the case'''
     for Function in FunctionList:
         Function()
+    return ToReturn
 
 def RecursivePerformer(Entity,ToPerform:str = "enable",kwargs: dict = {},BasicFunc = True):
     """Performs a fucntion to an entity and its all children recursively.\n

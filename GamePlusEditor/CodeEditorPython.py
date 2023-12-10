@@ -25,26 +25,23 @@ class CodeEditorPython(Entity):
 
 
     def MakeEditorEnvironment(self,cam,color,size):
-
+        '''Changes the camera display region and sets the base color'''
         self.WorldDr = cam.getDisplayRegion(0)
         self.WorldDr.setDimensions(size)
         base.set_background_color(color[0]/255,color[1]/255,color[2]/255,color[3]/255)
 
-    def PrintItemStatTemp(self,Entity):
-        for i in range(len(Entity.children)):
-            print(f"name: {Entity.children[i].name} position = {Entity.children[i].position},rotation = {Entity.children[i].rotation},scale = {Entity.children[i].scale}")
-            if len(Entity.children[i].children) > 0:
-                self.PrintItemStatTemp(Entity.children[i])
-
     def SetUp(self):
+        '''Sets up the class'''
         self.FileMenu.SetUp()
         self.FileMenu.Show()
         self.ConfigEditorAsSettings(self.EditorDataDict)
 
-    def ConfigEditorAsSettings(self,DataDict):
+    def ConfigEditorAsSettings(self,DataDict: dict):
+        '''Configures editor as desired setting'''
         self.SetTooltip(DataDict["Show tooltip"])
 
-    def SetTooltip(self,value):
+    def SetTooltip(self,value: bool):
+        '''Toogles tooltip as the value'''
         self.ItemToToolTipList = []
         if value:
             self.ToolTipList = []
