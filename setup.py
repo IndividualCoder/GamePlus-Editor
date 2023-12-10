@@ -23,7 +23,8 @@ setup(
         'pillow',
         'pyperclip',
         'screeninfo',
-        'psutil'
+        'psutil',
+        'ursina'
     ],
 
     python_requires='>=3.10',
