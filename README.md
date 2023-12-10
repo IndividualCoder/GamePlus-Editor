@@ -28,6 +28,6 @@ This editor will currently write your games in python. But I'll add the feture t
 # How to install it?
 It is very easy to install this editor, just open cmd and type `pip install GamePlusEditor`
 now make a .py file and run it with the following code:
-    ```from GamePlusEditor import RunEditor
+    ```from GamePlusEditor import RunEditor;
     RunEditor()```
 it is as simple as this :)
