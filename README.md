@@ -1,7 +1,7 @@
 # GamePlus editor is a gui editor for ursina engine.
 This editor gives you the freedom to make a python game without even coding!
 
-#Features
+# Features
 ![StartingUi](Docs/StartingUi.png)
 -  With a simmple Ui
 
@@ -25,7 +25,7 @@ This editor gives you the freedom to make a python game without even coding!
 
 This editor will currently write your games in python. But I'll add the feture to turn your .py into .exe ^_~
 
-#How to install it?
+# How to install it?
 It is very easy to install this editor, just open cmd and type `pip install GamePlusEditor`
 now make a .py file and run it with the following code:
     ```from GamePlusEditor import RunEditor
