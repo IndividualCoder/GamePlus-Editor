@@ -6,43 +6,43 @@ import os
 editor_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
 sys.path.append(editor_directory)
 from OtherStuff import RecursivePerformer,ReplaceValue
-from OpenFile import OpenFile
 
 class FileMenu(Entity):
-    '''File menu class, Used by Code editor and UrsaVisor editor, the file system in the UI is made by this class'''
-    def __init__(self,ProjectName,Path,parent,CodeEditorEntity: TextField,ShowInstructionFunc,OnFileAdded,queue = 1,z = 0,UdSrc = [],**kwargs):
+    '''Used by CodeEditorPython that Operates file system and data saving into it'''
+    def __init__(self,ProjectName,Path,parent,CodeEditorEntity: TextField,ShowInstructionFunc,OnFileAdded,queue = 1,z = 0,UdSrc = [],**kwargs) -> None:
         super().__init__(*kwargs)
 
-        self.DefaultProjectName = ProjectName
-        self.DefaultProjectPath = Path
+        self.DefaultProjectName: str = ProjectName
+        self.DefaultProjectPath: str = Path
         self.BackUpUdSrc:list = UdSrc
-        self.ShowInstructionFunc = ShowInstructionFunc
-        self.CurrentFileName = []
-        self.OnFileAdded = OnFileAdded
+        self.ShowInstructionFunc: function = ShowInstructionFunc
+        self.CurrentFileName: list = []
+        self.OnFileAdded: function = OnFileAdded
 
-        self.CodeEditorTextField = CodeEditorEntity
-        self.TotalProjectFiles = []
+        self.CodeEditorTextField: InputField = CodeEditorEntity
+        self.TotalProjectFiles: list = []
         self.CurrentEditingFileButton: Button = None
 
-        self.UniversalParentEntity = Entity(parent = parent,render_queue = queue,z = z)
+        self.UniversalParentEntity: Entity = Entity(parent = parent,render_queue = queue,z = z)
 
-        self.TobBarParentEntity = Entity(parent = self.UniversalParentEntity)
-        self.FileSystemMenuParentEntity = Entity(parent = self.UniversalParentEntity,y = 0.28)
+        self.TobBarParentEntity: Entity = Entity(parent = self.UniversalParentEntity)
+        self.FileSystemMenuParentEntity: Entity = Entity(parent = self.UniversalParentEntity,y = 0.28)
 
-        self.AddFileButton = Button(name = "AddFileButton",parent = self.TobBarParentEntity,text = "New\nFile",position =  Vec3(0.19, 0.42, z),rotation = Vec3(0, 0, 0),scale = Vec3(0.11, 0.12, 1),render_queue = queue,on_click = self.RegisterFileToEdit)
-        self.AddFolderButton = Button(name = "FolderButton",parent = self.TobBarParentEntity,text = "New\nFolder",scale = Vec3(0.11, 0.12, 1),position = Vec3(0.31, 0.42, z),render_queue = queue)
-        self.SearchButton = Button(name = "SearchButton",parent = self.TobBarParentEntity,text = "Search",scale =  Vec3(0.11, 0.12, 1),position = Vec3(0.43, 0.42, z),render_queue = queue)
+        self.AddFileButton: Button = Button(name = "AddFileButton",parent = self.TobBarParentEntity,text = "New\nFile",position =  Vec3(0.19, 0.42, z),rotation = Vec3(0, 0, 0),scale = Vec3(0.11, 0.12, 1),render_queue = queue,on_click = self.RegisterFileToEdit)
+        self.AddFolderButton: Button = Button(name = "FolderButton",parent = self.TobBarParentEntity,text = "New\nFolder",scale = Vec3(0.11, 0.12, 1),position = Vec3(0.31, 0.42, z),render_queue = queue)
+        self.SearchButton: Button = Button(name = "SearchButton",parent = self.TobBarParentEntity,text = "Search",scale =  Vec3(0.11, 0.12, 1),position = Vec3(0.43, 0.42, z),render_queue = queue)
 
-        self.FilesAndButtonSeparator = Entity(name = "separator",parent = self.UniversalParentEntity,model = "line",position =  Vec3(0, 0.33, 0))
+        self.FilesAndButtonSeparator: Entity = Entity(name = "separator",parent = self.UniversalParentEntity,model = "line",position =  Vec3(0, 0.33, 0))
 
         self.SearchButton.text_entity.scale -= .1
         self.AddFileButton.text_entity.scale -= .1
         self.AddFolderButton.text_entity.scale -= .1
 
-        self.WorkingFile = None
-        self.WorkingFileLocation = None
+        self.WorkingFile: str = None
+        self.WorkingFileLocation: str = None
 
-    def Show(self,Name = None,Path = None):
+    def Show(self,Name = None,Path = None) -> None:
+        '''Opens filesystem of given name and path'''
         if Path is None:
             Path = self.DefaultProjectPath
         if Name is None:
@@ -53,8 +53,16 @@ class FileMenu(Entity):
             self.AddFileToEdit(self._Temp3,key)
             self.CurrentFileName.append(self._Temp3)
 
+    def CheckSyntax(self,Code) -> bool:
+        '''Checks if the given code is valid python syntax or not'''
+        try:
+            compile(Code, "string", "exec")
+            return True  
+        except SyntaxError:
+            return False  
 
-    def SetUp(self):
+
+    def SetUp(self) -> None:
         '''Sets up the class'''
         self.AddFileButton.text_entity.render_queue = self.AddFileButton.render_queue
         self.AddFolderButton.text_entity.render_queue = self.AddFolderButton.render_queue
@@ -68,7 +76,8 @@ class FileMenu(Entity):
 
         RecursivePerformer(self.UniversalParentEntity.children,ToPerform=SetRenderQueue,BasicFunc=False)
 
-    def RegisterFileToEdit(self):
+    def RegisterFileToEdit(self) -> None:
+        '''Registers to add a new file\nAdds a temp input field to get the filename if the given name does not already exists, runs the `AddFileToEdit` function'''
         self._Temp = len(self.TotalProjectFiles)
         self.CodeEditorTextField.active = False
 
@@ -89,7 +98,8 @@ class FileMenu(Entity):
 
         self._Temp2.on_submit = Func(InputFieldToTextFile,self._Temp2)
 
-    def AddFileToEdit(self,Name: str,CurrentIndex: int):
+    def AddFileToEdit(self,Name: str,CurrentIndex: int) -> None:
+        '''Adds a new file to the project'''
         self._Temp = len(self.TotalProjectFiles)
         self.TotalProjectFiles.append(Button(text=Name,y = -self._Temp/10,parent = self.FileSystemMenuParentEntity,scale_y = .1,render_queue = self.UniversalParentEntity.render_queue))
 
@@ -100,7 +110,8 @@ class FileMenu(Entity):
         self.TotalProjectFiles[-1].text_entity.render_queue = self.TotalProjectFiles[-1].render_queue
 
 
-    def JumpFiles(self,FileName,DictIndex,ToJumpFileButton):
+    def JumpFiles(self,FileName,DictIndex,ToJumpFileButton) -> None:
+        '''Jumps between files'''
         self.CodeEditorTextField.active = True
 
 
@@ -125,11 +136,13 @@ class FileMenu(Entity):
         self.CodeEditorTextField.delete_selected()
         self.CodeEditorTextField.text = self.BackUpUdSrc[DictIndex][FileName]
 
-    def  SaveCurrentFile(self):
+    def  SaveCurrentFile(self) -> None:
+        '''Saves current file that is being edited'''
         if self.CurrentEditingFileButton is not None:
             self.BackUpUdSrc[self.WorkingFileLocation[0]][self.WorkingFileLocation[1]] = self.CodeEditorTextField.text
 
-    def ReCheckCodeFiles(self):
+    def ReCheckCodeFiles(self) -> None:
+        '''If more than one FileMenu exists, Adding a file in one of them may not be updated in the other\nThis funciton confirms that'''
         for key,value in enumerate(self.BackUpUdSrc):
             self._Temp3 = next(iter(value))
             if self._Temp3 not in self.CurrentFileName:
@@ -138,9 +151,6 @@ class FileMenu(Entity):
 
 
 if __name__ == "__main__":
-    # def CurrentFolderNameReturner():
-        # return os.path.dirname(os.path.abspath(__file__)).replace("\\","/")
-    # print(ValueToString(True))
 
     app = Ursina()
     from OtherStuff import CurrentFolderNameReturner

@@ -11,7 +11,7 @@ from CoreFiles.TrueFalseIndicator import TrueFalseIndicator
 
 
 class JoinProjectMenu(Entity):
-    '''Not done yet ;)'''
+    '''A simple Ui to let the user join a project\nJoining will only work locally'''
     def __init__(self,CancelClick,ToDoOnInit):
         super().__init__(parent = camera.ui)
         self.CancelClick = CancelClick
@@ -42,7 +42,8 @@ class JoinProjectMenu(Entity):
     #         if type(self.UniversalParentEntity.children[i])  in [Button,InputField]:
     #             self.UniversalParentEntity.children[i].text = self.UniversalParentEntity.children[i].text
 
-    def Close(self):
+    def Close(self) -> None:
+        '''Closes the menu'''
         RecursivePerformer(self.UniversalParentEntity,destroy,BasicFunc=False)
         destroy(self)
         self.CancelClick()

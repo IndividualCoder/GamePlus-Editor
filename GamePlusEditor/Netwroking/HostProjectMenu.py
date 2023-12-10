@@ -12,7 +12,7 @@ from OtherStuff import MultiFunctionCaller,RecursivePerformer,CustomWindow
 
 
 class HostProjectMenu(Entity):
-    '''Not done yet ;)'''
+    '''A simple window panel to let the user host its project\nJoining will only work locally'''
     def __init__(self,CancelClick,ToDoOnInit,Ip,Port,ToDoOnHost,Queue = 0,**kwargs):
         super().__init__(parent = camera.ui)
         self.CancelClick = CancelClick
