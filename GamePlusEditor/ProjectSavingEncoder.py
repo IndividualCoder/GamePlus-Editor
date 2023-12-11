@@ -1,5 +1,5 @@
 from json import JSONEncoder
-from ursina import Entity
+from GamePlusEditor.ursina import Entity
 
 class ProjectSavingEncoder(JSONEncoder):
     def default(self, o):

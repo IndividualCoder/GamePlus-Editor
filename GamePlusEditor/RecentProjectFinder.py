@@ -1,6 +1,6 @@
 import json
 import os
-from ursina import *
+from GamePlusEditor.ursina import *
 # from CurrentFolderNameReturner import CurrentFolderNameReturner
 
 def GetRecentProjects(Path = f"TestToFindProjects/TestFolder",Exclude = "__pycache__",order = None):

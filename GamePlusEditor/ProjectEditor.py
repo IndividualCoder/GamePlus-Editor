@@ -1,11 +1,11 @@
-from ursina import *
-from ursina import invoke
-from ursina.color import tint
-from OtherStuff import CustomWindow,MultiFunctionCaller,RecursivePerformer,CurrentFolderNameReturner
-from SceneEditor import SceneEditor
-from OpenFile import Openselector,OpenFile
-from ursina import SimpleButtonList
-from Netwroking.HostProjectMenu import HostProjectMenu
+from GamePlusEditor.ursina import *
+from GamePlusEditor.ursina import invoke
+from GamePlusEditor.ursina.color import tint
+from GamePlusEditor.OtherStuff import CustomWindow,MultiFunctionCaller,RecursivePerformer,CurrentFolderNameReturner
+from GamePlusEditor.SceneEditor import SceneEditor
+from GamePlusEditor.OpenFile import Openselector,OpenFile
+from GamePlusEditor.ursina import SimpleButtonList
+from GamePlusEditor.Netwroking.HostProjectMenu import HostProjectMenu
 
 
 
@@ -264,8 +264,8 @@ class ProjectEditor(Entity):
         return
 
 if __name__ == "__main__":
-    from CodeEditorPython import CodeEditorPython
-    from ursina import print_on_screen
+    from GamePlusEditor.CodeEditorPython import CodeEditorPython
+    from GamePlusEditor.ursina import print_on_screen
     app = Ursina()
     cam = EditorCamera()
     Sky()

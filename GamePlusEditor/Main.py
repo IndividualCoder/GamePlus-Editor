@@ -286,6 +286,10 @@ class UrsinaEditor(Entity):
         self.NonConfiableEditorData = NonConfigableEditorData
 
 def BaseRunner():
+    # import site
+
+    # site_packages_path = site.getsitepackages()[0]
+
     app = Ursina()
     window.exit_button.disable()
     window.fps_counter.disable()

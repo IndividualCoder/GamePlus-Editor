@@ -79,7 +79,7 @@ class ConfigProjectManager(Entity):
         self.CancelClick()
 
 if __name__ == "__main__":
-    from OtherStuff import CurrentFolderNameReturner
+    from GamePlusEditor.OtherStuff import CurrentFolderNameReturner
     app = Ursina()
     pro = ConfigProjectManager(Entity(parent = camera.ui),f"{CurrentFolderNameReturner()}/Current Games",Func(print,"hi")).Show("mn")
     app.run()

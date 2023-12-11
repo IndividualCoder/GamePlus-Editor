@@ -57,7 +57,7 @@ def ProjectExporter(ProjectName,ProjectPath,ToSavePath,Demo = False):
     return True
 
 if __name__ == "__main__":
-    from OtherStuff import CurrentFolderNameReturner
+    from GamePlusEditor.OtherStuff import CurrentFolderNameReturner
     
     ProjectExporter("w",f"{CurrentFolderNameReturner()}/Current Games",ToSavePath=CurrentFolderNameReturner().replace("Editor","FInal"))
 

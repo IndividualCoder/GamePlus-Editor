@@ -440,10 +440,10 @@ if __name__ == "__main__":
     app = Ursina()
     window.exit_button.disable()
     window.fps_counter.disable() 
-    from ursina.prefabs.memory_counter import MemoryCounter
+    from GamePlusEditor.ursina.prefabs.memory_counter import MemoryCounter
     MemoryCounter()
     # window.fullscreen  = True
-    from OtherStuff import ScaleTransformer
+    from GamePlusEditor.OtherStuff import ScaleTransformer
     Ui = StartingUI(EditorDataDictConfigable={"Show tooltip":True,"Coordinates": 0},OnProjectStart=Func(print,"started"),ProjectName="PRoejcts1qe1234",SaveNonConfiableData=Func(print,"hi"),ShowInstructionFunc=Func(print_on_screen,"hi"),ChangeConfigDataToDefaultTypeFunc=Func(print_on_screen,"f"))
     Sky()
     Ui.Setup()

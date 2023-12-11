@@ -1,7 +1,7 @@
-from ursina import *
-from FileSystem.FileMenu import FileMenu
-from OtherStuff import CurrentFolderNameReturner
-from ursina.color import tint
+from GamePlusEditor.ursina import *
+from GamePlusEditor.FileSystem.FileMenu import FileMenu
+from GamePlusEditor.OtherStuff import CurrentFolderNameReturner
+from GamePlusEditor.ursina.color import tint
 
 class CodeEditorPython(Entity):
     '''Main code editor, code with writing word by word. Mainly used to code in python but can code in any language'''
@@ -59,8 +59,8 @@ class CodeEditorPython(Entity):
 
 
 if __name__ == "__main__":
-    from ProjectEditor import ProjectEditor
-    from OpenFile import OpenFile
+    from GamePlusEditor.ProjectEditor import ProjectEditor
+    from GamePlusEditor.OpenFile import OpenFile
     app = Ursina()
     ed = EditorCamera()
 

@@ -1,4 +1,4 @@
-from ursina import Entity,Text,color,mouse,Vec3,held_keys
+from GamePlusEditor.ursina import Entity,Text,color,mouse,Vec3,held_keys
 
 # inspired from ursina.editor.editor import PointOfViewSelector
 
@@ -45,5 +45,5 @@ class PointOfViewSelector(Entity):
 
 
 if __name__ == "__main__":
-    from ursina import *
+    from GamePlusEditor.ursina import *
     DirectionEntity = PointOfViewSelector(camera.ui,(0,0,0),EditorCamera(),camera,enabled = True,z = -30,scale = 10)

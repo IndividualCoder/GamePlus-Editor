@@ -49,7 +49,7 @@ class JoinProjectMenu(Entity):
         self.CancelClick()
 
 if __name__ == "__main__":
-    from OtherStuff import CurrentFolderNameReturner
+    from GamePlusEditor.OtherStuff import CurrentFolderNameReturner
     app = Ursina()
     pro = JoinProjectMenu(Entity(parent = camera.ui),f"{CurrentFolderNameReturner()}/Current Games",Func(print,"hi"))
     Sky()

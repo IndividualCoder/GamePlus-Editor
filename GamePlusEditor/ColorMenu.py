@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 from GamePlusEditor.CoreFiles.BlueLink import BlueLink
 from GamePlusEditor.OtherStuff import RecursivePerformer
 

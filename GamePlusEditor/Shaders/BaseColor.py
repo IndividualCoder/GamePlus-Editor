@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 BaseColorShaderVert = '''
 #version 150

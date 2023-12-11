@@ -1,6 +1,6 @@
 import json
 import os
-from ProjectSavingEncoder import ProjectSavingEncoder
+from GamePlusEditor.ProjectSavingEncoder import ProjectSavingEncoder
 
 def ProjectSaver(ProjectName,UdFunc,UdVar,Udsrc,WindowConfig,GameSettings,ToImport,Items,Path):
     Items = list(Items)

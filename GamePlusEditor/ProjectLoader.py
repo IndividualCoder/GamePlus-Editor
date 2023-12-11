@@ -30,7 +30,7 @@
 #     print(l)
 #     app.run()
 
-from ursina import *
+from GamePlusEditor.ursina import *
 import json
 
 def LoadProjectToScene(FileName: str, FilePath: str, FuncToEnableOnOpen):

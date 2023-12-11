@@ -1,2 +1,2 @@
-from Main import BaseRunner
+from GamePlusEditor.Main import BaseRunner
 RunEditor = BaseRunner

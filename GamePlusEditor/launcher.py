@@ -34,5 +34,5 @@ class Launcher(Tk):
 
 
 if __name__ == "__main__":
-    app = Launcher("Editor/Main.py")
+    app = Launcher("GamePlusEditor/Main.py")
     app.mainloop()

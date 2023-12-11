@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 from panda3d.core import StencilAttrib,CardMaker,ColorWriteAttrib
 
 class CodeEditorUrsaVisor(Entity):
@@ -133,7 +133,7 @@ class CodeEditorUrsaVisor(Entity):
         
 
 if __name__ == "__main__":
-    from ProjectEditor import ProjectEditor
+    from GamePlusEditor.ProjectEditor import ProjectEditor
     app = Ursina()
     ed = EditorCamera()
     project = ProjectEditor(Func(print,"yeah"),CurrentTabs=[],EditorCamera=ed)

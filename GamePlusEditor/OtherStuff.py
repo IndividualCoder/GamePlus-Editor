@@ -1,6 +1,6 @@
 '''Simple small function that are used all over the editor'''
-from ursina import Text,color,Entity,camera,Button,Func,destroy,application,Slider
-from ursina.prefabs.window_panel import WindowPanel
+from GamePlusEditor.ursina import Text,color,Entity,camera,Button,Func,destroy,application,Slider
+from GamePlusEditor.ursina.prefabs.window_panel import WindowPanel
 import os
 import shutil
 import webbrowser

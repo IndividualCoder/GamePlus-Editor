@@ -321,12 +321,12 @@ class SceneEditor(Entity):
                 self.ItemToToolTipList[i].tool_tip = None
 
 if __name__ == "__main__":
-    from OtherStuff import *
+    from GamePlusEditor.OtherStuff import *
     # from ursina.camera import Camera
     app = Ursina()
     # window.fullscreen = True
     # dr = application.base.camNode.getDisplayRegion(0)
-    from ursina.prefabs.memory_counter import MemoryCounter
+    from GamePlusEditor.ursina.prefabs.memory_counter import MemoryCounter
     MemoryCounter()
     # dr.setDimensions(0.2399, .999, 0.1009, 0.938)
     # print(scene.entities)
