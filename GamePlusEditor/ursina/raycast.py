@@ -1,15 +1,15 @@
 import sys
 
-from ursina.entity import Entity
-from ursina.mesh import Mesh
-from ursina.scene import instance as scene
-from panda3d.core import CollisionTraverser, CollisionNode, CollisionHandlerQueue, CollisionRay
-from ursina.vec3 import Vec3
-from math import sqrt, inf
-from ursina.hit_info import HitInfo
-from ursina import ursinamath, color
-from ursina.ursinastuff import destroy, invoke
+from GamePlusEditor.ursina.entity import Entity
+from GamePlusEditor.ursina.mesh import Mesh
+from GamePlusEditor.ursina.scene import instance as scene
+from GamePlusEditor.ursina.vec3 import Vec3
+from GamePlusEditor.ursina.hit_info import HitInfo
+from GamePlusEditor.ursina import ursinamath, color
+from GamePlusEditor.ursina.ursinastuff import destroy, invoke
 
+from math import sqrt, inf
+from panda3d.core import CollisionTraverser, CollisionNode, CollisionHandlerQueue, CollisionRay
 
 _line_model = Mesh(vertices=[Vec3(0,0,0), Vec3(0,0,1)], mode='line')
 
@@ -85,7 +85,7 @@ def raycast(origin, direction=(0,0,1), distance=inf, traverse_target=scene, igno
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     '''

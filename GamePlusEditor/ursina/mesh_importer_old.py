@@ -4,12 +4,12 @@ import platform
 import subprocess
 from copy import copy, deepcopy
 from pathlib import Path
-from ursina.mesh import Mesh
-from ursina import application
+from GamePlusEditor.ursina.mesh import Mesh
+from GamePlusEditor.ursina import application
 from panda3d.core import CullFaceAttrib
 from time import perf_counter
-from ursina.string_utilities import print_info, print_warning
-from ursina import color
+from GamePlusEditor.ursina.string_utilities import print_info, print_warning
+from GamePlusEditor.ursina import color
 
 imported_meshes = dict()
 blender_scenes = dict()
@@ -431,7 +431,7 @@ def compress_models_fast(model_name=None, write_to_disk=False):
                 return file_content
 
 def ursina_mesh_to_obj(mesh, name='', out_path=application.compressed_models_folder, max_decimals=3):
-    from ursina.string_utilities import camel_to_snake
+    from GamePlusEditor.ursina.string_utilities import camel_to_snake
 
     if not name:
         name = camel_to_snake(mesh.__class__.__name__)
@@ -497,7 +497,7 @@ def compress_internal():
 
 if __name__ == '__main__':
     # compress_internal()
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     # print('imported_meshes:\n', imported_meshes)
     # Entity(model='quad').model.save('quad.bam')

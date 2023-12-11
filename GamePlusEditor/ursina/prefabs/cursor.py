@@ -1,4 +1,4 @@
-from ursina import Entity, camera, color, Vec3, mouse
+from GamePlusEditor.ursina import Entity, camera, color, Vec3, mouse
 
 
 class Cursor(Entity):
@@ -23,7 +23,7 @@ class Cursor(Entity):
 
 
 if __name__ == '__main__':
-    from ursina import Ursina, Button, scene, Panel, Mesh
+    from GamePlusEditor.ursina import Ursina, Button, scene, Panel, Mesh
     app = Ursina()
     Button('button').fit_to_text()
     camera.orthographic = True

@@ -1,5 +1,5 @@
-from ursina import Entity, Button, camera, color, Text, window, mouse, destroy
-from ursina.scripts.grid_layout import grid_layout
+from GamePlusEditor.ursina import Entity, Button, camera, color, Text, window, mouse, destroy
+from GamePlusEditor.ursina.scripts.grid_layout import grid_layout
 
 class ButtonGroup(Entity):
     def __init__(self, options=None, default='', min_selection=1, max_selection=1, **kwargs):
@@ -101,7 +101,7 @@ class ButtonGroup(Entity):
 
 
 if __name__ == '__main__':
-    from ursina import Ursina
+    from GamePlusEditor.ursina import Ursina
     app = Ursina()
 
     # Text.default_font = 'VeraMono.ttf'

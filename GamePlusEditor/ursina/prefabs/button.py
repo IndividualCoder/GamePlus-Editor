@@ -1,7 +1,7 @@
-from ursina import Entity, Text, camera, color, mouse, BoxCollider, Sequence, Func, Vec2, Vec3, scene,held_keys
-from ursina.models.procedural.quad import Quad
+from GamePlusEditor.ursina import Entity, Text, camera, color, mouse, BoxCollider, Sequence, Func, Vec2, Vec3, scene,held_keys
+from GamePlusEditor.ursina.models.procedural.quad import Quad
 import textwrap
-from ursina import color as colour
+from GamePlusEditor.ursina import color as colour
 
 
 # made tool tip work as expected
@@ -286,7 +286,7 @@ class Button(Entity):
         # print("mouse exit")
 
 if __name__ == '__main__':
-    from ursina import Ursina, application, Tooltip,print_on_screen
+    from GamePlusEditor.ursina import Ursina, application, Tooltip,print_on_screen
     app = Ursina()
     b = Button(text='hello world!', color=color.azure, scale=.25,radius=.2, text_origin=(-.5,0),Key=["a","h"],partKey=["control","shift"],on_key_press = Func(print_on_screen,"all buttons pressed",color = color.black),hover_highlight=True,hover_highlight_size=.8)
     def On_hove():

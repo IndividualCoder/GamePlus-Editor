@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 import os, shutil
 import numpy as np
 # import imageio    # gets imported in convert_to_gif
@@ -159,8 +159,8 @@ if __name__ == '__main__':
     # invoke(os._exit, 0, delay=6)
     # vr.recording = True
     window.size *= .5
-    from ursina.prefabs.first_person_controller import FirstPersonController
-    from ursina.shaders import lit_with_shadows_shader
+    from GamePlusEditor.ursina.prefabs.first_person_controller import FirstPersonController
+    from GamePlusEditor.ursina.shaders import lit_with_shadows_shader
     random.seed(0)
     Entity.default_shader = lit_with_shadows_shader
 

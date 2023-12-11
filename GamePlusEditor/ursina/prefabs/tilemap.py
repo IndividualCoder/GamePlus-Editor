@@ -1,5 +1,5 @@
-from ursina import *
-from ursina.prefabs.grid_editor import GridEditor, PixelEditor
+from GamePlusEditor.ursina import *
+from GamePlusEditor.ursina.prefabs.grid_editor import GridEditor, PixelEditor
 import re
 
 class Tilemap(GridEditor):

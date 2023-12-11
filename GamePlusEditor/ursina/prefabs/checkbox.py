@@ -1,4 +1,4 @@
-from ursina import Button, Text, Quad
+from GamePlusEditor.ursina import Button, Text, Quad
 
 class CheckBox(Button):
     def __init__(self, start_state=False, **kwargs):
@@ -27,7 +27,7 @@ class CheckBox(Button):
             self.icon = None
 
 if __name__ == '__main__':
-    from ursina import Ursina, Slider
+    from GamePlusEditor.ursina import Ursina, Slider
     app = Ursina()
     CheckBox(scale = 1)
     Slider(y=-.1)

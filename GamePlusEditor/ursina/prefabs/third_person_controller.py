@@ -1,5 +1,5 @@
-from ursina import *
-from ursina.prefabs.first_person_controller import FirstPersonController
+from GamePlusEditor.ursina import *
+from GamePlusEditor.ursina.prefabs.first_person_controller import FirstPersonController
 
 
 class ThirdPersonController(FirstPersonController):

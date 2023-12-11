@@ -129,7 +129,7 @@ def input(key):
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
 
     app = Ursina()
     input_handler.rebind('z', 'w')  # 'z'-key will now be registered as 'w'-key

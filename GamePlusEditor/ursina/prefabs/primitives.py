@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 model_names = ('quad', 'cube', 'sphere', 'plane')
 

@@ -3,10 +3,10 @@ import os
 import platform
 from panda3d.core import WindowProperties
 from panda3d.core import loadPrcFileData
-from ursina.vec2 import Vec2
-from ursina import color, application
-from ursina.scene import instance as scene    # for toggling collider visibility
-from ursina.string_utilities import print_info, print_warning
+from GamePlusEditor.ursina.vec2 import Vec2
+from GamePlusEditor.ursina import color, application
+from GamePlusEditor.ursina.scene import instance as scene    # for toggling collider visibility
+from GamePlusEditor.ursina.string_utilities import print_info, print_warning
 
 
 class Window(WindowProperties):
@@ -111,7 +111,7 @@ class Window(WindowProperties):
         self.position = Vec2(int((self.screen_resolution[0]-self.size[0])/2), int((self.screen_resolution[1]-self.size[1])/2))
 
     def make_editor_gui(self):     # called by main after setting up camera and application.development_mode
-        from ursina import camera, Entity, Text, Button, ButtonList, Func, Tooltip, held_keys, mouse
+        from GamePlusEditor.ursina import camera, Entity, Text, Button, ButtonList, Func, Tooltip, held_keys, mouse
         import time
 
         self.editor_ui = Entity(parent=camera.ui, eternal=True, enabled=bool(application.development_mode))
@@ -189,7 +189,7 @@ class Window(WindowProperties):
         prev_aspect = self.aspect_ratio
         self.aspect_ratio = self.size[0] / self.size[1]
 
-        from ursina import camera, window, application
+        from GamePlusEditor.ursina import camera, window, application
         value = [int(e) for e in base.win.getSize()]
         camera.set_shader_input('window_size', value)
 
@@ -230,7 +230,7 @@ class Window(WindowProperties):
         self._size = value
         self.setSize(int(value[0]), int(value[1]))
         self.aspect_ratio = value[0] / value[1]
-        from ursina import camera
+        from GamePlusEditor.ursina import camera
         camera.set_shader_input('window_size', value)
         base.win.request_properties(self)
 
@@ -282,7 +282,7 @@ class Window(WindowProperties):
                     e.collider.visible = True
 
         elif value == 'normals':
-            from ursina.shaders import normals_shader
+            from GamePlusEditor.ursina.shaders import normals_shader
             for e in [e for e in scene.entities if e.model and e.alpha]:
                 e.shader = normals_shader
                 e.set_shader_input('transform_matrix', e.getNetTransform().getMat())
@@ -383,7 +383,7 @@ instance = Window()
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     # application.development_mode = False
     app = Ursina(borderless=False)
 

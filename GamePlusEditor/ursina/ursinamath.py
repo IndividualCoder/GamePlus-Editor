@@ -1,10 +1,10 @@
 import operator
 from math import sqrt, sin, acos, pi, cos, floor
 from panda3d.core import Vec4, LVector3f, Mat3, Mat4
-from ursina.vec2 import Vec2
-from ursina.vec3 import Vec3
-from ursina import color
-from ursina.color import Color
+from GamePlusEditor.ursina.vec2 import Vec2
+from GamePlusEditor.ursina.vec3 import Vec3
+from GamePlusEditor.ursina import color
+from GamePlusEditor.ursina.color import Color
 internal_sum = sum
 
 
@@ -111,7 +111,7 @@ def rotate_around_point_2d(point, origin, deg):
         )
 
 def world_position_to_screen_position(point): # get screen position(ui space) from world space.
-    from ursina import camera, Entity, destroy
+    from GamePlusEditor.ursina import camera, Entity, destroy
     _temp_entity = Entity(position=point, add_to_scene_entities=False)
     result = _temp_entity.screen_position
     destroy(_temp_entity)
@@ -204,7 +204,7 @@ class Bounds:
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     e1 = Entity(position = (0,0,0))
     e2 = Entity(position = (0,1,1))

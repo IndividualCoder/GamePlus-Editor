@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 from collections import namedtuple
 from copy import copy
 

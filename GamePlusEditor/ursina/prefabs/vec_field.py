@@ -1,8 +1,8 @@
-from ursina.prefabs.button import Button
-from ursina.entity import Entity
-from ursina.vec2 import Vec2
-from ursina.prefabs.input_field import InputField, ContentTypes
-from ursina import color, camera, mouse, round_to_closest
+from GamePlusEditor.ursina.prefabs.button import Button
+from GamePlusEditor.ursina.entity import Entity
+from GamePlusEditor.ursina.vec2 import Vec2
+from GamePlusEditor.ursina.prefabs.input_field import InputField, ContentTypes
+from GamePlusEditor.ursina import color, camera, mouse, round_to_closest
 
 
 class VecField(Button):
@@ -116,7 +116,7 @@ class VecField(Button):
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     # Entity(parent=camera.ui, model='quad', scale=.05, z=-10)
     # field = VecField(text=' field', default_value=Vec3(0,0,0))

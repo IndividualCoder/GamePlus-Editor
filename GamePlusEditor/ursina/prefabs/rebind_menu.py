@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 class RebindMenu(Entity):
     def __init__(self, **kwargs):

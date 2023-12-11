@@ -1,8 +1,8 @@
 import sys
 from panda3d.core import NodePath
 from panda3d.core import Fog
-from ursina import color
-from ursina.texture_importer import load_texture
+from GamePlusEditor.ursina import color
+from GamePlusEditor.ursina.texture_importer import load_texture
 
 
 class Scene(NodePath):
@@ -30,7 +30,7 @@ class Scene(NodePath):
 
 
     def clear(self):
-        from ursina.ursinastuff import destroy
+        from GamePlusEditor.ursina.ursinastuff import destroy
         to_destroy = [e for e in self.entities if not e.eternal]
         to_keep = [e for e in self.entities if e.eternal]
 
@@ -44,7 +44,7 @@ class Scene(NodePath):
 
         self.entities = to_keep
 
-        from ursina import application
+        from GamePlusEditor.ursina import application
         application.sequences.clear()
 
 
@@ -75,7 +75,7 @@ instance = Scene()
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     # yolo = Button(name='yolo', text='yolo')
     e = Entity(model='plane', color=color.black, scale=100)

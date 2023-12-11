@@ -1,5 +1,5 @@
 import math
-from ursina import application
+from GamePlusEditor.ursina import application
 import time
 
 
@@ -128,7 +128,7 @@ class Sequence():
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     e = Entity(model='quad')
     s = Sequence(

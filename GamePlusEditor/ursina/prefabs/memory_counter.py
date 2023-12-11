@@ -1,7 +1,7 @@
 import os
 import psutil
 import math
-from ursina import Text, Vec2, window, camera
+from GamePlusEditor.ursina import Text, Vec2, window, camera
 
 
 def size(size_bytes):
@@ -39,7 +39,7 @@ class MemoryCounter(Text):
 
 
 if __name__ == '__main__':
-    from ursina import Ursina
+    from GamePlusEditor.ursina import Ursina
     app = Ursina()
     MemoryCounter()
     '''

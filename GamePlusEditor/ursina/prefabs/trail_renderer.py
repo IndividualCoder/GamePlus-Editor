@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 class TrailRenderer(Entity):
     def __init__(self, thickness=10, color=color.white, end_color=color.clear, length=6, **kwargs):

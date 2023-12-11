@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 from panda3d.core import getModelPath
-from ursina import string_utilities
+from GamePlusEditor.ursina import string_utilities
 
 paused = False
 time_scale = 1
@@ -66,7 +66,7 @@ def resume():
         seq.resume()
 
 def quit():
-    from ursina import invoke
+    from GamePlusEditor.ursina import invoke
     invoke(sys.exit, delay=.01)
 
 
@@ -76,7 +76,7 @@ def load_settings(path=asset_folder / 'settings.py'):
             try:
                 # d = dict(locals(), **globals())
                 # exec(f.read(), d, d)
-                exec('from ursina import *\n' + f.read())
+                exec('from GamePlusEditor.ursina import *\n' + f.read())
                 string_utilities.print_info('loaded settings from settings.py successfully')
             except Exception as e:
                 string_utilities.print_warning('warning: settings.py error:', e)

@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 
 class DropdownMenuButton(Button):
@@ -128,7 +128,7 @@ class DropdownMenu(DropdownMenuButton):
 
 
 if __name__ == '__main__':
-    from ursina.prefabs.dropdown_menu import DropdownMenu, DropdownMenuButton
+    from GamePlusEditor.ursina.prefabs.dropdown_menu import DropdownMenu, DropdownMenuButton
 
     app = Ursina()
     # DropdownMenu(text='File')

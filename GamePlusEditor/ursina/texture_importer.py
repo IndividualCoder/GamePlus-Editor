@@ -1,7 +1,7 @@
 from pathlib import Path
 from copy import copy
-from ursina import application
-from ursina.texture import Texture
+from GamePlusEditor.ursina import application
+from GamePlusEditor.ursina.texture import Texture
 
 
 imported_textures = dict()
@@ -120,7 +120,7 @@ def compress_textures(name=''):
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     Entity(model='quad', texture='white_cube')
     app.run()

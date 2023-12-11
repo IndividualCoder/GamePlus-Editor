@@ -1,9 +1,9 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 class Sky(Entity):
 
     def __init__(self, **kwargs):
-        from ursina.shaders import unlit_shader
+        from GamePlusEditor.ursina.shaders import unlit_shader
         super().__init__(parent=camera, name='sky', model='sky_dome', texture='sky_default', scale=9900, shader=unlit_shader)
 
         for key, value in kwargs.items():

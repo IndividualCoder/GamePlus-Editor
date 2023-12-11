@@ -6,7 +6,7 @@ class ContentTypes:
     math = float + '+-*/'
     int_math = int + '+-*/'
 
-from ursina import *
+from GamePlusEditor.ursina import *
 
 class InputField(Button):
     def __init__(self, default_value='', label='', max_lines=1, character_limit=24, placeholder='',submit_on = None,enable_slider = True,escape_active = False, **kwargs):

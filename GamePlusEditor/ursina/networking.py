@@ -1,6 +1,6 @@
-from ursina.vec2 import Vec2
-from ursina.vec3 import Vec3
-from ursina.vec4 import Vec4
+from GamePlusEditor.ursina.vec2 import Vec2
+from GamePlusEditor.ursina.vec3 import Vec3
+from GamePlusEditor.ursina.vec4 import Vec4
 
 import panda3d.core as p3d
 

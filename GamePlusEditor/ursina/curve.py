@@ -320,7 +320,7 @@ class CubicBezier:
 
 if __name__ == '__main__':
     '''Draws a sheet with every curve and its name'''
-    from ursina import *
+    from GamePlusEditor.ursina import *
 
     app = Ursina()
     camera.orthographic = True

@@ -1,16 +1,16 @@
 # import sys
-from ursina.entity import Entity
+from GamePlusEditor.ursina.entity import Entity
 from panda3d.core import PerspectiveLens, OrthographicLens, LensNode, NodePath
 from panda3d.core import Camera as PandaCamera
 from panda3d.core import Texture as PandaTexture
 from direct.filter.FilterManager import FilterManager
-from ursina import application
-from ursina.scene import instance as scene
-from ursina.window import instance as window
-from ursina import color
-from ursina.texture import Texture
-from ursina.shader import Shader
-from ursina.string_utilities import print_info
+from GamePlusEditor.ursina import application
+from GamePlusEditor.ursina.scene import instance as scene
+from GamePlusEditor.ursina.window import instance as window
+from GamePlusEditor.ursina import color
+from GamePlusEditor.ursina.texture import Texture
+from GamePlusEditor.ursina.shader import Shader
+from GamePlusEditor.ursina.string_utilities import print_info
 
 
 class Camera(Entity):
@@ -213,7 +213,7 @@ instance = Camera()
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     window.borderless = False
     app = Ursina()
 
@@ -237,7 +237,7 @@ if __name__ == '__main__':
     EditorCamera()
     # from ursina import *
     # Button(text='test button')
-    from ursina.shaders import camera_grayscale_shader
+    from GamePlusEditor.ursina.shaders import camera_grayscale_shader
     camera.shader = camera_grayscale_shader
 
     def update():

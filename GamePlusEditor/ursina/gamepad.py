@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 from panda3d.core import InputDevice
 
 if __name__ == '__main__':

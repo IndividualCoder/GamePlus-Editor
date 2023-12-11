@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 if __name__ == '__main__':
     app = Ursina()

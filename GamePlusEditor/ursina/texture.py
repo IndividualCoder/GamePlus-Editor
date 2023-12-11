@@ -4,8 +4,8 @@ from panda3d.core import Filename
 from panda3d.core import PNMImage
 from pathlib import Path
 from direct.showbase import Loader
-from ursina.vec2 import Vec2
-from ursina import color
+from GamePlusEditor.ursina.vec2 import Vec2
+from GamePlusEditor.ursina import color
 # from PIL import Image
 
 
@@ -187,7 +187,7 @@ class Texture():
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     '''
         The Texture class rarely used manually but usually instantiated
@@ -211,7 +211,7 @@ if __name__ == '__main__':
     e = Entity(model='quad')
     # from PIL import Image
 
-    from ursina.prefabs.memory_counter import MemoryCounter
+    from GamePlusEditor.ursina.prefabs.memory_counter import MemoryCounter
     MemoryCounter()
     def input(key):
         if key == 'a':

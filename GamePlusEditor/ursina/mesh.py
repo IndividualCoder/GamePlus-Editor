@@ -4,12 +4,12 @@ from panda3d.core import GeomTriangles, GeomTristrips, GeomTrifans
 from panda3d.core import GeomLines, GeomLinestrips, GeomPoints
 from panda3d.core import TexGenAttrib, TextureStage
 from panda3d.core import LVector4f
-from ursina.vec3 import Vec3
-from ursina.scripts.generate_normals import generate_normals
-from ursina.scripts.project_uvs import project_uvs
-from ursina.scripts.colorize import colorize
-from ursina import color
-from ursina import application
+from GamePlusEditor.ursina.vec3 import Vec3
+from GamePlusEditor.ursina.scripts.generate_normals import generate_normals
+from GamePlusEditor.ursina.scripts.project_uvs import project_uvs
+from GamePlusEditor.ursina.scripts.colorize import colorize
+from GamePlusEditor.ursina import color
+from GamePlusEditor.ursina import application
 from textwrap import dedent
 from enum import Enum
 from pathlib import Path
@@ -273,14 +273,14 @@ class Mesh(NodePath):
             print('saved .ursinamesh to:', folder / name)
 
         elif name.endswith('.obj'):
-            from ursina.mesh_exporter import ursinamesh_to_obj
+            from GamePlusEditor.ursina.mesh_exporter import ursinamesh_to_obj
             import os
             # Remove the file extension, so we don't get 'name.obj.obj'
             name = str(os.path.splitext(name)[0])
             ursinamesh_to_obj(self, name, folder, flip_faces)
 
         elif name.endswith('.dae'):
-            from ursina.mesh_exporter import ursinamesh_to_dae
+            from GamePlusEditor.ursina.mesh_exporter import ursinamesh_to_dae
             import os
             # Remove the file extension, so we don't get 'name.dae.dae'
             name = str(os.path.splitext(name)[0])
@@ -294,7 +294,7 @@ class Mesh(NodePath):
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
 
     app = Ursina()
 

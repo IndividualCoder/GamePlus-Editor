@@ -3,40 +3,40 @@ import importlib
 import glob
 from pathlib import Path
 from panda3d.core import NodePath
-from ursina.vec2 import Vec2
-from ursina.vec3 import Vec3
-from ursina.vec4 import Vec4
+from GamePlusEditor.ursina.vec2 import Vec2
+from GamePlusEditor.ursina.vec3 import Vec3
+from GamePlusEditor.ursina.vec4 import Vec4
 from panda3d.core import Quat
 from panda3d.core import TransparencyAttrib
 from panda3d.core import Shader
 from panda3d.core import TextureStage, TexGenAttrib
 
-from ursina.texture import Texture
+from GamePlusEditor.ursina.texture import Texture
 from panda3d.core import MovieTexture
 from panda3d.core import TextureStage
 from panda3d.core import CullFaceAttrib
-from ursina import application
-from ursina.collider import *
-from ursina.mesh import Mesh
-from ursina.sequence import Sequence, Func, Wait
-from ursina.ursinamath import lerp
-from ursina import curve
-from ursina.curve import CubicBezier
-from ursina import mesh_importer
-from ursina.mesh_importer import load_model
-from ursina.texture_importer import load_texture
-from ursina.string_utilities import camel_to_snake
+from GamePlusEditor.ursina import application
+from GamePlusEditor.ursina.collider import *
+from GamePlusEditor.ursina.mesh import Mesh
+from GamePlusEditor.ursina.sequence import Sequence, Func, Wait
+from GamePlusEditor.ursina.ursinamath import lerp
+from GamePlusEditor.ursina import curve
+from GamePlusEditor.ursina.curve import CubicBezier
+from GamePlusEditor.ursina import mesh_importer
+from GamePlusEditor.ursina.mesh_importer import load_model
+from GamePlusEditor.ursina.texture_importer import load_texture
+from GamePlusEditor.ursina.string_utilities import camel_to_snake
 from textwrap import dedent
 from panda3d.core import Shader as Panda3dShader
-from ursina import shader
-from ursina.shader import Shader
-from ursina.string_utilities import print_info, print_warning
-from ursina.ursinamath import Bounds
+from GamePlusEditor.ursina import shader
+from GamePlusEditor.ursina.shader import Shader
+from GamePlusEditor.ursina.string_utilities import print_info, print_warning
+from GamePlusEditor.ursina.ursinamath import Bounds
 
-from ursina import color
-from ursina.color import Color
+from GamePlusEditor.ursina import color
+from GamePlusEditor.ursina.color import Color
 try:
-    from ursina.scene import instance as scene
+    from GamePlusEditor.ursina.scene import instance as scene
 except:
     pass
 
@@ -730,7 +730,7 @@ class Entity(NodePath):
 
     @property
     def screen_position(self): # get screen position(ui space) from world space.
-        from ursina import camera
+        from GamePlusEditor.ursina import camera
         p3d = camera.getRelativePoint(self, Vec3.zero())
         full = camera.lens.getProjectionMat().xform(Vec4(*p3d, 1))
         recip_full3 = 1
@@ -935,7 +935,7 @@ class Entity(NodePath):
 
 
     def generate_sphere_map(self, size=512, name=f'sphere_map_{len(scene.entities)}'):
-        from ursina import camera
+        from GamePlusEditor.ursina import camera
         _name = 'textures/' + name + '.jpg'
         org_pos = camera.position
         camera.position = self.position
@@ -948,7 +948,7 @@ class Entity(NodePath):
 
 
     def generate_cube_map(self, size=512, name=f'cube_map_{len(scene.entities)}'):
-        from ursina import camera
+        from GamePlusEditor.ursina import camera
         _name = 'textures/' + name
         org_pos = camera.position
         camera.position = self.position
@@ -1014,7 +1014,7 @@ class Entity(NodePath):
 
 
     def combine(self, analyze=False, auto_destroy=True, ignore=[]):
-        from ursina.scripts.combine import combine
+        from GamePlusEditor.ursina.scripts.combine import combine
 
         self.model = combine(self, analyze, auto_destroy, ignore)
         return self.model
@@ -1186,7 +1186,7 @@ class Entity(NodePath):
             return None
 
         if delay:
-            from ursina.ursinastuff import invoke
+            from GamePlusEditor.ursina.ursinastuff import invoke
             return invoke(self.animate, name, value, duration=duration, curve=curve, loop=loop, resolution=resolution, time_step=time_step, auto_destroy=auto_destroy, delay=delay)
 
         animator_name = name + '_animator'
@@ -1310,13 +1310,13 @@ class Entity(NodePath):
         if isinstance(self.collider, MeshCollider):
             raise Exception('''error: mesh colliders can't intersect other shapes, only primitive shapes can. Mesh colliders can "receive" collisions though.''')
 
-        from ursina.hit_info import HitInfo
+        from GamePlusEditor.ursina.hit_info import HitInfo
 
         if not self.collision or not self.collider:
             self.hit = HitInfo(hit=False)
             return self.hit
 
-        from ursina import distance
+        from GamePlusEditor.ursina import distance
         if not hasattr(self, '_picker'):
             from panda3d.core import CollisionTraverser, CollisionNode, CollisionHandlerQueue
             from panda3d.core import CollisionRay, CollisionSegment, CollisionBox
@@ -1384,7 +1384,7 @@ class Entity(NodePath):
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     e = Entity(model='quad', color=color.orange, position=(0,0,1), scale=1.5, rotation=(0,0,45), texture='brick')

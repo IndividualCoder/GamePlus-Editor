@@ -1,5 +1,5 @@
-from ursina import Entity, Draggable, Text, Slider, Button, color, Vec3, Quad, invoke
-from ursina.prefabs.input_field import InputField
+from GamePlusEditor.ursina import Entity, Draggable, Text, Slider, Button, color, Vec3, Quad, invoke
+from GamePlusEditor.ursina.prefabs.input_field import InputField
 
 
 class Space():
@@ -116,8 +116,8 @@ if __name__ == '__main__':
     '''
     WindowPanel is an easy way to create UI. It will automatically layout the content.
     '''
-    from ursina import Ursina, ButtonGroup
-    from ursina import *
+    from GamePlusEditor.ursina import Ursina, ButtonGroup
+    from GamePlusEditor.ursina import *
     app = Ursina()
     wp = WindowPanel(title='Custom Window',popup = False,content=(Text('Name:'),InputField(name='name_field'),Button(text='Submit', color=color.azure),Slider(),Slider(),ButtonGroup(('test', 'eslk', 'skffk')),ButtonGroup(("Change color","Change scale"))))
 

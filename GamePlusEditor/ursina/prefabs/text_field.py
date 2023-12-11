@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 import pyperclip
 # from tree_view import TreeView
 

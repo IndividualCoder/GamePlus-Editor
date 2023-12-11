@@ -1,6 +1,6 @@
-from ursina import *
-from ursina.curve import out_expo
-from ursina.prefabs.health_bar import HealthBar
+from GamePlusEditor.ursina import *
+from GamePlusEditor.ursina.curve import out_expo
+from GamePlusEditor.ursina.prefabs.health_bar import HealthBar
 
 class FirstPersonController(Entity):
     def __init__(self,forward_key = "w",backward_key = "s",left_key = "a",right_key = "d",jump_key = " ",speed = 5,height = 3,sensitivity = 40, **kwargs):
@@ -156,7 +156,7 @@ class FirstPersonController(Entity):
 
 
 if __name__ == '__main__':
-    from ursina.prefabs.first_person_controller import FirstPersonController
+    from GamePlusEditor.ursina.prefabs.first_person_controller import FirstPersonController
     window.vsync = False
     app = Ursina()
     # Sky(color=color.gray)

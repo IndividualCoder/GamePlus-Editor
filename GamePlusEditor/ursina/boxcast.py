@@ -1,10 +1,10 @@
 
-from ursina.entity import Entity
-from ursina.scene import instance as scene
-from ursina.vec3 import Vec3
-from ursina.hit_info import HitInfo
-from ursina import ursinamath, color
-from ursina.ursinastuff import invoke
+from GamePlusEditor.ursina.entity import Entity
+from GamePlusEditor.ursina.scene import instance as scene
+from GamePlusEditor.ursina.vec3 import Vec3
+from GamePlusEditor.ursina.hit_info import HitInfo
+from GamePlusEditor.ursina import ursinamath, color
+from GamePlusEditor.ursina.ursinastuff import invoke
 
 
 _boxcast_box = Entity(model='cube', origin_z=-.5, collider='box', color=color.white33, enabled=False, eternal=True)
@@ -39,7 +39,7 @@ def boxcast(origin, direction=(0,0,1), distance=9999, thickness=(1,1), traverse_
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     '''

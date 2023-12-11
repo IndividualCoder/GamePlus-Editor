@@ -1,5 +1,5 @@
 from panda3d.core import Vec3 as PandaVec3
-from ursina.vec2 import Vec2
+from GamePlusEditor.ursina.vec2 import Vec2
 
 
 

@@ -1,4 +1,4 @@
-from ursina import Entity, Text, camera, Button, color, mouse, Sequence
+from GamePlusEditor.ursina import Entity, Text, camera, Button, color, mouse, Sequence
 from math import floor
 
 
@@ -127,7 +127,7 @@ class SimpleButtonList(Entity):
 
 
 if __name__ == '__main__':
-    from ursina import Ursina, Func
+    from GamePlusEditor.ursina import Ursina, Func
     app = Ursina()
 
     default = Func(print, 'not yet implemented')

@@ -1,4 +1,4 @@
-from ursina import Entity, Slider, color, Button, camera, Quad, copy
+from GamePlusEditor.ursina import Entity, Slider, color, Button, camera, Quad, copy
 
 
 class ColorPicker(Entity):
@@ -51,7 +51,7 @@ class ColorPicker(Entity):
 
 
 if __name__ == '__main__':
-    from ursina import Ursina
+    from GamePlusEditor.ursina import Ursina
     app = Ursina()
     ColorPicker()
 

@@ -1,5 +1,5 @@
-from ursina.entity import Entity
-from ursina.ursinamath import distance
+from GamePlusEditor.ursina.entity import Entity
+from GamePlusEditor.ursina.ursinamath import distance
 import time
 
 # TODO:
@@ -55,7 +55,7 @@ class Trigger(Entity):
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     player = Entity(model='cube', color=color.azure, scale=.05)

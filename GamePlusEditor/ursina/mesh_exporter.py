@@ -4,17 +4,17 @@ import platform
 import subprocess
 from copy import copy, deepcopy
 from pathlib import Path
-from ursina.mesh import Mesh
-from ursina import application
+from GamePlusEditor.ursina.mesh import Mesh
+from GamePlusEditor.ursina import application
 from panda3d.core import CullFaceAttrib
 from time import perf_counter
-from ursina.string_utilities import print_info, print_warning
-from ursina import color
-from ursina.vec3 import Vec3
+from GamePlusEditor.ursina.string_utilities import print_info, print_warning
+from GamePlusEditor.ursina import color
+from GamePlusEditor.ursina.vec3 import Vec3
 
 
 def ursinamesh_to_obj(mesh, name='', out_path=application.compressed_models_folder, max_decimals=5, flip_faces=True):
-    from ursina.string_utilities import camel_to_snake
+    from GamePlusEditor.ursina.string_utilities import camel_to_snake
 
     obj = ''
     obj += f'mtllib {name}.mtl\n'
@@ -224,7 +224,7 @@ def ursinamesh_to_dae(mesh, name, folder:Path=application.compressed_models_fold
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     t = perf_counter()

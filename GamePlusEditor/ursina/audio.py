@@ -1,9 +1,9 @@
-from ursina import application
+from GamePlusEditor.ursina import application
 import random
-from ursina.entity import Entity
-from ursina import curve
-from ursina.ursinastuff import invoke
-from ursina.ursinastuff import destroy as _destroy
+from GamePlusEditor.ursina.entity import Entity
+from GamePlusEditor.ursina import curve
+from GamePlusEditor.ursina.ursinastuff import invoke
+from GamePlusEditor.ursina.ursinastuff import destroy as _destroy
 
 from panda3d.core import Filename
 
@@ -183,7 +183,7 @@ class Audio(Entity):
 
 
 if __name__ == '__main__':
-    from ursina import Ursina, printvar
+    from GamePlusEditor.ursina import Ursina, printvar
 
     app = Ursina()
     a = Audio('life_is_currency_wav', pitch=1)

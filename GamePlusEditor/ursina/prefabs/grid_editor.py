@@ -1,9 +1,9 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 import pyperclip
 from copy import deepcopy
 import sys
 from math import floor
-from ursina.shaders import unlit_shader
+from GamePlusEditor.ursina.shaders import unlit_shader
 
 
 class GridEditor(Entity):
@@ -314,13 +314,13 @@ if __name__ == '__main__':
     '''
     from PIL import Image
     t = Texture(Image.new(mode='RGBA', size=(32,32), color=(0,0,0,1)))
-    from ursina.prefabs.grid_editor import PixelEditor
+    from GamePlusEditor.ursina.prefabs.grid_editor import PixelEditor
     PixelEditor(texture=load_texture('brick'), x=-.7, scale=.6)
 
     '''
     same as the pixel editor, but with text.
     '''
-    from ursina.prefabs.grid_editor import ASCIIEditor
+    from GamePlusEditor.ursina.prefabs.grid_editor import ASCIIEditor
     ASCIIEditor(x=0, scale=.1)
 
     app.run()

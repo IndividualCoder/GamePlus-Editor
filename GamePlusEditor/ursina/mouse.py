@@ -4,12 +4,12 @@ import traceback
 from panda3d.core import *
 from panda3d.core import CollisionTraverser, CollisionNode
 from panda3d.core import CollisionHandlerQueue, CollisionRay
-from ursina import application
-from ursina.window import instance as window
-from ursina.scene import instance as scene
-from ursina.camera import instance as camera
-from ursina.hit_info import HitInfo
-from ursina.ursinamath import distance
+from GamePlusEditor.ursina import application
+from GamePlusEditor.ursina.window import instance as window
+from GamePlusEditor.ursina.scene import instance as scene
+from GamePlusEditor.ursina.camera import instance as camera
+from GamePlusEditor.ursina.hit_info import HitInfo
+from GamePlusEditor.ursina.ursinamath import distance
 
 
 class Mouse():
@@ -326,7 +326,7 @@ instance = Mouse()
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     Button(parent=scene, text='a')
 

@@ -1,5 +1,5 @@
-from ursina import *
-from ursina.prefabs.file_browser import FileBrowser
+from GamePlusEditor.ursina import *
+from GamePlusEditor.ursina.prefabs.file_browser import FileBrowser
 
 
 class FileBrowserSave(FileBrowser):
@@ -66,8 +66,8 @@ class FileBrowserSave(FileBrowser):
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.file_browser_save import FileBrowserSave
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.file_browser_save import FileBrowserSave
 
     app = Ursina()
     wp = FileBrowserSave(file_type = '.oto')

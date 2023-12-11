@@ -8,12 +8,12 @@ import subprocess
 import time
 from pathlib import Path
 
-from ursina import application
-from ursina.text import Text
-from ursina.window import instance as window
-from ursina.scene import instance as scene
-from ursina.sequence import Sequence, Func, Wait
-from ursina.color import rgb
+from GamePlusEditor.ursina import application
+from GamePlusEditor.ursina.text import Text
+from GamePlusEditor.ursina.window import instance as window
+from GamePlusEditor.ursina.scene import instance as scene
+from GamePlusEditor.ursina.sequence import Sequence, Func, Wait
+from GamePlusEditor.ursina.color import rgb
 
 
 class Empty():
@@ -54,7 +54,7 @@ def destroy(entity, delay=0):
     return s
 
 def _destroy(entity, force_destroy=False):
-    from ursina import camera
+    from GamePlusEditor.ursina import camera
     if not entity or entity == camera:
         return
 
@@ -114,7 +114,7 @@ def find_sequence(name, file_types, folders): # find frame_0, frame_1, frame_2 a
 def import_all_classes(path=application.asset_folder, debug=False):
     path = str(path)
     sys.path.append(path)
-    from ursina.string_utilities import snake_to_camel
+    from GamePlusEditor.ursina.string_utilities import snake_to_camel
     from glob import iglob
     imported_successfully = []
 
@@ -159,7 +159,7 @@ class LoopingList(list):
 
 if __name__ == '__main__':
 
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     def test_func(item, x=None, y=None):
         print(item, x, y)

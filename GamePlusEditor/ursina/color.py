@@ -2,7 +2,7 @@ import colorsys
 import random
 import sys
 from math import floor, inf
-from ursina.vec4 import Vec4
+from GamePlusEditor.ursina.vec4 import Vec4
 
 
 class Color(Vec4):
@@ -178,7 +178,7 @@ for cn in color_names:
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     print(color.brightness(color.blue))

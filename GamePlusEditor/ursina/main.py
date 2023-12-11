@@ -5,13 +5,13 @@ from direct.showbase.ShowBase import ShowBase
 from direct.task.Task import Task
 from panda3d.core import ConfigVariableBool
 
-from ursina import application
-from ursina import input_handler
-from ursina.window import instance as window
-from ursina.scene import instance as scene
-from ursina.camera import instance as camera
-from ursina.mouse import instance as mouse
-from ursina.string_utilities import print_info
+from GamePlusEditor.ursina import application
+from GamePlusEditor.ursina import input_handler
+from GamePlusEditor.ursina.window import instance as window
+from GamePlusEditor.ursina.scene import instance as scene
+from GamePlusEditor.ursina.camera import instance as camera
+from GamePlusEditor.ursina.mouse import instance as mouse
+from GamePlusEditor.ursina.string_utilities import print_info
 
 
 import __main__

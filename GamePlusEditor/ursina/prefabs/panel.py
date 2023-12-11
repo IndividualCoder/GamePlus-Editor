@@ -1,6 +1,6 @@
-from ursina import *
-from ursina.prefabs.button import Button
-from ursina.models.procedural.quad import Quad
+from GamePlusEditor.ursina import *
+from GamePlusEditor.ursina.prefabs.button import Button
+from GamePlusEditor.ursina.models.procedural.quad import Quad
 
 class Panel(Entity):
 

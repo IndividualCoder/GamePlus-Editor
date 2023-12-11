@@ -55,7 +55,7 @@ if __name__ == '__main__':
     print(e.hp)
     # e.hp += 4
     # print(e.hp)
-    from ursina import *
+    from GamePlusEditor.ursina import *
 
     invoke(setattr, e, 'position', (0,0,0), delay=1)
     # invoke(e.set_position, (0,0,0))

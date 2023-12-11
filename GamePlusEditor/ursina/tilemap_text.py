@@ -1,4 +1,4 @@
-from ursina import Entity, Mesh, load_model, color, camera, Vec3, Vec2
+from GamePlusEditor.ursina import Entity, Mesh, load_model, color, camera, Vec3, Vec2
 
 
 
@@ -102,7 +102,7 @@ class TilemapText(Entity):
 
 
 if __name__ == '__main__':
-    from ursina import Ursina, dedent, EditorCamera
+    from GamePlusEditor.ursina import Ursina, dedent, EditorCamera
     app = Ursina()
     # descr = dedent('''
     #     <scale:1.5><orange>Rainstorm<default><scale:1>

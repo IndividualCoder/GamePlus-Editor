@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 
 class TerrainSystem(Entity):
@@ -42,7 +42,7 @@ class TerrainSystem(Entity):
 
 if __name__ == '__main__':
     app = Ursina()
-    from ursina.models.procedural.terrain import texture_to_height_values
+    from GamePlusEditor.ursina.models.procedural.terrain import texture_to_height_values
     hv = texture_to_height_values('heightmap_1', skip=1)
     TerrainSystem(hv, scale_y=32)
 

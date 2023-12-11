@@ -1,4 +1,4 @@
-from ursina import Entity, Sequence, Func, Wait
+from GamePlusEditor.ursina import Entity, Sequence, Func, Wait
 
 
 class SpriteSheetAnimation(Entity):
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     '''
     (0,0) is in bottom left
     '''
-    from ursina import Ursina
+    from GamePlusEditor.ursina import Ursina
     app = Ursina()
     player_graphics = SpriteSheetAnimation('sprite_sheet', tileset_size=(4,4), fps=6, animations={
         'idle' : ((0,0), (0,0)),

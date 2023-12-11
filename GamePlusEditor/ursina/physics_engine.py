@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 from panda3d.bullet import BulletWorld, BulletPlaneShape, BulletBoxShape, BulletRigidBodyNode, BulletDebugNode
 
 
