@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 
 def project_uvs(model, aspect_ratio=1, direction='forward', regenerate=False):

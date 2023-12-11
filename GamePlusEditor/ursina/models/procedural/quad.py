@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 cached_quads = {}
 def Quad(radius=.1, segments=8, aspect=1, scale=(1,1), mode='ngon', thickness=1):

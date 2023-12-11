@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 
 def texture_to_height_values(heightmap, skip=1):

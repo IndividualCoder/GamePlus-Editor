@@ -1,6 +1,6 @@
-from ursina import *
-from ursina.duplicate import duplicate
-from ursina.ursinamath import sample_gradient
+from GamePlusEditor.ursina import *
+from GamePlusEditor.ursina.duplicate import duplicate
+from GamePlusEditor.ursina.ursinamath import sample_gradient
 
 
 class Pipe(Mesh):

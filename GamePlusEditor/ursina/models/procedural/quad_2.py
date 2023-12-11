@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 def rotate_point(point, origin, deg):
     from math import pi, cos, sin

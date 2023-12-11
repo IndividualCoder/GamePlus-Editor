@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 
 def combine(combine_parent, analyze=False, auto_destroy=True, ignore=[]):
@@ -64,7 +64,7 @@ def combine(combine_parent, analyze=False, auto_destroy=True, ignore=[]):
                 to_destroy.append(e)
 
     if auto_destroy:
-        from ursina import destroy
+        from GamePlusEditor.ursina import destroy
         [destroy(e) for e in to_destroy]
 
     combine_parent.model = Mesh(vertices=verts, triangles=tris, normals=norms, uvs=uvs, colors=cols, mode='triangle')
@@ -79,7 +79,7 @@ def combine(combine_parent, analyze=False, auto_destroy=True, ignore=[]):
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
 

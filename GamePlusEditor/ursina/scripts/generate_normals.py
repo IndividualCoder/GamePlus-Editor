@@ -86,7 +86,7 @@ if __name__ == '__main__':
     )
     norms = generate_normals(vertices)
     print(norms)
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     m = Mesh(vertices=vertices)
     m.generate_normals()

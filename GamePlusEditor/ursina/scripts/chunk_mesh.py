@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 from math import floor
 
 app = Ursina()
@@ -53,7 +53,7 @@ for z in range(z_slices):
         # grid[x][z].model = None
 
 
-from ursina.prefabs.first_person_controller import FirstPersonController
+from GamePlusEditor.ursina.prefabs.first_person_controller import FirstPersonController
 # player = FirstPersonController(position=(0,200,0))
 # player.add_script(NoclipMode())
 # player = EditorCamera(rotation_x=90, y=128)

@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 class NoclipMode:
     def __init__(self, speed=10, require_key='shift'):

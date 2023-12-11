@@ -115,7 +115,7 @@ if __name__ == '__main__':
     print(rects)
 
 
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     entities = []

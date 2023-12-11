@@ -20,7 +20,7 @@ print('file_name:', scene_name)
 code = ''
 
 if not '--models_only' in sys.argv:
-    code += '''from ursina import *
+    code += '''from GamePlusEditor.ursina import *
 from time import perf_counter
 
 scene_parent = Entity()
