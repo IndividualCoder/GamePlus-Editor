@@ -1,4 +1,4 @@
-from ursina import Shader, Vec2, Vec3, Vec4, Quat; instancing_shader=Shader(name='instancing_shader', language=Shader.GLSL, vertex='''#version 140
+from GamePlusEditor.ursina import Shader, Vec2, Vec3, Vec4, Quat; instancing_shader=Shader(name='instancing_shader', language=Shader.GLSL, vertex='''#version 140
 
 uniform mat4 p3d_ModelViewProjectionMatrix;
 in vec4 p3d_Vertex;
@@ -50,7 +50,7 @@ default_input={
 
 
 if __name__ == '__main__':
-    from ursina import Ursina, Entity, EditorCamera, Vec3, color, application, time, Cone
+    from GamePlusEditor.ursina import Ursina, Entity, EditorCamera, Vec3, color, application, time, Cone
     import random
     app = Ursina(vsync=False)
 

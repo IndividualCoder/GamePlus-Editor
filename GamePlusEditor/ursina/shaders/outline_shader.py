@@ -1,4 +1,4 @@
-from ursina import *; outline_shader = Shader(language=Shader.GLSL, vertex = '''
+from GamePlusEditor.ursina import *; outline_shader = Shader(language=Shader.GLSL, vertex = '''
 #version 150
 uniform mat4 p3d_ModelViewProjectionMatrix;
 in vec4 p3d_Vertex;
@@ -34,7 +34,7 @@ default_input={
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
 
     app = Ursina(vsync=1)
 

@@ -1,4 +1,4 @@
-from ursina import *;
+from GamePlusEditor.ursina import *;
 
 def randVec(i, n):
   """Generates a random point in a hemisphere."""
@@ -85,7 +85,7 @@ default_input = {
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     e = Entity(model='sphere', color=color.orange)

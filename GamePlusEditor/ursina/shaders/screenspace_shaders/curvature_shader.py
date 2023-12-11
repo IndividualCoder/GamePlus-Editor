@@ -1,4 +1,4 @@
-from ursina import Shader
+from GamePlusEditor.ursina import Shader
 
 
 curvature_shader = Shader(
@@ -101,7 +101,7 @@ void main() {
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     e = Entity(model='sphere', color=color.orange)

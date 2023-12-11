@@ -1,4 +1,4 @@
-from ursina import *; ssao_shader = Shader(language=Shader.GLSL, fragment='''
+from GamePlusEditor.ursina import *; ssao_shader = Shader(language=Shader.GLSL, fragment='''
 #version 140
 
 
@@ -100,7 +100,7 @@ default_input = {
 }
 )
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     e = Entity(model='sphere', color=color.orange)

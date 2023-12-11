@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 texture_blend_shader = Shader(name='texture_blend_shader', language=Shader.GLSL, 
 fragment='''
@@ -57,7 +57,7 @@ default_input = {
 )
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     Texture.default_filtering = 'bilinear'
     app = Ursina(vsync=False)
 

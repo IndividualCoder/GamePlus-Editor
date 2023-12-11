@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 shader = Shader(fragment='''
 #version 430
 

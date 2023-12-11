@@ -1,4 +1,4 @@
-from ursina import *; matcap_shader = Shader(language=Shader.GLSL, fragment='''
+from GamePlusEditor.ursina import *; matcap_shader = Shader(language=Shader.GLSL, fragment='''
 #version 130
 
 // HQ2x
@@ -157,8 +157,8 @@ void main()
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina()
     window.color=color.black
 

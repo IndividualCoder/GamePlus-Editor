@@ -1,4 +1,4 @@
-from ursina import Shader
+from GamePlusEditor.ursina import Shader
 
 
 camera_vertical_blur_shader = Shader(
@@ -30,7 +30,7 @@ default_input=dict(
 ))
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     window.color = color._16
 

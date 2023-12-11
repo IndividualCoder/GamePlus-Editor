@@ -1,4 +1,4 @@
-from ursina import *; fading_shadows_shader = Shader(language=Shader.GLSL, vertex = '''#version 150
+from GamePlusEditor.ursina import *; fading_shadows_shader = Shader(language=Shader.GLSL, vertex = '''#version 150
 
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform mat4 p3d_ModelViewMatrix;
@@ -52,8 +52,8 @@ void main() {
 ''',
 )
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina()
     shader = fading_shadows_shader
 

@@ -1,4 +1,4 @@
-from ursina import *;
+from GamePlusEditor.ursina import *;
 transition_shader = Shader(name='transition_shader', language=Shader.GLSL, fragment='''
 #version 140
 
@@ -29,7 +29,7 @@ default_input = {
 )
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     window.color = color._16
 

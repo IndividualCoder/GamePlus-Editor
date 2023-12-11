@@ -1,4 +1,4 @@
-from ursina import *; toon_shader = Shader(name='toon_shader', language=Shader.GLSL, vertex = '''#version 140
+from GamePlusEditor.ursina import *; toon_shader = Shader(name='toon_shader', language=Shader.GLSL, vertex = '''#version 140
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform mat4 p3d_ModelMatrix;
 
@@ -43,7 +43,7 @@ default_input={
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     shader = toon_shader

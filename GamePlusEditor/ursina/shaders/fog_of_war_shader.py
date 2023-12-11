@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 
 fog_of_war_shader = Shader(language=Shader.GLSL,
@@ -80,7 +80,7 @@ default_input = {
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     window.color=color.black
 

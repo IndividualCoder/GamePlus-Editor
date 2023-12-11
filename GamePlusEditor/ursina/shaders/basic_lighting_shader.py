@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 
 basic_lighting_shader = Shader(name='basic_lighting_shader', language=Shader.GLSL,
@@ -45,8 +45,8 @@ void main() {
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina()
     window.color=color.black
 

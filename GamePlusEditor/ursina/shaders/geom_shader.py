@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 point_shader = Shader(language=Shader.GLSL,
 vertex = '''
@@ -63,8 +63,8 @@ void main() {
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina(vsync = False)
     window.color=color.black
 

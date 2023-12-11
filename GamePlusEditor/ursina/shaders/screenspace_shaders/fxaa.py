@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 fxaa_shader = Shader(language=Shader.GLSL,
 fragment='''

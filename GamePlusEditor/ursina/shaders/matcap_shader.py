@@ -1,4 +1,4 @@
-from ursina import *; matcap_shader = Shader(name='matcap_shader', language=Shader.GLSL, vertex = '''#version 140
+from GamePlusEditor.ursina import *; matcap_shader = Shader(name='matcap_shader', language=Shader.GLSL, vertex = '''#version 140
 uniform mat4 p3d_ModelViewProjectionMatrix;
 uniform mat4 p3d_ModelMatrix;
 uniform mat4 p3d_ModelViewMatrix;
@@ -44,8 +44,8 @@ void main() {
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina()
     window.color=color.black
 

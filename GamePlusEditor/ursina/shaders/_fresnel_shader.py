@@ -1,4 +1,4 @@
-from ursina import *; fresnel_shader = Shader(language=Shader.GLSL, vertex = '''#version 150
+from GamePlusEditor.ursina import *; fresnel_shader = Shader(language=Shader.GLSL, vertex = '''#version 150
 
 
 uniform mat4 p3d_ModelViewProjectionMatrix;
@@ -89,8 +89,8 @@ void main() {
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina()
     window.color=color.black
     # from ursina.lights import DirectionalLight

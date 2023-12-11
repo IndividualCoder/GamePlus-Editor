@@ -1,4 +1,4 @@
-from ursina import *; hqx_shader = Shader(language=Shader.GLSL, fragment='''
+from GamePlusEditor.ursina import *; hqx_shader = Shader(language=Shader.GLSL, fragment='''
 #version 130
 // const float SEG = 40.0 / 256.0;
 const float SEG = 1.0;

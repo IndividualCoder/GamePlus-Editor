@@ -1,4 +1,4 @@
-from ursina import *; unlit_shader = Shader(name='unlit_shader', language=Shader.GLSL, vertex = '''#version 130
+from GamePlusEditor.ursina import *; unlit_shader = Shader(name='unlit_shader', language=Shader.GLSL, vertex = '''#version 130
 
 
 uniform mat4 p3d_ModelViewProjectionMatrix;
@@ -37,8 +37,8 @@ default_input={
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina()
     # window.color=color.black
     # from ursina.lights import DirectionalLight

@@ -1,4 +1,4 @@
-from ursina import Shader;
+from GamePlusEditor.ursina import Shader;
 bloom_shader = Shader(
 fragment='''
 #version 430
@@ -41,7 +41,7 @@ default_input=dict(
 ))
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     window.color = color._16
 

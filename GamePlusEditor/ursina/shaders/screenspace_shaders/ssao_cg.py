@@ -1,4 +1,4 @@
-from ursina import *; ssao_shader = Shader(language=Shader.CG, vertex='''
+from GamePlusEditor.ursina import *; ssao_shader = Shader(language=Shader.CG, vertex='''
 void vshader(float4 vtx_position : POSITION,
              out float4 l_position : POSITION,
              out float2 l_texcoord : TEXCOORD0,
@@ -54,7 +54,7 @@ default_input = {
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     e = Entity(model='sphere', color=color.orange)

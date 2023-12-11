@@ -1,4 +1,4 @@
-from ursina import *; point_shader = Shader(lname='point_shader', language=Shader.GLSL, vertex = '''
+from GamePlusEditor.ursina import *; point_shader = Shader(lname='point_shader', language=Shader.GLSL, vertex = '''
 #version 150
 uniform mat4 p3d_ModelViewProjectionMatrix;
 in vec4 p3d_Vertex;
@@ -46,8 +46,8 @@ default_input={
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina(vsync=1)
     camera.clip_plane_near= 1
     window.color=color.black

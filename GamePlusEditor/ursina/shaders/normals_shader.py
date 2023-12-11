@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 normals_shader = Shader(name='normals_shader',language=Shader.GLSL, 
 vertex = '''
@@ -35,8 +35,8 @@ geometry='',
 
 
 if __name__ == '__main__':
-    from ursina import *
-    from ursina.prefabs.primitives import *
+    from GamePlusEditor.ursina import *
+    from GamePlusEditor.ursina.prefabs.primitives import *
     app = Ursina()
     window.color=color.black
 

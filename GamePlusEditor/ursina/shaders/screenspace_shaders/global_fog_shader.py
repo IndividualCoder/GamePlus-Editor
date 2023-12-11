@@ -1,4 +1,4 @@
-from ursina import *; global_fog_shader = Shader(language=Shader.GLSL, fragment='''
+from GamePlusEditor.ursina import *; global_fog_shader = Shader(language=Shader.GLSL, fragment='''
 #version 430
 
 uniform sampler2D tex;
@@ -23,7 +23,7 @@ geometry='')
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     e = Entity(model='sphere', color=color.orange)

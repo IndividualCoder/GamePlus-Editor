@@ -1,4 +1,4 @@
-from ursina import *; lit_with_shadows_shader = Shader(language=Shader.GLSL, name='lit_with_shadows_shader', vertex = '''#version 150
+from GamePlusEditor.ursina import *; lit_with_shadows_shader = Shader(language=Shader.GLSL, name='lit_with_shadows_shader', vertex = '''#version 150
 uniform struct {
   vec4 position;
   vec3 color;
@@ -147,7 +147,7 @@ default_input = {
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
 
     app = Ursina()
     shader = lit_with_shadows_shader
@@ -156,7 +156,7 @@ if __name__ == '__main__':
     Entity(model='sphere', texture='shore', y=2, x=1, shader=shader)
 
     Entity(model='plane', scale=16, texture='grass', shader=lit_with_shadows_shader)
-    from ursina.lights import DirectionalLight
+    from GamePlusEditor.ursina.lights import DirectionalLight
     sun = DirectionalLight(shadow_map_resolution=(2048,2048))
     sun.look_at(Vec3(-1,-1,-10))
     # sun._light.show_frustum()

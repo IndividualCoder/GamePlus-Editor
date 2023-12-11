@@ -1,4 +1,4 @@
-from ursina import Shader; camera_contrast_shader = Shader(fragment='''
+from GamePlusEditor.ursina import Shader; camera_contrast_shader = Shader(fragment='''
 #version 430
 
 uniform sampler2D tex;
@@ -26,7 +26,7 @@ default_input={
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
 
     e = Entity(model='sphere')

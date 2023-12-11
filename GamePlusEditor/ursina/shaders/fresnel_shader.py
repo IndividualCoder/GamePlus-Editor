@@ -1,4 +1,4 @@
-from ursina import *
+from GamePlusEditor.ursina import *
 
 
 fresnel_shader = Shader(name='fresnel_shader', language=Shader.GLSL,
@@ -70,7 +70,7 @@ default_input = {
 
 
 if __name__ == '__main__':
-    from ursina import *
+    from GamePlusEditor.ursina import *
     app = Ursina()
     # window.color=color.black
 
