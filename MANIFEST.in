@@ -1,5 +1,6 @@
 include GamePlusEditor/Images/*
 include GamePlusEditor/ursina/*
+include GamePlusEditor/ursina/shaders/screenspace_shaders/*
 include GamePlusEditor/CoreFiles/*
 include GamePlusEditor/FileSystem/*
 include GamePlusEditor/GizmoStuff/*
