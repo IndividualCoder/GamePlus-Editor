@@ -32,6 +32,8 @@ now make a .py file and run it with the following code:
     RunEditor()```
 it is as simple as this :)
 
+# Discord
+### [Discord server link](https://discord.gg/WWd5w9pC)
 # Contribute
 Contributions to this project are welcome. If you have ideas for improving the editor, additional features, or bug fixes, please submit pull requests or open issues to discuss potential changes.
 Note: If you want to directly contribute to the code of the project, you first need to have a working example of what you've added and why you want to be a contributor
