@@ -2,7 +2,7 @@
 This editor gives you the freedom to make a python game without even coding!
 
 # Links
-- Discord: ### [Discord server link](https://discord.gg/WWd5w9pC)
+- Discord: [Discord server link](https://discord.gg/WWd5w9pC)
 
 # How to install it?
 It is very easy to install this editor, just open cmd and type `pip install GamePlusEditor`
