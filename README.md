@@ -1,5 +1,5 @@
-# GamePlus editor is a gui editor for python.
-This editor gives you the freedom to make a python game without even coding!
+# GamePlus editor is a 3D gui editor for python.
+This editor gives you the freedom to make 3D python games!
 
 # Links
 - Discord: [Discord server link](https://discord.gg/bhTDwU5rKH)
