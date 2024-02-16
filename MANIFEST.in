@@ -11,4 +11,5 @@ include GamePlusEditor/GizmoStuff/*
 include GamePlusEditor/Models/*
 include GamePlusEditor/Netwroking/*
 include GamePlusEditor/Shaders/*
+include GamePlusEditor/Prefabs/*
 
