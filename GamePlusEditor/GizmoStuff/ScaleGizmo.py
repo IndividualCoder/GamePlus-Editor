@@ -1,20 +1,27 @@
 # from BaseGizmo import BaseGizmoClass
 from GamePlusEditor.ursina import *
 from GamePlusEditor.GizmoStuff.GizmoUpdater import NewDraggable
+import site
+from pathlib import Path
+
 
 class ScaleGizmo(Entity):
-    def __init__(self, Entity, Snapping = 0, **kwargs):
+    def __init__(self, Entity,OnDrag, Snapping = 0, **kwargs):
         super().__init__()
         self.Entity = Entity
-        self.AllGrizmos: list = []
         self._Snapping = Snapping
         self._Sensitivity = 10
+        self.OnDrag = OnDrag
 
-        self.LastX = 0
+
+        self.ApplicationAssetFolderTemp = application.asset_folder
+        application.asset_folder = Path(f"{site.getsitepackages()[1]}/GamePlusEditor")
+
         self.GizmoX = NewDraggable(name = "scale_x",Num = 0,parent = self,axis = (1,0,0),RetVal=self.GetVal,Entity=Entity,lock = (0,1,1),scale = (1,1,1),rotation = (90,90,0),color = color.red,model = "../Models/ScaleGizmo.obj",collider = "mesh",double_sided = True,step = self._Snapping,sensitivity = self._Sensitivity,position = Entity.position)
         self.GizmoY = NewDraggable(name = "scale_y",Num = 1,parent = self,axis = (0,1,0),RetVal=self.GetVal,Entity=Entity,lock = (1,0,1),scale = (1,1,1),rotation = (0,90,0),color = color.blue,model = "../Models/ScaleGizmo.obj",collider = "mesh",double_sided = True,step = self._Snapping,sensitivity = self._Sensitivity,position = Entity.position)
         self.GizmoZ = NewDraggable(name = "scale_z",Num = 2,parent = self,axis = (0,0,1),RetVal=self.GetVal,Entity=Entity,lock = (1,0,0),plane_direction = (0,1,0),rotation = (90,90,90),scale = (1,1,1),color = color.green,model = "../Models/ScaleGizmo.obj",collider = "mesh",double_sided = True,step = self._Snapping,sensitivity = self._Sensitivity,position = Entity.position)
 
+        application.asste_folder = self.ApplicationAssetFolderTemp
         self.CurrentlyScaling: Draggable = self.GizmoX
 
         for attribute,value in kwargs.items():
@@ -25,8 +32,11 @@ class ScaleGizmo(Entity):
         if getattr(self.Entity,self.CurrentlyScaling.name) + Dist[Num] > 0:
             if self.CurrentlyScaling.step[0] != 0:
                 setattr(self.Entity,self.CurrentlyScaling.name,getattr(self.Entity,self.CurrentlyScaling.name) + Dist[Num])
+                self.OnDrag()
                 return
             setattr(self.Entity,self.CurrentlyScaling.name,getattr(self.Entity,self.CurrentlyScaling.name) + Dist[Num])
+            self.OnDrag()
+
 
 
     def SetUp(self):

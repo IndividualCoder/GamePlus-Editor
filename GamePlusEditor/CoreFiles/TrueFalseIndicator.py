@@ -30,7 +30,7 @@ class TrueFalseIndicator(Entity):
             setattr(self,key,value)
         self.Button.text_entity.origin: Vec3 = (-.5,0)
         self.Button.text_entity.position: Vec3 = (-.48,0,0)
-        self.Button.text_entity.scale: Vec3 =  self.Button.text_entity.scale + (-.7,.3,.3)
+        self.Button.text_entity.scale: Vec3 =  self.Button.text_entity.scale + (-.8,.3,.3)
 
     def GeneratorOfText(self,List: list):
         '''A generator to return the next item form the StateList\nReturns first item form the list if current state is last elemnt of the list'''

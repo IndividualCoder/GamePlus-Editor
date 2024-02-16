@@ -11,6 +11,17 @@ class CodeEditorPython(Entity):
         self.EditorDataDict = EditorDataDict
         self.Save = SaveFunction
         self.ShowInstructionFunc = ShowInstructionFunc
+        self.ReplacementColors = {"class ":    "☾orange☽class ☾default☽",
+                                  "def ": "☾rgb(50,50,255)☽def ☾default☽",
+                                  "self": "☾yellow☽self☾default☽",
+                                  "__init__": "☾rgb(50,150,150)☽__init__☾default☽",
+                                  "(":"☾rgb(150, 0, 150)☽(☾default☽",
+                                  ")":"☾rgb(150, 0, 150)☽)☾default☽",
+                                  "[":"☾rgb(150, 0, 150)☽[☾default☽",
+                                  "]":"☾rgb(150, 0, 150)☽]☾default☽",
+                                  "{":"☾rgb(150, 0, 150)☽{☾default☽",
+                                  "}":"☾rgb(150, 0, 150)☽}☾default☽",}
+
 
         self.UniversalParentEntity = Entity(parent = camera.ui,enabled = kwargs["enabled"])
 
@@ -35,6 +46,7 @@ class CodeEditorPython(Entity):
         self.FileMenu.SetUp()
         self.FileMenu.Show()
         self.ConfigEditorAsSettings(self.EditorDataDict)
+        self.CodeWriter.replacements = self.ReplacementColors
 
     def ConfigEditorAsSettings(self,DataDict: dict):
         '''Configures editor as desired setting'''
@@ -63,14 +75,16 @@ if __name__ == "__main__":
     from GamePlusEditor.OpenFile import OpenFile
     app = Ursina()
     ed = EditorCamera()
-
-    project = ProjectEditor(Func(print,"yeah"),CurrentTabs=[],EditorCamera=ed,PlayFunction=Func(print,"hi"),ReadyToHostProjectFunc=Func(print,"hi"),HostProjectFunc=Func(print,"hi"))
+    false = False
+    true = True
+    project = ProjectEditor(Func(print,"yeah"),CurrentTabs=[],EditorCamera=ed,PlayFunction=Func(print,"hi"),ReadyToHostProjectFunc=Func(print,"hi"),HostProjectFunc=Func(print,"hi"),EditorDataDict={"Show tooltip": true, "Auto save on exit": false, "Show memory counter": true, "Fullscreen": false, "Anti-aliasing sample": 4, "Render distance (near)": 0.1, "Render distance (far)": 10000.0},ShowInstructionFunc=Func(print,"hi"))
 
     ConfiableEditorDataDefault = {"Show tooltip":True,"Auto save on exit": False,"Show memory counter": True,"Fullscreen": False,"Anti-aliasing sample": 4,"Render distance (near)": .10,"Render distance (far)": 10000.0,}
 
     ConfiableEditorData = OpenFile("Configable editor data.txt",f"{CurrentFolderNameReturner()}/Editor data",ConfiableEditorDataDefault,True)
 
-    editor = CodeEditorPython(enabled=True,EditorDataDict=ConfiableEditorData,ProjectName="jh")
+    editor = CodeEditorPython(enabled=True,EditorDataDict=ConfiableEditorData,ProjectName="jh",ShowInstructionFunc=Func(print,"hi"),OnFileAdded=Func(print,"hi"),SaveFunction=Func(print,"hi"))
+
     editor.SetUp()
     # editor.model = "cube"
     Sky()
@@ -79,39 +93,6 @@ if __name__ == "__main__":
     top = .001
     bottom = .001
     editor.MakeEditorEnvironment(application.base.camNode,(125,125,124,0),(0.0019, 0.355, 0.4599 ,0.935))
-    # def input(key):
-    #     global top,bottom,left,right
-    #     if key in ["w","w hold"] and not held_keys["shift"]:
-    #         # top += .001
-
-    #         editor.CodeWriter.y += top
-    #     elif key in ["s","s hold"] and not held_keys["shift"]:
-    #         # bottom += .001
-    #         editor.CodeWriter.y -= top
-    #     elif key in ["a","a hold"] and not held_keys["shift"]:
-    #         # left += .001
-    #         editor.CodeWriter.x -= left
-    #     elif key in ["d","d hold"] and not held_keys["shift"]:
-    #         # right += .001
-    #         editor.CodeWriter.x += left
-
-    #     elif key in ["r","r hold"] and not held_keys["shift"]:
-    #         # left += .001
-    #         editor.CodeWriter.scale_x += left
-    #     elif key in ["t","t hold"] and not held_keys["shift"]:
-    #         # right += .001
-    #         editor.CodeWriter.scale_y += left
-
-    #     elif key in ["r","r hold"] and held_keys["shift"]:
-    #         # left += .001
-    #         editor.CodeWriter.scale_x -= left
-    #     elif key in ["t","t hold"] and held_keys["shift"]:
-    #         # right += .001
-    #         editor.CodeWriter.scale_y -= left
-
-    #     elif key == "p":
-    #         editor.PrintItemStatTemp(editor.UniversalParentEntity)
-            
 
     project.CurrentTabs.append(editor)
     app.run()

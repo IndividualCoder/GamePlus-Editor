@@ -3,7 +3,7 @@ from GamePlusEditor.OtherStuff import CustomWindow,ReplaceValue,PrepareForRecent
 from GamePlusEditor.ursina.prefabs.dropdown_menu import DropdownMenuButton
 from GamePlusEditor.ursina.prefabs.dropdown_menu import SimpleDropdownMenu
 from GamePlusEditor.RecentProjectFinder import GetRecentProjects
-from GamePlusEditor.ProjectLoader import LoadProjectToScene
+from GamePlusEditor.ProjectLoader import ProjectLoader
 from GamePlusEditor.CoreFiles.TrueFalseIndicator import TrueFalseIndicator
 from GamePlusEditor.CoreFiles.ConfigProjectMenu import ConfigProjectManager
 from GamePlusEditor.OpenFile import Openselector
@@ -428,7 +428,7 @@ class StartingUI(Entity):
                 self.ItemToToolTipList[i].tool_tip = None
 
     def OpenProject(self,ProjectName,FuncToEnableOnOpen,FileName,FilePath):
-        LoadProjectToScene(FileName = FileName,FilePath = FilePath,FuncToEnableOnOpen=FuncToEnableOnOpen)
+        ProjectLoader(FileName = FileName,FilePath = FilePath,FuncToEnableOnOpen=FuncToEnableOnOpen)
         self.ProjectName = ProjectName
         self.UniversalParentEntity.disable()
         self._TempSavedItemOfRecentProject = self.EditorDataDictNonConfigable["RecentEdits"].pop(self.EditorDataDictNonConfigable["RecentEdits"].index(ProjectName))

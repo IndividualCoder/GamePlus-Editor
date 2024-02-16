@@ -1,18 +1,22 @@
 from GamePlusEditor.ursina import *
 from GamePlusEditor.CoreFiles.BlueLink import BlueLink
-from GamePlusEditor.OtherStuff import RecursivePerformer
+from GamePlusEditor.OtherStuff import MultiFunctionCaller,RecursivePerformer
 
 class ColorMenu(Button):
-    '''Choose color by sliding sliders instead of putting random int. alpha channel not working correctly yet!'''
+    '''Choose color by sliding sliders instead of putting random int'''
     def __init__(self,EntityToColor,BGScale,BGPos = (0,0,0),WordLimit = 20,**kwargs):
         super().__init__()
         self.WordLimit = WordLimit
-
         self.EntityToColor = EntityToColor
-        # self.ColorButton = Button(parent = self,color = self.EntityToColor.color)
 
+        for key,value in kwargs.items():
+            setattr(self,key,value)
 
-        self.ColorMenuBG = Entity(model = "cube",scale = BGScale,parent = self,color = color.tint(color.gray,-0.4),z = -9,enabled = False,position = BGPos,collider = "mesh")
+        self.UniversalParnetEntity = Entity(enabled = self.enabled,parent =camera.ui,model = "cube",collider = None,visible_self = False,world_position = self.world_position)
+        self.UniversalParnetEntity.world_scale = self.world_scale
+        
+
+        self.ColorMenuBG = Entity(model = "cube",parent = self.UniversalParnetEntity,color = color.tint(color.gray,-0.4),z = -9,enabled = False,position = BGPos,collider = "mesh",scale = BGScale,always_on_top = True)
 
         self.EntityNameText = Text(parent = self.ColorMenuBG,position =  Vec3(-0.49, 0.49, -2),rotation = Vec3(0, 0, 0),scale = Vec3(2, 2, 1))
 
@@ -28,15 +32,14 @@ class ColorMenu(Button):
         self.CancelColorButton = Button(name = "cancel button",parent = self.ColorMenuBG,color = color.tint(color.blue),text="Cancel",  position =  Vec3(-0.25, -0.33, -2),rotation = Vec3(0, 0, 0),scale = Vec3(0.420001, 0.220001, 1),on_click = self.CancelColor)
         self.SaveColorButton = Button(name = "save button",parent = self.ColorMenuBG,color = color.tint(color.blue),text="Save", position =  Vec3(0.25, -0.33, -2),rotation = Vec3(0, 0, 0),scale = Vec3(0.420001, 0.220001, 1),on_click = self.SaveColor)
 
-        self.CloseColorMenuButton = Button(name = "Close Button",parent = self.ColorMenuBG,position =  Vec3(0.47, 0.47, 0),rotation = Vec3(0, 0, 0),scale = Vec3(0.045, 0.045, 1),text="X",color = color.clear,on_click = self.CancelColorButton.on_click)
+        self.CloseColorMenuButton = Button(name = "Close Button",parent = self.ColorMenuBG,position =  Vec3(0.47, 0.47, -10),rotation = Vec3(0, 0, 0),scale = Vec3(0.045, 0.045, 1),text="X",color = color.clear,on_click = self.CancelColorButton.on_click)
         self.CloseColorMenuButton.text_entity.scale = 2
-        self.on_click = Func(RecursivePerformer,self.ColorMenuBG)
 
-        for key,value in kwargs.items():
-            setattr(self,key,value)
 
-    def EnableColorMenu(self):
-        ...
+    def on_click(self):
+        RecursivePerformer(self.UniversalParnetEntity,"enable")
+
+
 
     def DisableColorMenu(self):
         self.ColorMenuBG.disable()
@@ -83,17 +86,6 @@ class ColorMenu(Button):
         self.SliderB.value = self.EntityToColor.color[2] * 255
         self.SliderA.value = self.EntityToColor.color[3] * 255
         self.DisableColorMenu()
-
-    def ShowPosTemp(self,Entity: Entity):
-        print(f"{__file__}:: Name: {Entity.name}, position =  {Entity.position},rotation = {Entity.rotation},scale = {Entity.scale} ")
-        for i in range(len(Entity.children)):
-            print(f"{__file__}:: Name: {Entity.children[i].name}, position =  {Entity.children[i].position},rotation = {Entity.children[i].rotation},scale = {Entity.children[i].scale} ")
-
-
-
-    def SetUpProperty(self,Entity,val,ToSubOrAdd):
-        setattr(Entity,val,getattr(Entity,val) + ToSubOrAdd)
-
 
 
 if __name__ == "__main__":

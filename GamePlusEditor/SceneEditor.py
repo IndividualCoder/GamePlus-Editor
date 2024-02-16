@@ -4,10 +4,10 @@ from GamePlusEditor.OtherStuff import TextToVar,MultiFunctionCaller
 from GamePlusEditor.ursina.color import tint
 from GamePlusEditor.ColorMenu import ColorMenu
 from GamePlusEditor.GizmoStuff.GizmoManager import GizmoManager
-from GamePlusEditor.ursina.prefabs.text_field  import TextField
+import re
 
 class SceneEditor(Entity):
-    def __init__(self,enabled,SaveFunction,AddTerminalFunc,EditorCamera,EditorDataDict,ShowInstructionFunc,cam2 = camera,CurrentProjectName = "",**kwargs):
+    def __init__(self,enabled,SaveFunction,AddTerminalFunc,EditorCamera,EditorDataDict,ShowInstructionFunc,ParentProjectEditor,cam2 = camera,CurrentProjectName = "",**kwargs):
         super().__init__(kwargs)
 
         self.WorldItems = []
@@ -20,6 +20,7 @@ class SceneEditor(Entity):
         self.EditorDataDict = EditorDataDict
         self.ShowInstructionFunc = ShowInstructionFunc
         self.ToEditEntity = None
+        self.ParentProjectEditor = ParentProjectEditor
         self.CurrentGizmo:str = "PositionGizmo"
 
         self.GizmoManager:GizmoManager = GizmoManager()
@@ -27,7 +28,7 @@ class SceneEditor(Entity):
         self.AddObjectTextList = ["Add static object","Add dynamic object","Add FPC","Add TPC","Add abstraction"]
         self.AddObjectOnClickFuncList = [self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene,self.AddEntityInScene]
         self.BasicFunctions = ["Name: ","Parent: ","Position x: ","Position y: ","Position z: ","Rotation x: ","Rotation y: ","Rotation z: ","Scale x: ","Scale y: ","Scale z: ","Color: ","Model: ","Texture: ","Texture scale: "]
-        self.SpecialFunctions:dict = {"Color: ": lambda Obj,Parent,i: ColorMenu(Obj,(2.5,15),BGPos=(1,1),scale = (.5,.05),parent = Parent,y = -i*0.08+.36,z = -20,x = .1,radius = 1).SetUp()}
+        self.SpecialFunctions:dict = {"Color: ": lambda Obj,Parent,i: ColorMenu(Obj,(2.5,15),BGPos=(1,1,0),scale = (.5,.05),parent = Parent,y = -i*0.08+.34,z = -20,x = .13,radius = 1).SetUp()}
 
         self.SpecialExtractingMethods: dict  = {"Parent: ": (lambda Field: setattr(Field.Obj,"parent",scene),lambda Filed: ..., lambda Field: (getattr(Field.Obj.parent,"name")),"1234567890qwertyuiopasdfghklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_",True),
                                                 "Name: ": (lambda Field: setattr(Field.Obj,'name',Field.text),lambda Field: ..., lambda Field: (getattr(Field.Obj,"name")),"1234567890qwertyuiopasdfghklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_",True),
@@ -38,30 +39,69 @@ class SceneEditor(Entity):
                                                 "Position y: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"position",Vec3(Filed.Obj.position_x,eval(Filed.text),Filed.Obj.position_z)),self.GizmoManager.GoToEntity),lambda Filed: setattr(Filed,"text",str(Filed.Obj.position_y)),lambda Filed: str(getattr(Filed.Obj, "position_y")),"1234567890.-",False),
                                                 "Position z: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"position",Vec3(Filed.Obj.position_x,Filed.Obj.position_y,eval(Filed.text))),self.GizmoManager.GoToEntity),lambda Filed: setattr(Filed,"text",str(Filed.Obj.position_z)),lambda Filed: str(getattr(Filed.Obj, "position_z")),"1234567890.-",False),
 
-                                                "Rotation x: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"rotation",Vec3(eval(Filed.text),Filed.Obj.rotation_y,Filed.Obj.rotation_z))),lambda Field: setattr(Field,"text",str(Field.Obj.rotation_x)),lambda Filed: str(getattr(Filed.Obj, "rotation_x")),"1234567890.-",False),
-                                                "Rotation y: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"rotation",Vec3(Filed.Obj.rotation_x,eval(Filed.text),Filed.Obj.rotation_z))),lambda Filed: setattr(Filed,"text",str(Filed.Obj.rotation_y)),lambda Filed: str(getattr(Filed.Obj, "rotation_y")),"1234567890.-",False),
-                                                "Rotation z: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"rotation",Vec3(Filed.Obj.rotation_x,Filed.Obj.rotation_y,eval(Filed.text)))),lambda Filed: setattr(Filed,"text",str(Filed.Obj.rotation_z)),lambda Filed: str(getattr(Filed.Obj, "rotation_z")),"1234567890.-",False),
+                                                "Rotation x: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"rotation",Vec3(eval(Filed.text),Filed.Obj.rotation_y,Filed.Obj.rotation_z))),lambda Field: setattr(Field,"text",str(Field.Obj.rotation_x)),lambda Filed: str(getattr(Filed.Obj.rotation, "x")),"1234567890.-",False),
+                                                "Rotation y: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"rotation",Vec3(Filed.Obj.rotation_x,eval(Filed.text),Filed.Obj.rotation_z))),lambda Filed: setattr(Filed,"text",str(Filed.Obj.rotation_y)),lambda Filed: str(getattr(Filed.Obj.rotation, "y")),"1234567890.-",False),
+                                                "Rotation z: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"rotation",Vec3(Filed.Obj.rotation_x,Filed.Obj.rotation_y,eval(Filed.text)))),lambda Filed: setattr(Filed,"text",str(Filed.Obj.rotation_z)),lambda Filed: str(getattr(Filed.Obj.rotation, "z")),"1234567890.-",False),
 
-                                                "Scale x: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"scale",Vec3(eval(Filed.text),Filed.Obj.scale_y,Filed.Obj.scale_z))),lambda Field: setattr(Field,"text",str(Field.Obj.scale_x)),lambda Filed: str(getattr(Filed.Obj, "scale_x")),"1234567890.-",False),
-                                                "Scale y: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"scale",Vec3(Filed.Obj.scale_x,eval(Filed.text),Filed.Obj.scale_z))),lambda Filed: setattr(Filed,"text",str(Filed.Obj.scale_y)),lambda Filed: str(getattr(Filed.Obj, "scale_y")),"1234567890.-",False),
-                                                "Scale z: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"scale",Vec3(Filed.Obj.scale_x,Filed.Obj.scale_y,eval(Filed.text)))),lambda Filed: setattr(Filed,"text",str(Filed.Obj.scale_z)),lambda Filed: str(getattr(Filed.Obj, "scale_z")),"1234567890.-",False)}
+                                                "Scale x: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"scale_x",eval(Filed.text))),lambda Field: setattr(Field,"text",str(Field.Obj.scale_x)),lambda Filed: str(getattr(Filed.Obj.scale, "x")),"1234567890.-",False),
+                                                "Scale y: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"scale_y",eval(Filed.text))),lambda Filed: setattr(Filed,"text",str(Filed.Obj.scale_y)),lambda Filed: str(getattr(Filed.Obj.scale, "y")),"1234567890.-",False),
+                                                "Scale z: ": (lambda Filed: MultiFunctionCaller(Func(setattr,Filed.Obj,"scale_z",eval(Filed.text))),lambda Filed: setattr(Filed,"text",str(Filed.Obj.scale.z)),lambda Filed: str(getattr(Filed.Obj.scale, "z")),"1234567890.-",False)}
 
 
-
-        self.UniversalParentEntity = Entity(parent = cam2.ui,enabled = False)
+        self.UniversalParentEntity = Entity(parent = cam2.ui,enabled = enabled)
         self.SideBarTopParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, 0.16, 10),scale = Vec3(0.43, 0.56, 2),color = color.gray)
         self.AddObjectMenuParentEntity = Entity(parent = self.UniversalParentEntity,model = None,enabled = enabled,position = Vec3(0.38, -0.35, 2),scale = Vec3(1.69, 0.1, 1),color = color.dark_gray,origin_y = 1)
-        self.SideBarBottomParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -200),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1),collider = "mesh")
-
+        self.SideBarBottomParentEntity = Entity(parent = self.UniversalParentEntity,model = "cube",enabled = enabled,position = Vec3(-0.68, -0.31, -30),scale = Vec3(0.43, 0.38, 2),color = color.tint(color.gray,-.1),collider = "mesh")
         self.SideBarTopSlideHandler = Button(name = "hehe",parent = self.SideBarTopParentEntity,model = "cube",radius=0,visible_self = False,z = -200)
 
-        self.ScrollUpdater = self.SideBarTopSlideHandler.add_script(Scrollable(min=-.1,max = .3,scroll_speed = .01))
+        self.ScrollUpdater = self.SideBarTopSlideHandler.add_script(Scrollable(min=0,max = .3,scroll_speed = .01))
 
 
         self.WorldGrid = [Entity(parent=self, model=Grid(200,200,thickness = 2), rotation_x=90, scale=Vec3(200, 200, 200), collider=None, color=color.red),Entity(parent=self, model=Grid(100,100,thickness = 3), rotation_x=90, scale=Vec3(200, 200, 200), collider=None, color=color.black33),Entity(parent=self, model=Grid(400,400), rotation_x=90, scale=Vec3(40, 40, 40), collider=None, color=color.green)]
         self.DirectionEntity = DirectionEntity(cam2.ui,window.top_right- Vec2(.1,.038),self.EditorCamera,camera,enabled = enabled,z = -30,always_on_top = True,render_queue = 1)
 
         self.SpecialEntities = [self.DirectionEntity,self.WorldGrid[0],self.WorldGrid[1]]
+
+        # self.ConstantOneStencil = StencilAttrib.make(1, StencilAttrib.SCFAlways, StencilAttrib.SOZero, StencilAttrib.SOReplace, StencilAttrib.SOReplace, 1, 0, 1)
+        # self.StencilReader = StencilAttrib.make(1, StencilAttrib.SCFEqual, StencilAttrib.SOKeep, StencilAttrib.SOKeep, StencilAttrib.SOKeep, 1, 1, 0)
+
+        # self.cm = CardMaker("cardmaker")
+        # self.cm.setFrame(-1,-.465,-.12,.5)
+
+
+
+        # self.viewingSquare = render.attachNewNode(self.cm.generate())
+        # self.viewingSquare.reparentTo(camera.ui)
+        # self.viewingSquare.setPos(Vec3(0,0,5))
+
+        # self.viewingSquare.node().setAttrib(self.ConstantOneStencil)
+        # self.viewingSquare.node().setAttrib(ColorWriteAttrib.make(0))
+
+        # self.viewingSquare.setBin('background', 0)
+        # self.viewingSquare.setDepthWrite(0)
+
+        # self.SideBarTopSlideHandler.node().setAttrib(self.StencilReader)
+
+
+    def GetState(self):
+        '''Gives the 'state' of the scene.\nLike which gizmo is enabled (positon gizmo or rotation gizmo or the scale one) on which entity and the position and rotation of the camera'''        
+        return {"GizmoState": {"Type": self.CurrentGizmo,"Snapping": self.GizmoManager.CurrentGizmo.Snapping,"Entity": self.GizmoManager.CurrentGizmoEntity}, "CamState": {"Position": self.EditorCamera.position,"Rotation": self.EditorCamera.rotation}}
+
+    def SetState(self,State):
+        '''Sets the state of the scene and gizmos according to the given dict'''
+        self.CurrentGizmo = State["GizmoState"]["Type"]
+
+        if State["GizmoState"]["Entity"] is not None:
+            for entity in self.WorldItems:        
+                name = re.search(r"name='([^']*)'", State["GizmoState"]["Entity"]['args']).group(1)
+                if str(entity) == str(name):
+                    self.ToEditEntity = entity
+                    self.AddGizmoTo(entity)
+                    self.GizmoManager.CurrentGizmo.Snapping = State["GizmoState"]["Snapping"]
+                    self.ParentProjectEditor.OnGizmoUpdated()
+
+        self.EditorCamera.position = State["CamState"]["Position"]
+        self.EditorCamera.rotation = State["CamState"]["Rotation"]
 
 
     def UpdateScroller(self):
@@ -85,6 +125,7 @@ class SceneEditor(Entity):
         self.ShowObjectContent(self.WorldItems[-1],self.SideBarTopSlideHandler)
         self.ScrollUpdater.update_target("max",34)
         self.ToEditEntity = self.WorldItems[-1]
+        self.AddGizmoTo(self.WorldItems[-1])
 
 
     def ShowObjectContent(self,Obj,Parent: Entity):
@@ -113,7 +154,7 @@ class SceneEditor(Entity):
                         # if getattr(Obj,field.name) == field.text:
                         field.text = f"{round(getattr(field.Obj,field.name),11)}"
 
-                TempChild = InputField(submit_on=["enter","escape"],parent = Parent,y = -i*0.08+.36,z = -20,x = .1,active = False,text_scale = .75,cursor_y = .1,enter_active = True,character_limit=13,Obj = Obj)
+                TempChild = InputField(submit_on=["enter","escape"],parent = Parent,y = -i*0.08+.34,z = -20,x = .13,active = False,text_scale = .75,cursor_y = .1,enter_active = True,character_limit=13,Obj = Obj)
 
                 if self.BasicFunctions[i] in self.SpecialExtractingMethods.keys():
                     TempChild.SetNewValue = self.SpecialExtractingMethods[self.BasicFunctions[i]][0]
@@ -143,6 +184,8 @@ class SceneEditor(Entity):
                     TempChild.UpdateContent = UpdateFieldContent
                     TempChild.on_submit = Func(self.UpdateItemContent,Obj,Parent)
 
+
+
     def UpdateItemContent(self,Obj,Parent):
         for i in range((len(Parent.children))):
             try:
@@ -151,17 +194,23 @@ class SceneEditor(Entity):
 
             except Exception as e:
                 self.ShowInstructionFunc(Title = "Error",Str = f"you got {type(e).__name__} error: {e}")
-    
-    def input(self,key):
+
+    def AddGizmoTo(self,Entity):
+        self.ShowObjectContent(Entity,self.SideBarTopSlideHandler)
+        self.ToEditEntity = Entity
+        self.GizmoManager.OnDrag = self.SideBarTopParentEntity.UpdateField
+        self.GizmoManager.AddGizmo(self.ToEditEntity,self.CurrentGizmo)
+        self.ParentProjectEditor.OnGizmoUpdated()
+
+
+
+    def inputUni(self,key):
         if key == "left mouse up":
             self.SideBarTopParentEntity.UpdateIsFieldActive()
             if not self.IsEditing or self.IsFieldActive:
                 return
             if mouse.hovered_entity in self.WorldItems:
-                self.ToEditEntity = mouse.hovered_entity
-                self.ShowObjectContent(self.ToEditEntity,self.SideBarTopSlideHandler)
-                self.GizmoManager.OnDrag = self.SideBarTopParentEntity.UpdateField
-                self.GizmoManager.AddGizmo(self.ToEditEntity,self.CurrentGizmo)
+                self.AddGizmoTo(mouse.hovered_entity)
 
 
         elif key == "enter":
@@ -192,6 +241,7 @@ class SceneEditor(Entity):
                 self.CurrentGizmo =  "ScaleGizmo"
                 self.GizmoManager.OnDrag = self.SideBarTopParentEntity.UpdateField
                 self.GizmoManager.AddGizmo(self.ToEditEntity,self.CurrentGizmo)
+            self.ParentProjectEditor.OnGizmoUpdated()
 
 
         elif key == "delete up":
@@ -206,7 +256,7 @@ class SceneEditor(Entity):
                 except ValueError:
                     pass
 
-    def update(self):
+    def updateUni(self):
         if not self.IsEditing:
             return
 
@@ -257,16 +307,13 @@ class SceneEditor(Entity):
         self.IsEditing = False
 
     def EnableEverything(self,Entity):
-        # Entity.enable()
-        # for i in range(len(Entity.children)):
-        #     Entity.children[i].enable()
-        #     if len(Entity.children[i].children) > 0:
-        #         self.EnableEverything(Entity.children[i])
         self.EditorCamera.enable()
 
         self.IsEditing = True
-
+    
     def Setup(self):
+        self.UniversalParentEntity.input = self.inputUni
+        self.UniversalParentEntity.update = self.updateUni
         self.DirectionEntity.front_text.render_queue = 1
         self.DirectionEntity.back_text.render_queue = 1
         self.DirectionEntity.left_text.render_queue = 1
@@ -275,7 +322,7 @@ class SceneEditor(Entity):
         self.DirectionEntity.bottom_text.render_queue = 1
 
         self.ConfigEditorAsSettings(self.EditorDataDict)
-
+        self.GizmoManager.parent = self
         def UpdateIsFieldActive():
             InputFieldChild = []
             for child in self.SideBarTopSlideHandler.children:

@@ -1,7 +1,8 @@
 from GamePlusEditor.ursina import *
 from GamePlusEditor.StartingUI import StartingUI
 from GamePlusEditor.SceneEditor  import SceneEditor
-from GamePlusEditor.ProjectSaver import ProjectSaver
+from GamePlusEditor.ProjectSaver import ProjectSaver,SceneStateSaver
+from GamePlusEditor.ProjectLoader import SceneStateLoader
 from GamePlusEditor.OtherStuff import CurrentFolderNameReturner,RecursivePerformer
 import os
 from GamePlusEditor.OpenFile import OpenFile,SaveFile
@@ -24,9 +25,10 @@ class UrsinaEditor(Entity):
         super().__init__()
         self.CurrentSupportedEditors = ["Scene editor","Code editor","Ursa-visor editor"]
         self.AddCurrentSupportedEditors = [self.AddSceneEditor,self.AddPythonCodeEditor,self.AddUrsaVisorEditor]
-        self.ProjectEditorsList = []
+        self.ProjectEditorsList:list = []
         self.CurrentProjectEditor: ProjectEditor = None
-        self.CurrentTerminals = []
+        self.CurrentTerminals: list = []
+        self.CurrentOpenedGames: list = []
 
         self.EditorCamera = EditorCamera
         self.NonConfiableEditorDataDefault = {"CurrentProjectNames": [],"RecentEdits": []}
@@ -41,11 +43,11 @@ class UrsinaEditor(Entity):
         self.Filter = CommonFilters(base.win, base.cam)
 
         self.MemoryCounter = MemoryCounter(enabled=self.ConfiableEditorData["Show memory counter"])
-        self.StartingUi = StartingUI(EditorDataDictConfigable=  self.ConfiableEditorData,RegiveDataDictFunc = self.RetakeDataDict,RetakeDataDictFunc=self.RegiveDataDict,EditorDataDictNonConfigable = self.NonConfiableEditorData,OnProjectStart=self.StartEdit,ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,FuncToEnableOnOpen=self.EnableWorldItemsAndSetProjectName,ShowInstructionFunc = self.ShowInstruction,RemoveProjectNameFunc = self.RemoveProject,ExportToPyFunc = self.ExportProjectToPy)
+        self.StartingUi = StartingUI(EditorDataDictConfigable=  self.ConfiableEditorData,RegiveDataDictFunc = self.RetakeDataDict,RetakeDataDictFunc=self.RegiveDataDict,EditorDataDictNonConfigable = self.NonConfiableEditorData,OnProjectStart=self.StartEdit,ChangeConfigDataToDefaultTypeFunc=self.ChangeConfigDataToDefaultType,ProjectName="",SaveNonConfiableData=self.SaveData,FuncToEnableOnOpen=self.SetupSceneOfWorkedProject,ShowInstructionFunc = self.ShowInstruction,RemoveProjectNameFunc = self.RemoveProject,ExportToPyFunc = self.ExportProjectToPy)
 
 
     def StartEdit(self):
-        self.ProjectEditorsList.append(ProjectEditor(ExportToPyFunc=self.ExportProjectToPy,CurrentTabs=[],ShowInstructionFunc=self.ShowInstruction,EditorCamera=self.EditorCamera,ReadyToHostProjectFunc=self.ReadyToHostProject,HostProjectFunc=self.HostProject,enabled = True,ToAddTabsText=self.CurrentSupportedEditors,ToAddTabsFunc=self.AddCurrentSupportedEditors,PlayFunction=self.PlayProject))
+        self.ProjectEditorsList.append(ProjectEditor(ExportToPyFunc=self.ExportProjectToPy,EditorDataDict=self.ConfiableEditorData,CurrentTabs=[],ShowInstructionFunc=self.ShowInstruction,EditorCamera=self.EditorCamera,ReadyToHostProjectFunc=self.ReadyToHostProject,HostProjectFunc=self.HostProject,enabled = True,ToAddTabsText=self.CurrentSupportedEditors,ToAddTabsFunc=self.AddCurrentSupportedEditors,PlayFunction=self.PlayProject))
         self.CurrentProjectEditor: ProjectEditor = self.ProjectEditorsList[-1]
         self.CurrentProjectEditor.SetUp()
         self.CurrentProjectEditor.ProjectName = self.StartingUi.ProjectName
@@ -71,16 +73,27 @@ class UrsinaEditor(Entity):
         elif Editor.name.startswith("Ursa"):
             Editor.SetUp()
 
-    def Save(self):
-        ProjectSaver(ProjectName = self.CurrentProjectEditor.ProjectName,UdFunc = self.CurrentProjectEditor.UDFunc,UdVar=self.CurrentProjectEditor.UDVars,Udsrc=self.CurrentProjectEditor.UDSrc,WindowConfig=self.CurrentProjectEditor.UDWindowConfig,ToImport=list(self.CurrentProjectEditor.ToImport),Items = self.CurrentProjectEditor.CurrentSceneEditor.WorldItems,Path=f'{self.FolderName}/Current Games',GameSettings=self.CurrentProjectEditor.ProjectSettings)
+    def Save(self,SaveOnlyIfProjectAlreayExists = False):
+        if self.CurrentProjectEditor is None:
+            return
+        ProjectSaver(ProjectName = self.CurrentProjectEditor.ProjectName,UdFunc = self.CurrentProjectEditor.UDFunc,UdVar=self.CurrentProjectEditor.UDVars,Udsrc=self.CurrentProjectEditor.UDSrc,WindowConfig=self.CurrentProjectEditor.UDWindowConfig,ToImport=list(self.CurrentProjectEditor.ToImport),Items = self.CurrentProjectEditor.CurrentSceneEditor.WorldItems,Path=f'{self.FolderName}/Current Games',GameSettings=self.CurrentProjectEditor.ProjectSettings,SaveOnlyIfProjectAlreayExists=SaveOnlyIfProjectAlreayExists)
 
-        if not self.CurrentProjectEditor.ProjectName in self.NonConfiableEditorData["CurrentProjectNames"]:
+        SceneState = self.CurrentProjectEditor.CurrentSceneEditor.GetState()
+        SceneStateSaver(self.CurrentProjectEditor.ProjectName,f'{self.FolderName}/Current Games',SceneState)
+
+        if not self.CurrentProjectEditor.ProjectName in self.NonConfiableEditorData["CurrentProjectNames"] and not SaveOnlyIfProjectAlreayExists:
             self.NonConfiableEditorData["CurrentProjectNames"].append(self.CurrentProjectEditor.ProjectName)
             self.SaveData()
 
     def OnExit(self):
+        self.Save(True)
+        for process in self.CurrentOpenedGames:
+            if process.poll() is not None:
+                process.terminate()
+        
         if self.ConfiableEditorData["Auto save on exit"] and self.StartingUi.ProjectName:
             self.Save()
+
     def Setup(self):
         # Register the exit_handler function
         self.ConfigEditorAsSettings()
@@ -88,7 +101,7 @@ class UrsinaEditor(Entity):
         atexit.register(self.OnExit)
 
         self.StartingUi.Setup()
-        self.StartingUi.ShowRecentProjects(self.EnableWorldItemsAndSetProjectName)
+        self.StartingUi.ShowRecentProjects(self.SetupSceneOfWorkedProject)
 
     def  SaveData(self):
         # print("saveing")
@@ -152,7 +165,7 @@ class UrsinaEditor(Entity):
             TempTerminal.SetUp()
 
 
-        self.CurrentProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,SaveFunction= self.Save,AddTerminalFunc = Func(print,"hi"),ShowInstructionFunc = self.ShowInstruction,ExportToPyFunc=self.ExportProjectToPy,EditorDataDict=self.ConfiableEditorData,EditorCamera = self.EditorCamera))
+        self.CurrentProjectEditor.CurrentTabs.append(SceneEditor(enabled = True,SaveFunction = self.Save,EditorCamera = self.EditorCamera,EditorDataDict = self.ConfiableEditorData,ShowInstructionFunc=  self.ShowInstruction,AddTerminalFunc = None,ParentProjectEditor = self.CurrentProjectEditor))
         self.CurrentProjectEditor.CurrentTabs[-1].AddTerminal = Func(AddTerminal,self.CurrentProjectEditor.CurrentTabs[-1].UniversalParentEntity)
 
         self.CurrentProjectEditor.CurrentTabs[-1].name = f"Scene Editor {len([i for i in range(len(self.CurrentProjectEditor.CurrentTabs)) if type(self.CurrentProjectEditor.CurrentTabs[i]).__name__ == 'SceneEditor'])}"
@@ -169,15 +182,13 @@ class UrsinaEditor(Entity):
 
 
         else:
-            self.CurrentProjectEditor.CurrentSceneEditor:SceneEditor = self.CurrentProjectEditor.CurrentTabs[-1]
+            self.CurrentProjectEditor.CurrentSceneEditor = self.CurrentProjectEditor.CurrentTabs[-1]
             self.CurrentProjectEditor.CurrentEditor = self.CurrentProjectEditor.CurrentTabs[-1]
             self.CurrentProjectEditor.CurrentTabs[-1].enable()
             RecursivePerformer(self.CurrentProjectEditor.CurrentTabs[-1].UniversalParentEntity)
             RecursivePerformer(self.CurrentProjectEditor.CurrentTabs[-1].SpecialEntities)
             self.SetupEditor(self.CurrentProjectEditor.CurrentTabs[-1])
-
-            # destroy(self.StartingUi,delay=2)
-            # del self.StartingUi
+            self.CurrentProjectEditor.AfterSceneEditorSetUp()
 
         self.CurrentProjectEditor.UpdateTabsMenu()
 
@@ -234,10 +245,7 @@ class UrsinaEditor(Entity):
     def PlayProject(self):
         self.CurrentProjectEditor.SaveProjectButton.on_click()
         self.ExportProjectToPy(CurrentFolderNameReturner(),self.CurrentProjectEditor.ProjectName,False,Demo = True)
-        Sp = subprocess.Popen(["python", f"{CurrentFolderNameReturner()}/Exported games/{self.CurrentProjectEditor.ProjectName}/Main.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        self._output, self._err = Sp.communicate()
-        if Sp.returncode  != 0:
-            self.ShowInstruction(f"The game encounterd an error\nOutput:{self._output} \nErr: {self._err}")
+        self.CurrentOpenedGames.append(subprocess.Popen(["python", f"{CurrentFolderNameReturner()}/Exported games/{self.CurrentProjectEditor.ProjectName}/Main.py"], stdout=subprocess.PIPE, stderr=subprocess.PIPE))
 
     def ReadyToHostProject(self):
         self.Port = 48513
@@ -255,13 +263,15 @@ class UrsinaEditor(Entity):
         else:
             self.Server.listen()
 
-    def EnableWorldItemsAndSetProjectName(self,WorldItemsList,Project = ""):
-        # self.StartingUi.StartProject()
+    def SetupSceneOfWorkedProject(self,WorldItemsList,Project = ""):
         self.StartEdit()
         for item in WorldItemsList:
-            # Evaluate the class constructor as an expression and append the result to the list
             self.CurrentProjectEditor.CurrentSceneEditor.WorldItems.append(eval(item['cls'] + item['args']))
         self.SetProjectName(Project)
+        print(f"Project name: {self.CurrentProjectEditor.ProjectName}")
+        LoadedSceneState = SceneStateLoader(self.CurrentProjectEditor.ProjectName,f'{self.FolderName}/Current Games')
+        if LoadedSceneState is not False:
+            self.CurrentProjectEditor.CurrentSceneEditor.SetState(LoadedSceneState)
 
     def SetProjectName(self,Value: str):
         self.CurrentProjectEditor.ProjectName = Value
@@ -285,19 +295,18 @@ class UrsinaEditor(Entity):
         self.ConfiableEditorData = ConfigableEditorData
         self.NonConfiableEditorData = NonConfigableEditorData
 
-def BaseRunner():
-    # import site
 
-    # site_packages_path = site.getsitepackages()[0]
+def BaseRunner():
 
     app = Ursina()
+    # Texture.default_filtering = "mipmap"
+    # Texture.default_filtering = "bilinear"
     window.exit_button.disable()
     window.fps_counter.disable()
     application.development_mode = False
     window.cog_button.disable()
 
     Sky()
-
     Editor = UrsinaEditor(EditCam := EditorCamera()) # the ':=' operator is called walrus operator. google it!  
     Editor.Setup()
     app.run()
