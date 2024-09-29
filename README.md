@@ -1,8 +1,6 @@
 # GamePlus editor is a 3D gui editor for python.
 This editor gives you the freedom to make 3D python games!
 
-# Links
-- Discord: [Discord server link](https://discord.gg/bhTDwU5rKH)
 
 # How to install it?
 It is very easy to install this editor, just open cmd and type `pip install GamePlusEditor`
